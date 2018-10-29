@@ -1,27 +1,26 @@
 # Piggy
 
 Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is an entirely new way
-of generating pinvoke bindings for C# from C++ headers, based on source-to-source transformation.
-There are no magic switches, no magic type maps. You control what is output using templates with embedded
-C# code using <? and ?>. This program uses Clang and AST pattern matching expressions. Output
-is done using a few simple AST access routines exposed by the generator.
+of generating pinvoke bindings for C# from C++ headers, based on source-to-source transformations.
+There are no magic switches, no magic type maps, no magic anything. You control what is output
+using templates with embedded C# code using <? and ?> using data obtained via Clang AST matchers.
 
-This code would not be possible if not for others who have each worked on a small part of the problem:
+This code would not be possible if not for others who have each worked on a small part of the problem.
+So, I'd like to acknowledge the following:
+* [SWIG](http://swig.org/), the original pinvoke generator.
 * [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
- and [CppSharp](https://github.com/mono/CppSharp),
- which demonstranted Clang's AST visitors.
+ and [CppSharp](https://github.com/mono/CppSharp), which use Clang AST visitors.
 * Example code to compile and run C# source on on the fly by
  [Lumír Kojecký](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
  in [CodeProject](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
-* Clang-query, which is a driver program accessing the basic libclang features.
+* Clang/Clang-query, which is the main code behind Piggy.
 
-Piggy statically
-links to a standard fully-built version of llvm with clang and clang extras
+Piggy links to a standard fully-built version of llvm with clang and clang extras
 (see below for details).
 
 This tool does not read DLLs for P/Invoke generation, only the headers.
 
-Piggy differs from ClangSharp and CppSharp in the following ways:
+Piggy differs from SWIG, ClangSharp, CppSharp, and others, in the following ways:
 
 * Input into Piggy is a specification file that tells the generator what
 C/C++ header files to read, what compiler options are used in Clang, type maps
