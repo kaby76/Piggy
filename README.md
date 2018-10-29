@@ -1,22 +1,23 @@
 # Piggy
 
-Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This generator is an entirely new way
-of generating P/Invoke bindings for C# from C++ headers.
-It uses Clang and output templates with embedded C# code
-to specify what is the output of the generator.
+Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is an entirely new way
+of generating pinvoke bindings for C# from C++ headers, based on source-to-source transformation.
+There are no magic switches, no magic type maps. You control what is output using templates with embedded
+C# code using <? and ?>. This program uses Clang and AST pattern matching expressions. Output
+is done using a few simple AST access routines exposed by the generator.
 
-This code would not be possible if I could not read
-the code of [ClangSharp](https://github.com/Microsoft/ClangSharp)
-[(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
-[CppSharp](https://github.com/mono/CppSharp), and example code
-to compile and run C# source on on the fly by [Lumír Kojecký](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
-in [CodeProject](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
+This code would not be possible if not for others who have each worked on a small part of the problem:
+* [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
+ and [CppSharp](https://github.com/mono/CppSharp),
+ which demonstranted Clang's AST visitors.
+* Example code to compile and run C# source on on the fly by
+ [LumÃ­r KojeckÃ½](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
+ in [CodeProject](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
+* Clang-query, which is a driver program accessing the basic libclang features.
 
-This code does not use AST Visitors, nor does it use the Clang-c interface. It uses
-libclang's AST matchers. It statically
+Piggy statically
 links to a standard fully-built version of llvm with clang and clang extras
-(see below for details). This generator uses libclang directly,
-and Roslyn, the Microsoft C# compiler.
+(see below for details).
 
 This tool does not read DLLs for P/Invoke generation, only the headers.
 
