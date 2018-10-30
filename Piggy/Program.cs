@@ -1,7 +1,8 @@
-using System.Runtime.InteropServices;
 
 namespace Piggy
 {
+    using System.IO;
+    using System.Runtime.InteropServices;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -31,7 +32,7 @@ namespace Piggy
         public List<string> compiler_options = new List<string>();
         public bool ast = false;
 
-        [DllImport("ClangCode", EntryPoint = "SearchSetPattern", CallingConvention = CallingConvention.StdCall)]
+        [System.Runtime.InteropServices.DllImport("ClangCode", EntryPoint = "SearchSetPattern", CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
         private static extern void SearchSetPattern([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @pattern);
 
         [DllImport("ClangCode", EntryPoint = "SearchAddCompilerOption", CallingConvention = CallingConvention.StdCall)]
@@ -46,14 +47,21 @@ namespace Piggy
         [DllImport("ClangCode", EntryPoint = "xxx", CallingConvention = CallingConvention.StdCall)]
         private static extern int xxx();
 
+        [DllImport("ClangCode", EntryPoint = "Name", CallingConvention = CallingConvention.StdCall)]
+        private static unsafe extern IntPtr Name(void* pp);
+
         public static void Main(string[] args)
         {
             var p = new Program();
             p.Doit(args);
         }
 
-        public void Doit(string[] args)
+        public unsafe void Doit(string[] args)
         {
+
+            string full_path = Path.GetDirectoryName(Path.GetFullPath(typeof(Program).Assembly.Location))
+                               + Path.DirectorySeparatorChar;
+
             Regex re = new Regex(@"(?<switch>-{1,2}\S*)(?:[=:]?|\s+)(?<value>[^-\s].*?)?(?=\s+[-]|$)");
             List<KeyValuePair<string, string>> matches = (from match in re.Matches(string.Join(" ", args)).Cast<Match>()
                                                           select new KeyValuePair<string, string>(match.Groups["switch"].Value, match.Groups["value"].Value))
@@ -95,25 +103,13 @@ namespace Piggy
 
             var errorList = new List<string>();
             if (!files.Any())
-            {
                 errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
-            }
-
             if (string.IsNullOrWhiteSpace(@namespace))
-            {
                 errorList.Add("Error: No namespace provided. Use --namespace or --n");
-            }
-
             if (string.IsNullOrWhiteSpace(outputFile))
-            {
                 errorList.Add("Error: No output file location provided. Use --output or --o");
-            }
-
             if (string.IsNullOrWhiteSpace(libraryPath))
-            {
                 errorList.Add("Error: No library path location provided. Use --libraryPath or --l");
-            }
-
             if (errorList.Any())
             {
                 Console.WriteLine("Usage: Piggy --specification [fileLocation] --output [output.cs] --ast");
@@ -123,39 +119,35 @@ namespace Piggy
                     Console.WriteLine(error);
                 }
             }
-
             if (excludeFunctions.Any())
-            {
                 excludeFunctionsArray = excludeFunctions.ToArray();
-            }
-
-
             foreach (var file in files)
-            {
                 SearchAddFile(file);
-            }
             foreach (var opt in compiler_options)
-            {
                 SearchAddCompilerOption(opt);
-            }
-
             SearchSetPattern("enumDecl()");
-            unsafe
-            {
-                void ** v = Search();
-            }
+
+            void ** v = Search();
 
             string code = @"
                 using System;
+                using System.IO;
+                using System.Runtime.InteropServices;
                 namespace First
                 {
                     public class Program
                     {
-                        [DllImport(""ClangCode"", EntryPoint = ""xxx"", CallingConvention = CallingConvention.StdCall)]
-                        private static extern int xxx();
+                        [System.Runtime.InteropServices.DllImport(""" + full_path.Replace("\\", "\\\\") + @"ClangCode.dll"", EntryPoint = ""Name"", CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
+                        private static unsafe extern IntPtr Name(void* pp);
 
-                        public static void Main()
+                        public static unsafe void Main(IntPtr p)
                         {
+                            for (void ** q = (void**)p; *q != null; ++q)
+                            {
+                                IntPtr pc = Name(*q);
+                                string c = Marshal.PtrToStringAnsi(pc);
+                                System.Console.WriteLine(c);
+                            }
                         }
                     }
                 }
@@ -167,7 +159,8 @@ namespace Piggy
             // True - memory generation, false - external file generation
             parameters.GenerateInMemory = true;
             // True - exe file generation, false - dll file generation
-            parameters.GenerateExecutable = true;
+            parameters.GenerateExecutable = false;
+            parameters.CompilerOptions = "/unsafe";
             CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
             if (results.Errors.HasErrors)
             {
@@ -176,12 +169,15 @@ namespace Piggy
                 {
                     sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
                 }
+                System.Console.WriteLine(sb.ToString());
                 throw new InvalidOperationException(sb.ToString());
             }
             Assembly assembly = results.CompiledAssembly;
             Type program = assembly.GetType("First.Program");
             MethodInfo main = program.GetMethod("Main");
-            main.Invoke(null, null);
+            object[] a = new object[1];
+            a[0] = (IntPtr) v;
+            main.Invoke(null, a);
         }
     }
 }
