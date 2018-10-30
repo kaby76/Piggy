@@ -19,9 +19,9 @@ This code is very loosely derived from the following:
 Piggy differs from SWIG, ClangSharp, CppSharp, and others, in the following ways:
 
 * Input into Piggy is a specification file that tells the generator what
-C/C++ header files to read, what compiler options are used in Clang, type maps
-to resolve problems with function parameters that use pointers, and calling
-conventions.
+C/C++ header files to read, what compiler options are used in Clang,
+(AST matchers, template) pairs that describe what to look for in the AST,
+and how to print the value out.
 
 Piggy links to a standard fully-built version of llvm with clang and clang extras
 (see below for details).
