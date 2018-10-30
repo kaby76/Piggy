@@ -5,9 +5,9 @@ of generating pinvoke bindings for C# from C++ headers, based on source-to-sourc
 There are no magic switches and no magic type maps. You control what is output
 using templates with embedded C# code using <? and ?> using data obtained via
 [Clang AST matchers](http://clang.llvm.org/docs/LibASTMatchersReference.html).
+This tool does not read DLLs for P/Invoke generation, only the headers.
 
-This code would not be possible if not for others who have each worked on a small part of the problem.
-So, I'd like to acknowledge the following:
+This code is very loosely derived from the following:
 * [SWIG](http://swig.org/), the original pinvoke generator.
 * [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
  and [CppSharp](https://github.com/mono/CppSharp), which use Clang AST visitors.
@@ -16,17 +16,15 @@ So, I'd like to acknowledge the following:
  in [CodeProject](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
 * Clang/Clang-query, which is the main code behind Piggy.
 
-Piggy links to a standard fully-built version of llvm with clang and clang extras
-(see below for details).
-
-This tool does not read DLLs for P/Invoke generation, only the headers.
-
 Piggy differs from SWIG, ClangSharp, CppSharp, and others, in the following ways:
 
 * Input into Piggy is a specification file that tells the generator what
 C/C++ header files to read, what compiler options are used in Clang, type maps
 to resolve problems with function parameters that use pointers, and calling
 conventions.
+
+Piggy links to a standard fully-built version of llvm with clang and clang extras
+(see below for details).
 
 ## Piggy Specification File
 
