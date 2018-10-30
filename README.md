@@ -1,7 +1,7 @@
 # Piggy
 
 Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is an entirely new way
-of generating pinvoke bindings for C# from C++ headers, based on source-to-source transformations.
+of generating pinvoke bindings for C# from C++ headers, based on declarative rules on ASTs.
 There are no magic switches and no magic type maps. You control what is output
 using templates with embedded C# code using <? and ?> using data obtained via
 [Clang AST matchers](http://clang.llvm.org/docs/LibASTMatchersReference.html).
