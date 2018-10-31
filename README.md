@@ -27,10 +27,8 @@ and how to print the value out. I am a strong believer of command-line programs.
 A specification file states the requirements for doing the transformation
 so you don't have to guess how it was done for generating an API like
 Swigged.CUDA.
-* Piggy uses full Clang ASTs. The Clang-C interface for [visiting an AST
-through Cursors](https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__TRAVERSAL.html)
-does not visit all nodes in the entire tree. It seems to skip almost all the nodes!
-Instead, Piggy uses a tree walker modified from [ASTDumper.cpp](https://clang.llvm.org/doxygen/ASTDumper_8cpp_source.html).
+* Piggy uses Clang ASTs through the Clang-C interface ([visiting an AST
+through Cursors](https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__TRAVERSAL.html)).
 * An ordered list of tree regular expressions identify a collection of nodes
 that subsequently are used in templates.
 * Piggy links to a private, fully-built version of llvm with clang and clang extras.
