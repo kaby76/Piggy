@@ -107,6 +107,8 @@ extern "C" {
 		search->include_files.insert(search->include_files.end(), a);
 	}
 
+	extern   void RunTheDamnThing(clang::ASTContext &Context);
+
 	EXPORT clang::ast_type_traits::DynTypedNode** Search()
 	{
 		int count = 3 + search->compiler_option.size() + search->include_files.size();
@@ -132,6 +134,11 @@ extern "C" {
 		if (search->tool->buildASTs(search->ASTs) != 0)
 			return nullptr;
 
+		// Let's try tree walking.
+		search->cur_ast = search->ASTs.begin();
+		std::unique_ptr<clang::ASTUnit>::pointer aa = search->cur_ast->get();
+		RunTheDamnThing(aa->getASTContext());
+
 		// Get Matcher.
 		search->Matcher
 			= clang::ast_matchers::dynamic::Parser::parseMatcherExpression(
@@ -144,8 +151,6 @@ extern "C" {
 		clang::ast_matchers::internal::DynTypedMatcher MaybeBoundMatcher = *M;
 		search->Finder.addDynamicMatcher(MaybeBoundMatcher, search->Collect);
 
-		search->cur_ast = search->ASTs.begin();
-		std::unique_ptr<clang::ASTUnit>::pointer aa = search->cur_ast->get();
 		search->Finder.matchAST(aa->getASTContext());
 		int c = search->Matches.size();
 		clang::ast_type_traits::DynTypedNode** result = (clang::ast_type_traits::DynTypedNode**)malloc((c + 1) * sizeof(clang::ast_type_traits::DynTypedNode*));
@@ -214,6 +219,33 @@ extern "C" {
 		return nullptr;
 	}
 
+	EXPORT void DumpyAST()
+	{
+		int count = 3 + search->compiler_option.size() + search->include_files.size();
+		int argc = count - 1;
+		char **argv = (char **)malloc(count * sizeof(char*));
+		char ** p = argv;
+		*p++ = (char*)"program";
+		for (auto i = search->compiler_option.begin(); i != search->compiler_option.end(); ++i)
+		{
+			std::string s = std::string("-extra-arg-before=") + *i;
+			*p++ = (char*)_strdup(s.c_str());
+		}
+		for (auto i = search->include_files.begin(); i != search->include_files.end(); ++i)
+		{
+			*p++ = *i;
+		}
+		*p++ = (char*)"--";
+		*p++ = 0;
+
+		search->options_parser = new clang::tooling::CommonOptionsParser(argc, (const char **)argv, ClangQueryCategory);
+		search->tool = new clang::tooling::ClangTool(search->options_parser->getCompilations(),
+			search->options_parser->getSourcePathList());
+		if (search->tool->buildASTs(search->ASTs) != 0)
+			return;
+
+
+	}
 
 #ifdef __cplusplus
 }

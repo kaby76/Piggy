@@ -24,3 +24,14 @@ exclude clang_parseTranslationUnit2;
 exclude clang_parseTranslationUnit2FullArgv;
 exclude clang_executeOnThread;
 exclude clang_index_setClientEntity;
+
+
+enumDecl() =>
+{
+	public enum <? $root.Name ?> : <? $root.BaseType.Name ?> {
+		<?
+			var list = $root.Children.Zip($root.Children, (x, y) => x.Name + "=" + y.Value);
+			System.Console.WriteLine(String.Join(",", list));
+		?>
+	}
+}
