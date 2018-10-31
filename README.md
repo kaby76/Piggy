@@ -33,9 +33,9 @@ does not visit all nodes in the entire tree. It seems to skip almost all the nod
 Instead, Piggy uses a tree walker modified from [ASTDumper.cpp](https://clang.llvm.org/doxygen/ASTDumper_8cpp_source.html).
 * An ordered list of tree regular expressions identify a collection of nodes
 that subsequently are used in templates.
-
-Piggy links to a standard fully-built version of llvm with clang and clang extras
-(see below for details).
+* Piggy links to a private, fully-built version of llvm with clang and clang extras.
+The user should not be required to install the pre-build LLVM executables (and there
+are several critical things missing in the executables).
 
 ## Piggy Specification File
 
