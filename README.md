@@ -4,10 +4,11 @@ Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is an entirely 
 of generating pinvoke bindings for C# from C++ headers, based on declarative rules on ASTs.
 There are no magic switches and no magic type maps. You control what is output
 using templates with embedded C# code using <? and ?> using data obtained via
-[Clang AST matchers](http://clang.llvm.org/docs/LibASTMatchersReference.html).
+abstract syntax tree (AST) regular expressions.
 This tool does not read DLLs for P/Invoke generation, only the headers.
 
-This code is very loosely derived from the following:
+Acknowledgements to the following code bases, which I read, and developed my ideas
+for Piggy:
 * [SWIG](http://swig.org/), the original pinvoke generator.
 * [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
  and [CppSharp](https://github.com/mono/CppSharp), which use Clang AST visitors.
@@ -15,13 +16,23 @@ This code is very loosely derived from the following:
  [Lumír Kojecký](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
  in [CodeProject](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
 * Clang/Clang-query, which is the main code behind Piggy.
+* [Jared Parsons' PInvoke Interop Assistant](https://github.com/jaredpar/pinvoke).
 
-Piggy differs from SWIG, ClangSharp, CppSharp, and others, in the following ways:
+Piggy differs from these projects in a number of ways:
 
 * Input into Piggy is a specification file that tells the generator what
 C/C++ header files to read, what compiler options are used in Clang,
 (AST matchers, template) pairs that describe what to look for in the AST,
-and how to print the value out.
+and how to print the value out. I am a strong believer of command-line programs.
+A specification file states the requirements for doing the transformation
+so you don't have to guess how it was done for generating an API like
+Swigged.CUDA.
+* Piggy uses full Clang ASTs. The Clang-C interface for [visiting an AST
+through Cursors](https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__TRAVERSAL.html)
+does not visit all nodes in the entire tree. It seems to skip almost all the nodes!
+Instead, Piggy uses a tree walker modified from [ASTDumper.cpp](https://clang.llvm.org/doxygen/ASTDumper_8cpp_source.html).
+* An ordered list of tree regular expressions identify a collection of nodes
+that subsequently are used in templates.
 
 Piggy links to a standard fully-built version of llvm with clang and clang extras
 (see below for details).
