@@ -1,10 +1,10 @@
 # Piggy
 
 Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is an entirely new way
-of generating pinvoke bindings for C# from C++ headers, based on declarative rules on ASTs.
-There are no magic switches and no magic type maps. You control what is output
-using templates with embedded C# code using <? and ?> using data obtained via
-abstract syntax tree (AST) regular expressions.
+of generating pinvoke bindings for C# from C++ headers. Unlike other pinvoke generators,
+this tool contains no magic. You control what is output
+using templates with embedded C# code using <? and ?> over data collected via
+Clang abstract syntax tree (AST) and regular expressions and output templates.
 This tool does not read DLLs for P/Invoke generation, only the headers.
 
 Acknowledgements to the following code bases, which I read, and developed my ideas
