@@ -1,6 +1,6 @@
 # Piggy
 
-Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program, free and open source software,
+Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This free and open source software
 is a new way
 of generating pinvoke bindings for C# from C++ headers, using tree regular expressions
 and code templates. Input header files are parsed
