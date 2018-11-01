@@ -224,7 +224,9 @@ namespace {
 		void VisitDependentSizedExtVectorType(
 			const DependentSizedExtVectorType *T) {
 			OS << " ";
+			OS << " SrcLoc=\"";
 			dumpLocation(T->getAttributeLoc());
+			OS << "\"";
 			dumpTypeAsChild(T->getElementType());
 			dumpStmt(T->getSizeExpr());
 		}
@@ -519,7 +521,7 @@ namespace {
 //===----------------------------------------------------------------------===//
 
 void MyASTDumper::dumpPointer(const void *Ptr) {
-	OS << ' ' << Ptr;
+	OS << ' ' << "Pointer=\"" << Ptr << "\"";
 }
 
 void MyASTDumper::dumpLocation(SourceLocation Loc) {
@@ -558,13 +560,13 @@ void MyASTDumper::dumpSourceRange(SourceRange R) {
 	if (!SM)
 		return;
 
-	OS << " <";
+	OS << " SrcRange=\"";
 	dumpLocation(R.getBegin());
 	if (R.getBegin() != R.getEnd()) {
 		OS << ", ";
 		dumpLocation(R.getEnd());
 	}
-	OS << ">";
+	OS << "\"";
 
 	// <t2.c:123:421[blah], t2.c:412:321>
 
@@ -679,7 +681,7 @@ void MyASTDumper::dumpDeclRef(const Decl *D, const char *Label) {
 
 void MyASTDumper::dumpName(const NamedDecl *ND) {
 	if (ND->getDeclName()) {
-		OS << ' ' << ND->getNameAsString();
+		OS << ' ' << "Name=\"" << ND->getNameAsString() << "\"";
 	}
 }
 
@@ -972,7 +974,9 @@ void MyASTDumper::dumpDecl(const Decl *D) {
 		dumpPreviousDecl(OS, D);
 		dumpSourceRange(D->getSourceRange());
 		OS << ' ';
+		OS << " SrcLoc=\"";
 		dumpLocation(D->getLocation());
+		OS << "\"";
 		if (D->isFromASTFile())
 			OS << " imported";
 		if (Module *M = D->getOwningModule())
@@ -1029,9 +1033,9 @@ void MyASTDumper::VisitTypedefDecl(const TypedefDecl *D) {
 void MyASTDumper::VisitEnumDecl(const EnumDecl *D) {
 	if (D->isScoped()) {
 		if (D->isScopedUsingClassTag())
-			OS << " class";
+			OS << "Scope=\"class\"";
 		else
-			OS << " struct";
+			OS << "Scope=\"struct\"";
 	}
 	dumpName(D);
 	if (D->isModulePrivate())
