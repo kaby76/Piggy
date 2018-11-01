@@ -8,7 +8,7 @@ using templates with embedded C# code using <? and ?> over data collected via
 tree regular expressions and code templates.
 This tool does not read DLLs for P/Invoke generation, only the headers.
 
-Acknowledgements to the following code bases, which I read, and developed my ideas
+Acknowledgements to the following code bases, from which I developed my ideas
 for Piggy:
 * [SWIG](http://swig.org/), the original pinvoke generator.
 * [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
