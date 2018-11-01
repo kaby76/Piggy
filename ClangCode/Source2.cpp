@@ -50,6 +50,7 @@ namespace {
 
 		/// Prefix for currently-being-dumped entity.
 		std::string Prefix;
+		int changed = 0;
 
 		/// Keep track of the last location we print out so that we can
 		/// print out deltas from then on out.
@@ -78,22 +79,21 @@ namespace {
 
 			const FullComment *OrigFC = FC;
 			auto dumpWithIndent = [this, doDumpChild, OrigFC](bool isLastChild) {
-				// Print out the appropriate tree structure and work out the prefix for
-				// children of this node. For instance:
-				//
-				//   A        Prefix = ""
-				//   |-B      Prefix = "| "
-				//   | `-C    Prefix = "|   "
-				//   `-D      Prefix = "  "
-				//     |-E    Prefix = "  | "
-				//     `-F    Prefix = "    "
-				//   G        Prefix = ""
-				//
-				// Note that the first level gets no prefix.
 				{
 					OS << '\n';
-					OS << Prefix << (isLastChild ? '`' : '|') << '-';
-					this->Prefix.push_back(isLastChild ? ' ' : '|');
+					// Add in closing parentheses.
+					if (this->changed > 0)
+					{
+						OS << Prefix << "  ";
+						for (int i = 0; i < this->changed-1; ++i)
+							OS << ") ";
+						OS << ")";
+						this->changed = 0;
+						OS << '\n';
+					}
+					OS << Prefix << "  ";
+					OS << "( ";
+					this->Prefix.push_back(' ');
 					this->Prefix.push_back(' ');
 				}
 
@@ -112,6 +112,7 @@ namespace {
 
 				// Restore the old prefix.
 				this->Prefix.resize(Prefix.size() - 2);
+				this->changed += 1;
 			};
 
 			if (FirstChild) {
@@ -138,6 +139,8 @@ namespace {
 
 		void setDeserialize(bool D) { Deserialize = D; }
 
+		void start();
+		void complete();
 		void dumpDecl(const Decl *D);
 		void dumpStmt(const Stmt *S);
 		void dumpFullComment(const FullComment *C);
@@ -934,6 +937,24 @@ void MyASTDumper::dumpObjCTypeParamList(const ObjCTypeParamList *typeParams) {
 //===----------------------------------------------------------------------===//
 //  Decl dumping methods.
 //===----------------------------------------------------------------------===//
+void MyASTDumper::start()
+{
+	OS << "( ";
+}
+
+void MyASTDumper::complete()
+{
+	OS << '\n';
+	// Add in closing parentheses.
+	if (this->changed > 0)
+	{
+		for (int i = 0; i < this->changed; ++i)
+			OS << ") ";
+		OS << ")";
+		this->changed = 0;
+		OS << '\n';
+	}
+}
 
 void MyASTDumper::dumpDecl(const Decl *D) {
 	dumpChild([=] {
@@ -2492,8 +2513,22 @@ void MyASTDumper::dumpComment(const Comment *C) {
 	});
 }
 
+std::string provide_escapes(std::string s)
+{
+	std::string new_s = "";
+	for (auto i = s.begin(); i != s.end(); ++i)
+	{
+		if (*i == '"' || *i == '\\')
+		{
+			new_s.push_back('\\');
+		}
+		new_s.push_back(*i);
+	}
+	return new_s;
+}
+
 void MyASTDumper::visitTextComment(const TextComment *C) {
-	OS << " Text=\"" << C->getText() << "\"";
+	OS << " Text=\"" << provide_escapes(C->getText()) << "\"";
 }
 
 void MyASTDumper::visitInlineCommandComment(const InlineCommandComment *C) {
@@ -2719,7 +2754,9 @@ void RunTheDamnThing(clang::ASTContext &Ctx)
 	const SourceManager &SM = Ctx.getSourceManager();
 	MyASTDumper P(llvm::outs(), &Ctx.getCommentCommandTraits(), &SM);
 	TranslationUnitDecl* tu = Ctx.getTranslationUnitDecl();
+	P.start();
 	P.dumpDecl(tu);
+	P.complete();
 	llvm::outs().flush();
 }
 
