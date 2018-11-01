@@ -1,6 +1,7 @@
 # Piggy
 
-Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is a new way
+Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program, free and open source software,
+is a new way
 of generating pinvoke bindings for C# from C++ headers, using tree regular expressions
 and code templates. Input header files are parsed
 by Clang to get an [abstract syntax tree (AST)](http://clang.llvm.org/docs/IntroductionToTheClangAST.html).
@@ -18,6 +19,7 @@ Piggy extends the ideas of other pinvoke generators:
 which was used as a starting point for serializing an AST (the XML serializer no longer exists).
 * [Jared Parsons' PInvoke Interop Assistant](https://github.com/jaredpar/pinvoke),
 which is another open-source pinvoke generator.
+* [xInterop C++.Net Bridge, by Shawn Liu](https://www.xinterop.com/). Commercial product, no longer available.
 
 Piggy differs from these projects in a number of ways:
 
