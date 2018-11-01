@@ -1,23 +1,23 @@
 # Piggy
 
-Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is an entirely new way
-of generating pinvoke bindings for C# from C++ headers. Unlike other pinvoke generators,
-this tool contains no magic. You control what is output
-using templates with embedded C# code using <? and ?> over data collected via
-[Clang abstract syntax tree (AST)](http://clang.llvm.org/docs/IntroductionToTheClangAST.html) and
-tree regular expressions and code templates.
+Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This program is a new way
+of generating pinvoke bindings for C# from C++ headers, using tree regular expressions
+and code templates. Input header files are parsed
+by Clang to get an [abstract syntax tree (AST)](http://clang.llvm.org/docs/IntroductionToTheClangAST.html).
+Output templates contain tree regular expressions, inlined code, and embedded C# code
+using <? and ?> for further processing of the tree data for output.
 This tool does not read DLLs for P/Invoke generation, only the headers.
 
-Acknowledgements to the following code bases, from which I developed my ideas
-for Piggy:
-* [SWIG](http://swig.org/), the original pinvoke generator.
+Piggy extends the ideas of other pinvoke generators:
+* [SWIG](http://swig.org/), the original pinvoke generator, which uses a specification file containing type maps.
 * [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
- and [CppSharp](https://github.com/mono/CppSharp), which use Clang AST visitors.
-* Example code to compile and run C# source on on the fly by
- [Lumír Kojecký](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
- in [CodeProject](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
-* Clang/Clang-query, which is the main code behind Piggy.
-* [Jared Parsons' PInvoke Interop Assistant](https://github.com/jaredpar/pinvoke).
+ and [CppSharp](https://github.com/mono/CppSharp), which use Clang AST visitors of the Clang-C API.
+* [Lumír Kojecký's](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
+ [CodeProject article for dynamically compiling and executing C# code in the Net Framework](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
+* [Clang-query](https://github.com/llvm-mirror/clang-tools-extra/tree/master/clang-query),
+which was used as a starting point for serializing an AST (the XML serializer no longer exists).
+* [Jared Parsons' PInvoke Interop Assistant](https://github.com/jaredpar/pinvoke),
+which is another open-source pinvoke generator.
 
 Piggy differs from these projects in a number of ways:
 
@@ -28,10 +28,10 @@ and how to print the value out. I am a strong believer of command-line programs.
 A specification file states the requirements for doing the transformation
 so you don't have to guess how it was done for generating an API like
 Swigged.CUDA.
-* Piggy uses Clang ASTs through the Clang-C interface ([visiting an AST
-through Cursors](https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__TRAVERSAL.html)).
-* An ordered list of tree regular expressions identify a collection of nodes
-that subsequently are used in templates.
+* Piggy uses Clang ASTs, in libclang, and serializes the tree from code derived
+from [ASTDumper.cpp](https://github.com/llvm-mirror/clang/blob/master/lib/AST/ASTDumper.cpp).
+It does not use the [Clang-C Visitor API](https://clang.llvm.org/doxygen/group__CINDEX__CURSOR__TRAVERSAL.html)).
+* A template defines how to process the AST using tree matching, output strings, and embedded C# code.
 * Piggy links to a private, fully-built version of llvm with clang and clang extras.
 The user should not be required to install the pre-build LLVM executables (and there
 are several critical things missing in the executables).
