@@ -15,6 +15,9 @@
 #include "clang/Basic/Module.h"
 #include "clang/Basic/SourceManager.h"
 #include "llvm/Support/raw_ostream.h"
+#include <experimental/filesystem>
+#include <string.h>
+
 using namespace clang;
 using namespace clang::comments;
 
@@ -539,10 +542,13 @@ void MyASTDumper::dumpLocation(SourceLocation Loc) {
 		return;
 	}
 
-	if (strcmp(PLoc.getFilename(), LastLocFilename) != 0) {
-		OS << PLoc.getFilename() << ':' << PLoc.getLine()
+	// Get normalized file name with path.
+	std::string fn = PLoc.getFilename();
+	std::experimental::filesystem::path p(fn);
+	if (strcmp(p.string().c_str(), LastLocFilename) != 0) {
+		OS << p.string().c_str() << ':' << PLoc.getLine()
 			<< ':' << PLoc.getColumn();
-		LastLocFilename = PLoc.getFilename();
+		LastLocFilename = _strdup(p.string().c_str());
 		LastLocLine = PLoc.getLine();
 	}
 	else if (PLoc.getLine() != LastLocLine) {
@@ -575,19 +581,21 @@ void MyASTDumper::dumpSourceRange(SourceRange R) {
 void MyASTDumper::dumpBareType(QualType T, bool Desugar) {
 
 	SplitQualType T_split = T.split();
-	OS << "'" << QualType::getAsString(T_split, PrintPolicy) << "'";
+	OS << QualType::getAsString(T_split, PrintPolicy);
 
 	if (Desugar && !T.isNull()) {
 		// If the type is sugared, also dump a (shallow) desugared type.
 		SplitQualType D_split = T.getSplitDesugaredType();
 		if (T_split != D_split)
-			OS << ":'" << QualType::getAsString(D_split, PrintPolicy) << "'";
+			OS << ":" << QualType::getAsString(D_split, PrintPolicy);
 	}
 }
 
 void MyASTDumper::dumpType(QualType T) {
 	OS << ' ';
+	OS << "Type=\"";
 	dumpBareType(T);
+	OS << "\"";
 }
 
 void MyASTDumper::dumpTypeAsChild(QualType T) {
@@ -599,7 +607,9 @@ void MyASTDumper::dumpTypeAsChild(QualType T) {
 		OS << "QualType";
 		dumpPointer(T.getAsOpaquePtr());
 		OS << " ";
+		OS << "BareType=\"";
 		dumpBareType(T, false);
+		OS << "\"";
 		OS << " " << T.split().Quals.getAsString();
 		dumpTypeAsChild(T.split().Ty);
 	});
@@ -625,7 +635,9 @@ void MyASTDumper::dumpTypeAsChild(const Type *T) {
 		}
 		dumpPointer(T);
 		OS << " ";
+		OS << "BareType=\"";
 		dumpBareType(QualType(T, 0), false);
+		OS << "\"";
 
 		QualType SingleStepDesugar =
 			T->getLocallyUnqualifiedSingleStepDesugaredType();
