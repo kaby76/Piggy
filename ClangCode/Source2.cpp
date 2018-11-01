@@ -2834,7 +2834,6 @@ void RunTheDamnThing(clang::ASTContext &Ctx)
 	TranslationUnitDecl* tu = Ctx.getTranslationUnitDecl();
 	P.dumpDecl(tu);
 	llvm::outs().flush();
-	//	P.visit
 }
 
 #ifdef __cplusplus
