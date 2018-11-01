@@ -5,7 +5,7 @@ of generating pinvoke bindings for C# from C++ headers, using tree regular expre
 and code templates. Input header files are parsed
 by Clang to get an [abstract syntax tree (AST)](http://clang.llvm.org/docs/IntroductionToTheClangAST.html).
 Output templates contain tree regular expressions, inlined code, and embedded C# code
-using <? and ?> for further processing of the tree data for output.
+(containing "<?: and "?>") for further processing of the tree data for output.
 This tool does not read DLLs for P/Invoke generation, only the headers.
 
 Piggy extends the ideas of other pinvoke generators:
