@@ -789,10 +789,13 @@ void MyASTDumper::dumpAttr(const Attr *A) {
 		}
 		dumpPointer(A);
 		dumpSourceRange(A->getRange());
+		int attrs = 0;
 		if (A->isInherited())
-			OS << " Inherited";
+			OS << (attrs++ ? "Attrs=\"" : ",") << "Inherited";
 		if (A->isImplicit())
-			OS << " Implicit";
+			OS << (attrs++ ? "Attrs=\"" : ",") << "Implicit";
+		if (attrs)
+			OS << "\"";
 #include "clang/AST/AttrDump.inc"
 	});
 }
@@ -997,21 +1000,24 @@ void MyASTDumper::dumpDecl(const Decl *D) {
 			for (Module *M : D->getASTContext().getModulesWithMergedDefinition(
 				const_cast<NamedDecl *>(ND)))
 				dumpChild([=] { OS << "also in " << M->getFullModuleName(); });
+
+		int attrs = 0;
 		if (const NamedDecl *ND = dyn_cast<NamedDecl>(D))
 			if (ND->isHidden())
-				OS << " hidden";
+				OS << (attrs++ ? "," : " Attrs=\"") << "hidden";
 		if (D->isImplicit())
-			OS << " implicit";
+			OS << (attrs++ ? "," : " Attrs=\"") << "implicit";
 		if (D->isUsed())
-			OS << " used";
+			OS << (attrs++ ? "," : " Attrs=\"") << "used";
 		else if (D->isThisDeclarationReferenced())
-			OS << " referenced";
+			OS << (attrs++ ? "," : " Attrs=\"") << "referenced";
 		if (D->isInvalidDecl())
-			OS << " invalid";
+			OS << (attrs++ ? "," : " Attrs=\"") << "invalid";
 		if (const FunctionDecl *FD = dyn_cast<FunctionDecl>(D))
 			if (FD->isConstexpr())
-				OS << " constexpr";
-
+				OS << (attrs++ ? "," : " Attrs=\"") << "constexpr";
+		if (attrs)
+			OS << "\"";
 
 		ConstDeclVisitor<MyASTDumper>::Visit(D);
 
