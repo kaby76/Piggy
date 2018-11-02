@@ -41,8 +41,8 @@ namespace Piggy
         [DllImport("ClangCode", EntryPoint = "SearchAddFile", CallingConvention = CallingConvention.StdCall)]
         private static extern void SearchAddFile([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @file);
 
-        [DllImport("ClangCode", EntryPoint = "Search", CallingConvention = CallingConvention.StdCall)]
-        private static unsafe extern void** Search();
+        [DllImport("ClangCode", EntryPoint = "SerializedAst", CallingConvention = CallingConvention.StdCall)]
+        private static unsafe extern IntPtr SerializedAst();
 
         [DllImport("ClangCode", EntryPoint = "xxx", CallingConvention = CallingConvention.StdCall)]
         private static extern int xxx();
@@ -127,8 +127,17 @@ namespace Piggy
                 SearchAddCompilerOption(opt);
             SearchSetPattern("enumDecl()");
 
-            void ** v = Search();
+            // First, parse and serialize the AST for the desired input header files.
 
+            IntPtr v = SerializedAst();
+            string ast_result = Marshal.PtrToStringAnsi(v);
+            if (ast)
+            {
+                ast_result = ast_result.Replace("\n", "\r\n");
+                System.Console.WriteLine(ast_result);
+            }
+
+            return;
             string code = @"
                 using System;
                 using System.IO;

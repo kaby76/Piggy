@@ -2,7 +2,7 @@
   "profiles": {
     "Piggy": {
       "commandName": "Project",
-      "commandLineArgs": "--s m.spec  --output t1.cs ",
+      "commandLineArgs": "--s m.spec  --output t1.cs  --ast",
       "workingDirectory": "C:\\temp",
       "nativeDebugging": true
     }

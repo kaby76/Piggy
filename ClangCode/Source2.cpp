@@ -2771,15 +2771,18 @@ LLVM_DUMP_METHOD void Comment::dumpColor() const {
 extern "C" {
 #endif
 
-void RunTheDamnThing(clang::ASTContext &Ctx)
+char* RunTheDamnThing(clang::ASTContext &Ctx)
 {
 	const SourceManager &SM = Ctx.getSourceManager();
-	MyASTDumper P(llvm::outs(), &Ctx.getCommentCommandTraits(), &SM);
+	std::string crap;
+	llvm::raw_string_ostream more_crap(crap);
+	MyASTDumper P(more_crap, &Ctx.getCommentCommandTraits(), &SM);
 	TranslationUnitDecl* tu = Ctx.getTranslationUnitDecl();
 	P.start();
 	P.dumpDecl(tu);
 	P.complete();
-	llvm::outs().flush();
+	more_crap.flush();
+	return _strdup(crap.c_str());
 }
 
 #ifdef __cplusplus

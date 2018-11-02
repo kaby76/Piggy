@@ -107,9 +107,9 @@ extern "C" {
 		search->include_files.insert(search->include_files.end(), a);
 	}
 
-	extern   void RunTheDamnThing(clang::ASTContext &Context);
+	extern char * RunTheDamnThing(clang::ASTContext &Context);
 
-	EXPORT clang::ast_type_traits::DynTypedNode** Search()
+	EXPORT char * SerializedAst()
 	{
 		int count = 3 + search->compiler_option.size() + search->include_files.size();
 		int argc = count - 1;
@@ -137,38 +137,7 @@ extern "C" {
 		// Let's try tree walking.
 		search->cur_ast = search->ASTs.begin();
 		std::unique_ptr<clang::ASTUnit>::pointer aa = search->cur_ast->get();
-		RunTheDamnThing(aa->getASTContext());
-
-		// Get Matcher.
-		search->Matcher
-			= clang::ast_matchers::dynamic::Parser::parseMatcherExpression(
-				StringRef(search->search_pattern), nullptr, &search->NamedValues, &search->Diag);
-		if (!search->Matcher)
-			return nullptr;
-
-		search->Collect = new CollectBoundNodes(search->Matches);
-		llvm::Optional<clang::ast_matchers::internal::DynTypedMatcher> M = search->Matcher->tryBind("root");
-		clang::ast_matchers::internal::DynTypedMatcher MaybeBoundMatcher = *M;
-		search->Finder.addDynamicMatcher(MaybeBoundMatcher, search->Collect);
-
-		search->Finder.matchAST(aa->getASTContext());
-		int c = search->Matches.size();
-		clang::ast_type_traits::DynTypedNode** result = (clang::ast_type_traits::DynTypedNode**)malloc((c + 1) * sizeof(clang::ast_type_traits::DynTypedNode*));
-		clang::ast_type_traits::DynTypedNode** r = result;
-		for (int i = 0; i < c; ++i)
-		{
-			clang::ast_type_traits::DynTypedNode x = search->Matches[i].getMap().begin()->second;
-			clang::ast_type_traits::DynTypedNode* y = (clang::ast_type_traits::DynTypedNode*)malloc(sizeof(clang::ast_type_traits::DynTypedNode));
-			*y = x;
-			*r++ = y;
-			//const clang::NamedDecl *D = y->get<clang::NamedDecl>();
-			//StringRef a1 = D->getName();
-			//clang::DeclarationName a2 = D->getDeclName();
-			//const char* a3 = a1.data();
-			//y->print(llvm::outs(), aa->getASTContext().getPrintingPolicy());
-			//llvm::outs().flush();
-		}
-		*r++ = nullptr;
+		auto result = RunTheDamnThing(aa->getASTContext());
 		return result;
 	}
 
