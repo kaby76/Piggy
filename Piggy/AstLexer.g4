@@ -9,10 +9,10 @@ DELIMITED_COMMENT:       '/*'  .*? '*/'           -> channel(COMMENTS_CHANNEL);
 OPEN_PAREN	:	'(';
 CLOSE_PAREN	:	')';
 EQUALS		:	'=';
-StringLiteral	:	'\'' ( Escape | ~('\'' | '\n' | '\r') ) + '\'';
+StringLiteral	:	'"' ( Escape | ~('"' | '\n' | '\r') )* '"';
 ID		:	[a-zA-Z_1234567890.]+ ;
 
 fragment InputCharacter:       ~[\r\n\u0085\u2028\u2029];
-fragment Escape : '\'' '\'';
+fragment Escape : '\\' '"';
 WS:    [ \t\r\n] -> skip;
 

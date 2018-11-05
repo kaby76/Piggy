@@ -30,7 +30,7 @@ OPEN_BRACKET	:	'[';
 CLOSE_BRACKET	:	']';
 MINUS		:	'-';
 LCURLY		:	'{' -> pushMode(CODE_0);
-StringLiteral	:	'\'' ( Escape | ~('\'' | '\n' | '\r') ) + '\'';
+StringLiteral	:	'\'' ( Escape | ~('\'' | '\n' | '\r') )* '\'';
 ID		:	[a-zA-Z_1234567890.]+ ;
 
 fragment InputCharacter:       ~[\r\n\u0085\u2028\u2029];

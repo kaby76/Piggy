@@ -137,6 +137,16 @@ namespace Piggy
                 System.Console.WriteLine(ast_result);
             }
 
+            // Parse ast.
+            ICharStream ast_stream = CharStreams.fromstring(ast_result);
+            ITokenSource ast_lexer = new AstLexer(ast_stream);
+            ITokenStream ast_tokens = new CommonTokenStream(ast_lexer);
+            AstParserParser ast_parser = new AstParserParser(ast_tokens);
+            ast_parser.BuildParseTree = true;
+            parser.AddErrorListener(listener);
+            IParseTree ast_tree = ast_parser.ast();
+            if (listener.had_error) throw new Exception();
+            System.Console.WriteLine("Parsed successfully.");
             return;
             string code = @"
                 using System;
