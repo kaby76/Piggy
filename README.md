@@ -2,8 +2,9 @@
 
 Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This free and open source software
 is a new way
-of generating pinvoke bindings for C# from C++ headers, using tree regular expressions
-and code templates. Input header files are parsed
+of generating pinvoke bindings for C# from C++ headers, using templates in a powerful
+and concise language of tree regular expressions, output strings, and C# code.
+Input header files are parsed
 by Clang to get an [abstract syntax tree (AST)](http://clang.llvm.org/docs/IntroductionToTheClangAST.html).
 Output templates contain tree regular expressions, inlined code, and embedded C# code
 for processing of the tree data into output.
