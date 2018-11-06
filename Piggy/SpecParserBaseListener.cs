@@ -191,6 +191,54 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPattern([NotNull] SpecParserParser.PatternContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExp([NotNull] SpecParserParser.ExpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExp([NotNull] SpecParserParser.ExpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.more"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMore([NotNull] SpecParserParser.MoreContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.more"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMore([NotNull] SpecParserParser.MoreContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.text"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterText([NotNull] SpecParserParser.TextContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.text"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitText([NotNull] SpecParserParser.TextContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.attr"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAttr([NotNull] SpecParserParser.AttrContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.attr"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAttr([NotNull] SpecParserParser.AttrContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.re"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

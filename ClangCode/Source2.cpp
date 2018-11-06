@@ -2819,6 +2819,7 @@ extern "C" {
 
 char* RunTheDamnThing(clang::ASTContext &Ctx)
 {
+	// Set to false for debugging the AST serializer code.
 	if (true)
 	{
 		const SourceManager &SM = Ctx.getSourceManager();

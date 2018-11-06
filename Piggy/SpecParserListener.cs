@@ -161,6 +161,46 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitPattern([NotNull] SpecParserParser.PatternContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterExp([NotNull] SpecParserParser.ExpContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitExp([NotNull] SpecParserParser.ExpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.more"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMore([NotNull] SpecParserParser.MoreContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.more"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMore([NotNull] SpecParserParser.MoreContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.text"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterText([NotNull] SpecParserParser.TextContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.text"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitText([NotNull] SpecParserParser.TextContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.attr"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterAttr([NotNull] SpecParserParser.AttrContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.attr"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitAttr([NotNull] SpecParserParser.AttrContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.re"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

@@ -148,8 +148,11 @@ namespace Piggy
             if (listener.had_error) throw new Exception();
             System.Console.WriteLine("Parsed successfully.");
 
-            // Find and appy regular expression templates until done.
+            // Find and apply ordered regular expression templates until done.
             // Templates contain code, which has to be compiled and run.
+
+
+
             return;
             string code = @"
                 using System;

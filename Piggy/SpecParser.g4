@@ -150,7 +150,18 @@ calling_convention: CALLING_CONVENTION ID SEMI ;
  */
 compiler_option: COMPILER_OPTION StringLiteral SEMI ;
 
-pattern: re REWRITE StringLiteral SEMI ;
+pattern: TEMPLATE exp SEMI ;
+exp : OPEN_RE ID more* CLOSE_RE ;
+more :
+	exp ( OR exp )*
+	| OPEN_PAREN exp CLOSE_PAREN
+	| text
+	| code
+	| attr
+	;
+text: LANG OTHER_ANG* RANG ;
+attr: ID EQ (StringLiteral | STAR);
+
 
 // CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
 // BNF Grammar of Regular Expressions
