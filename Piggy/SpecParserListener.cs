@@ -161,15 +161,85 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitPattern([NotNull] SpecParserParser.PatternContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.rexp"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterExp([NotNull] SpecParserParser.ExpContext context);
+	void EnterRexp([NotNull] SpecParserParser.RexpContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.rexp"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitExp([NotNull] SpecParserParser.ExpContext context);
+	void ExitRexp([NotNull] SpecParserParser.RexpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.simple_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterSimple_rexp([NotNull] SpecParserParser.Simple_rexpContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.simple_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitSimple_rexp([NotNull] SpecParserParser.Simple_rexpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.basic_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBasic_rexp([NotNull] SpecParserParser.Basic_rexpContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.basic_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBasic_rexp([NotNull] SpecParserParser.Basic_rexpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.star_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterStar_rexp([NotNull] SpecParserParser.Star_rexpContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.star_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitStar_rexp([NotNull] SpecParserParser.Star_rexpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.plus_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPlus_rexp([NotNull] SpecParserParser.Plus_rexpContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.plus_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPlus_rexp([NotNull] SpecParserParser.Plus_rexpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.elementary_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterElementary_rexp([NotNull] SpecParserParser.Elementary_rexpContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.elementary_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitElementary_rexp([NotNull] SpecParserParser.Elementary_rexpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.group_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGroup_rexp([NotNull] SpecParserParser.Group_rexpContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.group_rexp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGroup_rexp([NotNull] SpecParserParser.Group_rexpContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.basic"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterBasic([NotNull] SpecParserParser.BasicContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.basic"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitBasic([NotNull] SpecParserParser.BasicContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.more"/>.
 	/// </summary>

@@ -191,17 +191,101 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPattern([NotNull] SpecParserParser.PatternContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.rexp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterExp([NotNull] SpecParserParser.ExpContext context) { }
+	public virtual void EnterRexp([NotNull] SpecParserParser.RexpContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.exp"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.rexp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitExp([NotNull] SpecParserParser.ExpContext context) { }
+	public virtual void ExitRexp([NotNull] SpecParserParser.RexpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.simple_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSimple_rexp([NotNull] SpecParserParser.Simple_rexpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.simple_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSimple_rexp([NotNull] SpecParserParser.Simple_rexpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.basic_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBasic_rexp([NotNull] SpecParserParser.Basic_rexpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.basic_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBasic_rexp([NotNull] SpecParserParser.Basic_rexpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.star_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterStar_rexp([NotNull] SpecParserParser.Star_rexpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.star_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitStar_rexp([NotNull] SpecParserParser.Star_rexpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.plus_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPlus_rexp([NotNull] SpecParserParser.Plus_rexpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.plus_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPlus_rexp([NotNull] SpecParserParser.Plus_rexpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.elementary_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterElementary_rexp([NotNull] SpecParserParser.Elementary_rexpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.elementary_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitElementary_rexp([NotNull] SpecParserParser.Elementary_rexpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.group_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGroup_rexp([NotNull] SpecParserParser.Group_rexpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.group_rexp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGroup_rexp([NotNull] SpecParserParser.Group_rexpContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.basic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterBasic([NotNull] SpecParserParser.BasicContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.basic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitBasic([NotNull] SpecParserParser.BasicContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.more"/>.
 	/// <para>The default implementation does nothing.</para>
