@@ -314,8 +314,10 @@ namespace {
 			dumpTypeAsChild(T->getModifiedType());
 		}
 		void VisitTemplateTypeParmType(const TemplateTypeParmType *T) {
+			*OS << " Attrs=\"";
 			*OS << " depth " << T->getDepth() << " index " << T->getIndex();
 			if (T->isParameterPack()) *OS << " pack";
+			*OS << "\"";
 			dumpDeclRef(T->getDecl());
 		}
 		void VisitSubstTemplateTypeParmType(const SubstTemplateTypeParmType *T) {
@@ -632,7 +634,7 @@ void MyASTDumper::dumpTypeAsChild(QualType T) {
 void MyASTDumper::dumpTypeAsChild(const Type *T) {
 	dumpChild([=] {
 		if (!T) {
-			*OS << "<<<NULL>>>";
+			*OS << "NullNode ";
 			return;
 		}
 		if (const LocInfoType *LIT = llvm::dyn_cast<LocInfoType>(T)) {
@@ -679,7 +681,7 @@ void MyASTDumper::dumpTypeAsChild(const Type *T) {
 
 void MyASTDumper::dumpBareDeclRef(const Decl *D) {
 	if (!D) {
-		*OS << "<<<NULL>>>";
+		*OS << "NullNode";
 		return;
 	}
 
@@ -939,38 +941,48 @@ void MyASTDumper::dumpTemplateArgument(const TemplateArgument &A, SourceRange R)
 		if (R.isValid())
 			dumpSourceRange(R);
 
+		*OS << " Kind=\"";
 		switch (A.getKind()) {
 		case TemplateArgument::Null:
-			*OS << " null";
+			*OS << "null";
+			*OS << "\"";
 			break;
 		case TemplateArgument::Type:
-			*OS << " type";
+			*OS << "type";
+			*OS << "\"";
 			dumpType(A.getAsType());
 			break;
 		case TemplateArgument::Declaration:
-			*OS << " decl";
+			*OS << "decl";
+			*OS << "\"";
 			dumpDeclRef(A.getAsDecl());
 			break;
 		case TemplateArgument::NullPtr:
-			*OS << " nullptr";
+			*OS << "nullptr";
+			*OS << "\"";
 			break;
 		case TemplateArgument::Integral:
-			*OS << " integral " << A.getAsIntegral();
+			*OS << "integral " << A.getAsIntegral();
+			*OS << "\"";
 			break;
 		case TemplateArgument::Template:
-			*OS << " template ";
+			*OS << "template ";
+			*OS << "\"";
 			A.getAsTemplate().dump(*OS);
 			break;
 		case TemplateArgument::TemplateExpansion:
-			*OS << " template expansion";
+			*OS << "template expansion";
+			*OS << "\"";
 			A.getAsTemplateOrTemplatePattern().dump(*OS);
 			break;
 		case TemplateArgument::Expression:
-			*OS << " expr";
+			*OS << "expr";
+			*OS << "\"";
 			dumpStmt(A.getAsExpr());
 			break;
 		case TemplateArgument::Pack:
-			*OS << " pack";
+			*OS << "pack";
+			*OS << "\"";
 			for (TemplateArgument::pack_iterator I = A.pack_begin(), E = A.pack_end();
 				I != E; ++I)
 				dumpTemplateArgument(*I);
@@ -1016,7 +1028,7 @@ void MyASTDumper::complete()
 void MyASTDumper::dumpDecl(const Decl *D) {
 	dumpChild([=] {
 		if (!D) {
-			*OS << "<<<NULL>>>";
+			*OS << "NullNode";
 			return;
 		}
 
@@ -1384,6 +1396,8 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 		{
 			*OS << "DefinitionData";
 		}
+		*OS << " Data=\"";
+
 #define FLAG(fn, name) if (D->fn()) *OS << " " #name;
 		FLAG(isParsingBaseSpecifiers, parsing_base_specifiers);
 
@@ -1406,11 +1420,13 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 		FLAG(hasMutableFields, has_mutable_fields);
 		FLAG(hasVariantMembers, has_variant_members);
 		FLAG(allowConstDefaultInit, can_const_default_init);
+		*OS << "\"";
 
 		dumpChild([=] {
 			{
 				*OS << "DefaultConstructor";
 			}
+			*OS << " Data=\"";
 			FLAG(hasDefaultConstructor, exists);
 			FLAG(hasTrivialDefaultConstructor, trivial);
 			FLAG(hasNonTrivialDefaultConstructor, non_trivial);
@@ -1418,12 +1434,14 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 			FLAG(hasConstexprDefaultConstructor, constexpr);
 			FLAG(needsImplicitDefaultConstructor, needs_implicit);
 			FLAG(defaultedDefaultConstructorIsConstexpr, defaulted_is_constexpr);
+			*OS << "\"";
 		});
 
 		dumpChild([=] {
 			{
 				*OS << "CopyConstructor";
 			}
+			*OS << " Data=\"";
 			FLAG(hasSimpleCopyConstructor, simple);
 			FLAG(hasTrivialCopyConstructor, trivial);
 			FLAG(hasNonTrivialCopyConstructor, non_trivial);
@@ -1435,12 +1453,14 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 			if (!D->needsOverloadResolutionForCopyConstructor())
 				FLAG(defaultedCopyConstructorIsDeleted, defaulted_is_deleted);
 			FLAG(implicitCopyConstructorHasConstParam, implicit_has_const_param);
+			*OS << "\"";
 		});
 
 		dumpChild([=] {
 			{
 				*OS << "MoveConstructor";
 			}
+			*OS << " Data=\"";
 			FLAG(hasMoveConstructor, exists);
 			FLAG(hasSimpleMoveConstructor, simple);
 			FLAG(hasTrivialMoveConstructor, trivial);
@@ -1451,12 +1471,14 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 				needs_overload_resolution);
 			if (!D->needsOverloadResolutionForMoveConstructor())
 				FLAG(defaultedMoveConstructorIsDeleted, defaulted_is_deleted);
+			*OS << "\"";
 		});
 
 		dumpChild([=] {
 			{
 				*OS << "CopyAssignment";
 			}
+			*OS << " Data=\"";
 			FLAG(hasTrivialCopyAssignment, trivial);
 			FLAG(hasNonTrivialCopyAssignment, non_trivial);
 			FLAG(hasCopyAssignmentWithConstParam, has_const_param);
@@ -1464,12 +1486,14 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 			FLAG(needsImplicitCopyAssignment, needs_implicit);
 			FLAG(needsOverloadResolutionForCopyAssignment, needs_overload_resolution);
 			FLAG(implicitCopyAssignmentHasConstParam, implicit_has_const_param);
+			*OS << "\"";
 		});
 
 		dumpChild([=] {
 			{
 				*OS << "MoveAssignment";
 			}
+			*OS << " Data=\"";
 			FLAG(hasMoveAssignment, exists);
 			FLAG(hasSimpleMoveAssignment, simple);
 			FLAG(hasTrivialMoveAssignment, trivial);
@@ -1477,12 +1501,14 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 			FLAG(hasUserDeclaredMoveAssignment, user_declared);
 			FLAG(needsImplicitMoveAssignment, needs_implicit);
 			FLAG(needsOverloadResolutionForMoveAssignment, needs_overload_resolution);
+			*OS << "\"";
 		});
 
 		dumpChild([=] {
 			{
 				*OS << "Destructor";
 			}
+			*OS << " Data=\"";
 			FLAG(hasSimpleDestructor, simple);
 			FLAG(hasIrrelevantDestructor, irrelevant);
 			FLAG(hasTrivialDestructor, trivial);
@@ -1492,17 +1518,20 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 			FLAG(needsOverloadResolutionForDestructor, needs_overload_resolution);
 			if (!D->needsOverloadResolutionForDestructor())
 				FLAG(defaultedDestructorIsDeleted, defaulted_is_deleted);
+			*OS << "\"";
 		});
 	});
 
 	for (const auto &I : D->bases()) {
 		dumpChild([=] {
+			*OS << " Data=\"";
 			if (I.isVirtual())
 				*OS << "virtual ";
 			dumpAccessSpecifier(I.getAccessSpecifier());
 			dumpType(I.getType());
 			if (I.isPackExpansion())
 				*OS << "...";
+			*OS << "\"";
 		});
 	}
 }
@@ -1619,6 +1648,7 @@ void MyASTDumper::VisitVarTemplatePartialSpecializationDecl(
 }
 
 void MyASTDumper::VisitTemplateTypeParmDecl(const TemplateTypeParmDecl *D) {
+	*OS << " Parm=\"";
 	if (D->wasDeclaredWithTypename())
 		*OS << " typename";
 	else
@@ -1626,6 +1656,7 @@ void MyASTDumper::VisitTemplateTypeParmDecl(const TemplateTypeParmDecl *D) {
 	*OS << " depth " << D->getDepth() << " index " << D->getIndex();
 	if (D->isParameterPack())
 		*OS << " ...";
+	*OS << "\"";
 	dumpName(D);
 	if (D->hasDefaultArgument())
 		dumpTemplateArgument(D->getDefaultArgument());
@@ -1633,9 +1664,11 @@ void MyASTDumper::VisitTemplateTypeParmDecl(const TemplateTypeParmDecl *D) {
 
 void MyASTDumper::VisitNonTypeTemplateParmDecl(const NonTypeTemplateParmDecl *D) {
 	dumpType(D->getType());
-	*OS << " depth " << D->getDepth() << " index " << D->getIndex();
+	*OS << " Attrs=\"";
+	*OS << "depth " << D->getDepth() << " index " << D->getIndex();
 	if (D->isParameterPack())
 		*OS << " ...";
+	*OS << "\"";
 	dumpName(D);
 	if (D->hasDefaultArgument())
 		dumpTemplateArgument(D->getDefaultArgument());
@@ -1709,8 +1742,8 @@ void MyASTDumper::VisitConstructorUsingShadowDecl(
 
 void MyASTDumper::VisitLinkageSpecDecl(const LinkageSpecDecl *D) {
 	switch (D->getLanguage()) {
-	case LinkageSpecDecl::lang_c: *OS << " C"; break;
-	case LinkageSpecDecl::lang_cxx: *OS << " C++"; break;
+	case LinkageSpecDecl::lang_c: *OS << " Linkage=\"C\""; break;
+	case LinkageSpecDecl::lang_cxx: *OS << " Linkage=\"C++\""; break;
 	}
 }
 
@@ -1932,7 +1965,7 @@ void MyASTDumper::VisitBlockDecl(const BlockDecl *D) {
 void MyASTDumper::dumpStmt(const Stmt *S) {
 	dumpChild([=] {
 		if (!S) {
-			*OS << "<<<NULL>>>";
+			*OS << "NullNode";
 			return;
 		}
 
@@ -2008,7 +2041,7 @@ void MyASTDumper::VisitOMPExecutableDirective(
 	for (auto *C : Node->clauses()) {
 		dumpChild([=] {
 			if (!C) {
-				*OS << "<<<NULL>>> OMPClause";
+				*OS << "NullNode";
 				return;
 			}
 			{
@@ -2187,6 +2220,7 @@ void MyASTDumper::VisitFloatingLiteral(const FloatingLiteral *Node) {
 void MyASTDumper::VisitStringLiteral(const StringLiteral *Str) {
 	VisitExpr(Str);
 	*OS << " ";
+	*OS << "Value=";
 	Str->outputString(*OS);
 }
 
@@ -2217,7 +2251,7 @@ void MyASTDumper::VisitUnaryOperator(const UnaryOperator *Node) {
 	*OS << " PrePost=\"" << (Node->isPostfix() ? "postfix" : "prefix") << "\"";
 	*OS << " Op=\"" << UnaryOperator::getOpcodeStr(Node->getOpcode()) << "\"";
 	if (!Node->canOverflow())
-		*OS << " cannot overflow";
+		*OS << " Attr=\"cannot overflow\"";
 }
 
 void MyASTDumper::VisitUnaryExprOrTypeTraitExpr(
@@ -2329,7 +2363,9 @@ void MyASTDumper::VisitCXXNamedCastExpr(const CXXNamedCastExpr *Node) {
 
 void MyASTDumper::VisitCXXBoolLiteralExpr(const CXXBoolLiteralExpr *Node) {
 	VisitExpr(Node);
+	*OS << " Value=\"";
 	*OS << " " << (Node->getValue() ? "true" : "false");
+	*OS << "\"";
 }
 
 void MyASTDumper::VisitCXXThisExpr(const CXXThisExpr *Node) {
@@ -2577,7 +2613,7 @@ void MyASTDumper::dumpFullComment(const FullComment *C) {
 void MyASTDumper::dumpComment(const Comment *C) {
 	dumpChild([=] {
 		if (!C) {
-			*OS << "<<<NULL>>>";
+			*OS << "NullNode";
 			return;
 		}
 

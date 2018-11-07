@@ -90,18 +90,13 @@ extern "C" {
 	};
 	static SearchingAst * search = new SearchingAst();
 
-	EXPORT void SearchSetPattern(char * ss)
-	{
-		search->search_pattern = _strdup(ss);
-	}
-
-	EXPORT void SearchAddCompilerOption(char * i)
+	EXPORT void ClangAddOption(char * i)
 	{
 		char* a = _strdup((char const *)i);
 		search->compiler_option.insert(search->compiler_option.end(), a);
 	}
 
-	EXPORT void SearchAddFile(char * i)
+	EXPORT void ClangAddFile(char * i)
 	{
 		char* a = _strdup((char const *)i);
 		search->include_files.insert(search->include_files.end(), a);
@@ -109,7 +104,7 @@ extern "C" {
 
 	extern char * RunTheDamnThing(clang::ASTContext &Context);
 
-	EXPORT char * SerializedAst()
+	EXPORT char * ClangSerializeAst()
 	{
 		int count = 3 + search->compiler_option.size() + search->include_files.size();
 		int argc = count - 1;
