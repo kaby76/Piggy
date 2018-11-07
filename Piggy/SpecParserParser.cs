@@ -48,7 +48,7 @@ public partial class SpecParserParser : Parser {
 		RULE_spec = 0, RULE_items = 1, RULE_namespace = 2, RULE_exclude = 3, RULE_import_file = 4, 
 		RULE_dllimport = 5, RULE_add_after_usings = 6, RULE_code = 7, RULE_prefix_strip = 8, 
 		RULE_class_name = 9, RULE_calling_convention = 10, RULE_compiler_option = 11, 
-		RULE_pattern = 12, RULE_rexp = 13, RULE_simple_rexp = 14, RULE_basic_rexp = 15, 
+		RULE_template = 12, RULE_rexp = 13, RULE_simple_rexp = 14, RULE_basic_rexp = 15, 
 		RULE_star_rexp = 16, RULE_plus_rexp = 17, RULE_elementary_rexp = 18, RULE_group_rexp = 19, 
 		RULE_basic = 20, RULE_more = 21, RULE_text = 22, RULE_attr = 23, RULE_re = 24, 
 		RULE_simple_re = 25, RULE_basic_re = 26, RULE_star = 27, RULE_plus = 28, 
@@ -58,7 +58,7 @@ public partial class SpecParserParser : Parser {
 	public static readonly string[] ruleNames = {
 		"spec", "items", "namespace", "exclude", "import_file", "dllimport", "add_after_usings", 
 		"code", "prefix_strip", "class_name", "calling_convention", "compiler_option", 
-		"pattern", "rexp", "simple_rexp", "basic_rexp", "star_rexp", "plus_rexp", 
+		"template", "rexp", "simple_rexp", "basic_rexp", "star_rexp", "plus_rexp", 
 		"elementary_rexp", "group_rexp", "basic", "more", "text", "attr", "re", 
 		"simple_re", "basic_re", "star", "plus", "elementary_re", "group", "any", 
 		"eos", "char", "set", "positive_set", "negative_set", "set_items", "set_item", 
@@ -198,8 +198,8 @@ public partial class SpecParserParser : Parser {
 		public Compiler_optionContext compiler_option() {
 			return GetRuleContext<Compiler_optionContext>(0);
 		}
-		public PatternContext pattern() {
-			return GetRuleContext<PatternContext>(0);
+		public TemplateContext template() {
+			return GetRuleContext<TemplateContext>(0);
 		}
 		public ItemsContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -281,7 +281,7 @@ public partial class SpecParserParser : Parser {
 			case TEMPLATE:
 				EnterOuterAlt(_localctx, 10);
 				{
-				State = 97; pattern();
+				State = 97; template();
 				}
 				break;
 			default:
@@ -737,31 +737,31 @@ public partial class SpecParserParser : Parser {
 		return _localctx;
 	}
 
-	public partial class PatternContext : ParserRuleContext {
+	public partial class TemplateContext : ParserRuleContext {
 		public ITerminalNode TEMPLATE() { return GetToken(SpecParserParser.TEMPLATE, 0); }
 		public RexpContext rexp() {
 			return GetRuleContext<RexpContext>(0);
 		}
 		public ITerminalNode SEMI() { return GetToken(SpecParserParser.SEMI, 0); }
-		public PatternContext(ParserRuleContext parent, int invokingState)
+		public TemplateContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
-		public override int RuleIndex { get { return RULE_pattern; } }
+		public override int RuleIndex { get { return RULE_template; } }
 		public override void EnterRule(IParseTreeListener listener) {
 			ISpecParserListener typedListener = listener as ISpecParserListener;
-			if (typedListener != null) typedListener.EnterPattern(this);
+			if (typedListener != null) typedListener.EnterTemplate(this);
 		}
 		public override void ExitRule(IParseTreeListener listener) {
 			ISpecParserListener typedListener = listener as ISpecParserListener;
-			if (typedListener != null) typedListener.ExitPattern(this);
+			if (typedListener != null) typedListener.ExitTemplate(this);
 		}
 	}
 
 	[RuleVersion(0)]
-	public PatternContext pattern() {
-		PatternContext _localctx = new PatternContext(Context, State);
-		EnterRule(_localctx, 24, RULE_pattern);
+	public TemplateContext template() {
+		TemplateContext _localctx = new TemplateContext(Context, State);
+		EnterRule(_localctx, 24, RULE_template);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{

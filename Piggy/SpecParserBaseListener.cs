@@ -179,17 +179,17 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.pattern"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.template"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterPattern([NotNull] SpecParserParser.PatternContext context) { }
+	public virtual void EnterTemplate([NotNull] SpecParserParser.TemplateContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.pattern"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.template"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitPattern([NotNull] SpecParserParser.PatternContext context) { }
+	public virtual void ExitTemplate([NotNull] SpecParserParser.TemplateContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.rexp"/>.
 	/// <para>The default implementation does nothing.</para>

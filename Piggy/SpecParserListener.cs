@@ -151,15 +151,15 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.pattern"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.template"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterPattern([NotNull] SpecParserParser.PatternContext context);
+	void EnterTemplate([NotNull] SpecParserParser.TemplateContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.pattern"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.template"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitPattern([NotNull] SpecParserParser.PatternContext context);
+	void ExitTemplate([NotNull] SpecParserParser.TemplateContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.rexp"/>.
 	/// </summary>

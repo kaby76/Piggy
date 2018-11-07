@@ -31,6 +31,7 @@ namespace Piggy
         public string calling_convention = "";
         public List<string> compiler_options = new List<string>();
         public bool ast = false;
+        public List<SpecParserParser.TemplateContext> templates = new List<SpecParserParser.TemplateContext>();
 
         [System.Runtime.InteropServices.DllImport("ClangCode", EntryPoint = "SearchSetPattern", CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
         private static extern void SearchSetPattern([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @pattern);

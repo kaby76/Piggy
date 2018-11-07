@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text;
 using Antlr4.Runtime.Misc;
@@ -82,6 +83,11 @@ namespace Piggy
             var text = c.GetText();
             text = text.Replace("'", "");
             _program.compiler_options.Add(text);
+        }
+
+        public override void ExitTemplate(SpecParserParser.TemplateContext context)
+        {
+            _program.templates.Add(context);
         }
     }
 }

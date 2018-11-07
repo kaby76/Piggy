@@ -97,7 +97,7 @@ prefix_strip
 class_name
 calling_convention
 compiler_option
-pattern
+template
 rexp
 simple_rexp
 basic_rexp

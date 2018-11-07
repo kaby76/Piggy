@@ -5,17 +5,17 @@ options { tokenVocab = SpecLexer; }
 spec : items* EOF ;
 
 items
-	: namespace
-	| exclude
-	| import_file
-	| dllimport
-	| add_after_usings
-	| prefix_strip
-	| class_name
-	| calling_convention
-	| compiler_option
-	| pattern
-	;
+    : namespace
+    | exclude
+    | import_file
+    | dllimport
+    | add_after_usings
+    | prefix_strip
+    | class_name
+    | calling_convention
+    | compiler_option
+    | template
+    ;
 
 /* Specifies a namespace name for the generated C# code.
  * Example:
@@ -150,7 +150,37 @@ calling_convention: CALLING_CONVENTION ID SEMI ;
  */
 compiler_option: COMPILER_OPTION StringLiteral SEMI ;
 
-pattern: TEMPLATE rexp SEMI ;
+/* Specifies a template for output. Basic elements of the template:
+ *
+ *    (% ... %) denotes a tree pattern for AST matching.
+ *    < ... > denotes text which is output to the file.
+ *    { ... } denotes C# code which is executed after matching the pattern.
+ *
+ * Tree patterns can be nested, denoting matching of children. Eg, "(% ... (% ... %) %)"
+ * matches a node with another node nesting.
+ * Text output can be place almost anywhere in a pattern, e.g., "(% ... <> (% ... %) %)".
+ * It is output after matching in a tree traversal corresponding to the pattern.
+ *
+ * Examples:
+ *
+ * template
+ *     (% EnumDecl Name=*
+ *         < enum $1.Name { >
+ *             ( 
+ *                 (% EnumConstantDecl Name=* Type=*
+ *                     (% IntegerLiteral Value=*
+ *                         < {first?"":","; first = false;} $2.Name = $3.Value >
+ *                     %)
+ *                 %) |
+ *                 (% EnumConstantDecl Name=* Type=*
+ *                     < {first?"":","; first = false;} $5 >
+ *                 %)
+ *              )*
+ *         < } >
+ *     %)
+ *     ;
+ */
+template: TEMPLATE rexp SEMI ;
 rexp : simple_rexp (OR simple_rexp)* ;
 simple_rexp : basic_rexp+ ;
 basic_rexp : star_rexp | plus_rexp | elementary_rexp ;
@@ -159,14 +189,10 @@ plus_rexp: elementary_rexp PLUS;
 elementary_rexp: group_rexp | basic ;
 group_rexp:   OPEN_PAREN rexp CLOSE_PAREN ;
 basic: OPEN_RE ID more* CLOSE_RE ;
-more :
-	rexp
-	| text
-	| code
-	| attr
-	;
+more : rexp | text | code | attr ;
 text: LANG OTHER_ANG* RANG ;
 attr: ID EQ (StringLiteral | STAR);
+
 
 // CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
 // BNF Grammar of Regular Expressions
