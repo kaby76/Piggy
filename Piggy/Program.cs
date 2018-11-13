@@ -163,7 +163,7 @@ namespace Piggy
 
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
-
+                FindAndOutput(ast_tree);
 
 
                 return;
@@ -223,6 +223,16 @@ namespace Piggy
             finally
             {
                 File.Delete(temp_fileName);
+            }
+        }
+
+
+        void FindAndOutput(IParseTree ast)
+        {
+            TreeRegEx regex = new TreeRegEx();
+            foreach (SpecParserParser.TemplateContext t in this.templates)
+            {
+                var matches = regex.dfs_match(t, ast);
             }
         }
     }
