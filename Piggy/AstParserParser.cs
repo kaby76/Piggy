@@ -40,9 +40,9 @@ public partial class AstParserParser : Parser {
 		DELIMITED_COMMENT=4, OPEN_PAREN=5, CLOSE_PAREN=6, EQUALS=7, StringLiteral=8, 
 		ID=9, WS=10;
 	public const int
-		RULE_ast = 0, RULE_decl = 1, RULE_attr = 2, RULE_child = 3;
+		RULE_ast = 0, RULE_decl = 1, RULE_more = 2, RULE_attr = 3;
 	public static readonly string[] ruleNames = {
-		"ast", "decl", "attr", "child"
+		"ast", "decl", "more", "attr"
 	};
 
 	private static readonly string[] _LiteralNames = {
@@ -130,17 +130,11 @@ public partial class AstParserParser : Parser {
 		public ITerminalNode OPEN_PAREN() { return GetToken(AstParserParser.OPEN_PAREN, 0); }
 		public ITerminalNode ID() { return GetToken(AstParserParser.ID, 0); }
 		public ITerminalNode CLOSE_PAREN() { return GetToken(AstParserParser.CLOSE_PAREN, 0); }
-		public AttrContext[] attr() {
-			return GetRuleContexts<AttrContext>();
+		public MoreContext[] more() {
+			return GetRuleContexts<MoreContext>();
 		}
-		public AttrContext attr(int i) {
-			return GetRuleContext<AttrContext>(i);
-		}
-		public ChildContext[] child() {
-			return GetRuleContexts<ChildContext>();
-		}
-		public ChildContext child(int i) {
-			return GetRuleContext<ChildContext>(i);
+		public MoreContext more(int i) {
+			return GetRuleContext<MoreContext>(i);
 		}
 		public DeclContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -170,30 +164,74 @@ public partial class AstParserParser : Parser {
 			State = 16;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while (_la==ID) {
+			while (_la==OPEN_PAREN || _la==ID) {
 				{
 				{
-				State = 13; attr();
+				State = 13; more();
 				}
 				}
 				State = 18;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 22;
-			ErrorHandler.Sync(this);
-			_la = TokenStream.LA(1);
-			while (_la==OPEN_PAREN) {
-				{
-				{
-				State = 19; child();
-				}
-				}
-				State = 24;
-				ErrorHandler.Sync(this);
-				_la = TokenStream.LA(1);
+			State = 19; Match(CLOSE_PAREN);
 			}
-			State = 25; Match(CLOSE_PAREN);
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			ErrorHandler.ReportError(this, re);
+			ErrorHandler.Recover(this, re);
+		}
+		finally {
+			ExitRule();
+		}
+		return _localctx;
+	}
+
+	public partial class MoreContext : ParserRuleContext {
+		public DeclContext decl() {
+			return GetRuleContext<DeclContext>(0);
+		}
+		public AttrContext attr() {
+			return GetRuleContext<AttrContext>(0);
+		}
+		public MoreContext(ParserRuleContext parent, int invokingState)
+			: base(parent, invokingState)
+		{
+		}
+		public override int RuleIndex { get { return RULE_more; } }
+		public override void EnterRule(IParseTreeListener listener) {
+			IAstParserListener typedListener = listener as IAstParserListener;
+			if (typedListener != null) typedListener.EnterMore(this);
+		}
+		public override void ExitRule(IParseTreeListener listener) {
+			IAstParserListener typedListener = listener as IAstParserListener;
+			if (typedListener != null) typedListener.ExitMore(this);
+		}
+	}
+
+	[RuleVersion(0)]
+	public MoreContext more() {
+		MoreContext _localctx = new MoreContext(Context, State);
+		EnterRule(_localctx, 4, RULE_more);
+		try {
+			State = 23;
+			ErrorHandler.Sync(this);
+			switch (TokenStream.LA(1)) {
+			case OPEN_PAREN:
+				EnterOuterAlt(_localctx, 1);
+				{
+				State = 21; decl();
+				}
+				break;
+			case ID:
+				EnterOuterAlt(_localctx, 2);
+				{
+				State = 22; attr();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -229,53 +267,13 @@ public partial class AstParserParser : Parser {
 	[RuleVersion(0)]
 	public AttrContext attr() {
 		AttrContext _localctx = new AttrContext(Context, State);
-		EnterRule(_localctx, 4, RULE_attr);
+		EnterRule(_localctx, 6, RULE_attr);
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 27; Match(ID);
-			State = 28; Match(EQUALS);
-			State = 29; Match(StringLiteral);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			ErrorHandler.ReportError(this, re);
-			ErrorHandler.Recover(this, re);
-		}
-		finally {
-			ExitRule();
-		}
-		return _localctx;
-	}
-
-	public partial class ChildContext : ParserRuleContext {
-		public DeclContext decl() {
-			return GetRuleContext<DeclContext>(0);
-		}
-		public ChildContext(ParserRuleContext parent, int invokingState)
-			: base(parent, invokingState)
-		{
-		}
-		public override int RuleIndex { get { return RULE_child; } }
-		public override void EnterRule(IParseTreeListener listener) {
-			IAstParserListener typedListener = listener as IAstParserListener;
-			if (typedListener != null) typedListener.EnterChild(this);
-		}
-		public override void ExitRule(IParseTreeListener listener) {
-			IAstParserListener typedListener = listener as IAstParserListener;
-			if (typedListener != null) typedListener.ExitChild(this);
-		}
-	}
-
-	[RuleVersion(0)]
-	public ChildContext child() {
-		ChildContext _localctx = new ChildContext(Context, State);
-		EnterRule(_localctx, 6, RULE_child);
-		try {
-			EnterOuterAlt(_localctx, 1);
-			{
-			State = 31; decl();
+			State = 25; Match(ID);
+			State = 26; Match(EQUALS);
+			State = 27; Match(StringLiteral);
 			}
 		}
 		catch (RecognitionException re) {
@@ -291,33 +289,30 @@ public partial class AstParserParser : Parser {
 
 	private static char[] _serializedATN = {
 		'\x3', '\x608B', '\xA72A', '\x8133', '\xB9ED', '\x417C', '\x3BE7', '\x7786', 
-		'\x5964', '\x3', '\f', '$', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', '\t', 
+		'\x5964', '\x3', '\f', ' ', '\x4', '\x2', '\t', '\x2', '\x4', '\x3', '\t', 
 		'\x3', '\x4', '\x4', '\t', '\x4', '\x4', '\x5', '\t', '\x5', '\x3', '\x2', 
 		'\x3', '\x2', '\x3', '\x2', '\x3', '\x3', '\x3', '\x3', '\x3', '\x3', 
 		'\a', '\x3', '\x11', '\n', '\x3', '\f', '\x3', '\xE', '\x3', '\x14', '\v', 
-		'\x3', '\x3', '\x3', '\a', '\x3', '\x17', '\n', '\x3', '\f', '\x3', '\xE', 
-		'\x3', '\x1A', '\v', '\x3', '\x3', '\x3', '\x3', '\x3', '\x3', '\x4', 
-		'\x3', '\x4', '\x3', '\x4', '\x3', '\x4', '\x3', '\x5', '\x3', '\x5', 
-		'\x3', '\x5', '\x2', '\x2', '\x6', '\x2', '\x4', '\x6', '\b', '\x2', '\x2', 
-		'\x2', '!', '\x2', '\n', '\x3', '\x2', '\x2', '\x2', '\x4', '\r', '\x3', 
-		'\x2', '\x2', '\x2', '\x6', '\x1D', '\x3', '\x2', '\x2', '\x2', '\b', 
-		'!', '\x3', '\x2', '\x2', '\x2', '\n', '\v', '\x5', '\x4', '\x3', '\x2', 
-		'\v', '\f', '\a', '\x2', '\x2', '\x3', '\f', '\x3', '\x3', '\x2', '\x2', 
-		'\x2', '\r', '\xE', '\a', '\a', '\x2', '\x2', '\xE', '\x12', '\a', '\v', 
-		'\x2', '\x2', '\xF', '\x11', '\x5', '\x6', '\x4', '\x2', '\x10', '\xF', 
-		'\x3', '\x2', '\x2', '\x2', '\x11', '\x14', '\x3', '\x2', '\x2', '\x2', 
-		'\x12', '\x10', '\x3', '\x2', '\x2', '\x2', '\x12', '\x13', '\x3', '\x2', 
-		'\x2', '\x2', '\x13', '\x18', '\x3', '\x2', '\x2', '\x2', '\x14', '\x12', 
-		'\x3', '\x2', '\x2', '\x2', '\x15', '\x17', '\x5', '\b', '\x5', '\x2', 
-		'\x16', '\x15', '\x3', '\x2', '\x2', '\x2', '\x17', '\x1A', '\x3', '\x2', 
-		'\x2', '\x2', '\x18', '\x16', '\x3', '\x2', '\x2', '\x2', '\x18', '\x19', 
-		'\x3', '\x2', '\x2', '\x2', '\x19', '\x1B', '\x3', '\x2', '\x2', '\x2', 
-		'\x1A', '\x18', '\x3', '\x2', '\x2', '\x2', '\x1B', '\x1C', '\a', '\b', 
-		'\x2', '\x2', '\x1C', '\x5', '\x3', '\x2', '\x2', '\x2', '\x1D', '\x1E', 
-		'\a', '\v', '\x2', '\x2', '\x1E', '\x1F', '\a', '\t', '\x2', '\x2', '\x1F', 
-		' ', '\a', '\n', '\x2', '\x2', ' ', '\a', '\x3', '\x2', '\x2', '\x2', 
-		'!', '\"', '\x5', '\x4', '\x3', '\x2', '\"', '\t', '\x3', '\x2', '\x2', 
-		'\x2', '\x4', '\x12', '\x18',
+		'\x3', '\x3', '\x3', '\x3', '\x3', '\x3', '\x4', '\x3', '\x4', '\x5', 
+		'\x4', '\x1A', '\n', '\x4', '\x3', '\x5', '\x3', '\x5', '\x3', '\x5', 
+		'\x3', '\x5', '\x3', '\x5', '\x2', '\x2', '\x6', '\x2', '\x4', '\x6', 
+		'\b', '\x2', '\x2', '\x2', '\x1D', '\x2', '\n', '\x3', '\x2', '\x2', '\x2', 
+		'\x4', '\r', '\x3', '\x2', '\x2', '\x2', '\x6', '\x19', '\x3', '\x2', 
+		'\x2', '\x2', '\b', '\x1B', '\x3', '\x2', '\x2', '\x2', '\n', '\v', '\x5', 
+		'\x4', '\x3', '\x2', '\v', '\f', '\a', '\x2', '\x2', '\x3', '\f', '\x3', 
+		'\x3', '\x2', '\x2', '\x2', '\r', '\xE', '\a', '\a', '\x2', '\x2', '\xE', 
+		'\x12', '\a', '\v', '\x2', '\x2', '\xF', '\x11', '\x5', '\x6', '\x4', 
+		'\x2', '\x10', '\xF', '\x3', '\x2', '\x2', '\x2', '\x11', '\x14', '\x3', 
+		'\x2', '\x2', '\x2', '\x12', '\x10', '\x3', '\x2', '\x2', '\x2', '\x12', 
+		'\x13', '\x3', '\x2', '\x2', '\x2', '\x13', '\x15', '\x3', '\x2', '\x2', 
+		'\x2', '\x14', '\x12', '\x3', '\x2', '\x2', '\x2', '\x15', '\x16', '\a', 
+		'\b', '\x2', '\x2', '\x16', '\x5', '\x3', '\x2', '\x2', '\x2', '\x17', 
+		'\x1A', '\x5', '\x4', '\x3', '\x2', '\x18', '\x1A', '\x5', '\b', '\x5', 
+		'\x2', '\x19', '\x17', '\x3', '\x2', '\x2', '\x2', '\x19', '\x18', '\x3', 
+		'\x2', '\x2', '\x2', '\x1A', '\a', '\x3', '\x2', '\x2', '\x2', '\x1B', 
+		'\x1C', '\a', '\v', '\x2', '\x2', '\x1C', '\x1D', '\a', '\t', '\x2', '\x2', 
+		'\x1D', '\x1E', '\a', '\n', '\x2', '\x2', '\x1E', '\t', '\x3', '\x2', 
+		'\x2', '\x2', '\x4', '\x12', '\x19',
 	};
 
 	public static readonly ATN _ATN =

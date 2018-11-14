@@ -51,6 +51,16 @@ public interface IAstParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitDecl([NotNull] AstParserParser.DeclContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="AstParserParser.more"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterMore([NotNull] AstParserParser.MoreContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="AstParserParser.more"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitMore([NotNull] AstParserParser.MoreContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="AstParserParser.attr"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -60,14 +70,4 @@ public interface IAstParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitAttr([NotNull] AstParserParser.AttrContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="AstParserParser.child"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterChild([NotNull] AstParserParser.ChildContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="AstParserParser.child"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitChild([NotNull] AstParserParser.ChildContext context);
 }

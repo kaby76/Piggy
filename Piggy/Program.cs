@@ -156,16 +156,14 @@ namespace Piggy
                 ITokenStream ast_tokens = new CommonTokenStream(ast_lexer);
                 AstParserParser ast_parser = new AstParserParser(ast_tokens);
                 ast_parser.BuildParseTree = true;
-                parser.AddErrorListener(listener);
+                ast_parser.AddErrorListener(listener);
                 IParseTree ast_tree = ast_parser.ast();
                 if (listener.had_error) throw new Exception();
                 System.Console.WriteLine("Parsed successfully.");
-
+                //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
                 FindAndOutput(ast_tree);
-
-
                 return;
                 string code = @"
                 using System;
@@ -232,7 +230,7 @@ namespace Piggy
             TreeRegEx regex = new TreeRegEx();
             foreach (SpecParserParser.TemplateContext t in this.templates)
             {
-                var matches = regex.dfs_match(t, ast);
+                var matches = regex.dfs_match(t, ast.GetChild(0));
             }
         }
     }

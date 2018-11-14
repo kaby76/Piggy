@@ -59,6 +59,18 @@ public partial class AstParserBaseListener : IAstParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitDecl([NotNull] AstParserParser.DeclContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="AstParserParser.more"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterMore([NotNull] AstParserParser.MoreContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="AstParserParser.more"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitMore([NotNull] AstParserParser.MoreContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="AstParserParser.attr"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -70,18 +82,6 @@ public partial class AstParserBaseListener : IAstParserListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAttr([NotNull] AstParserParser.AttrContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="AstParserParser.child"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterChild([NotNull] AstParserParser.ChildContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="AstParserParser.child"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitChild([NotNull] AstParserParser.ChildContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>
