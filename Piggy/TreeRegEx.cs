@@ -73,7 +73,8 @@ namespace Piggy
                 pos += 2;
                 start = re.GetChild(pos);
                 if (start == null) break;
-                if (match_simple_re(start, t)) return true;
+                if (match_simple_re(start, t))
+                    return true;
             }
             return false;
         }
@@ -200,6 +201,18 @@ namespace Piggy
         }
 
         /*
+         * Determine via lookahead if a node for a pattern matcher
+         * is an attribute or not.
+         */
+        bool is_attr(IParseTree p)
+        {
+            var p_child = p.GetChild(0);
+            SpecParserParser.AttrContext attr =
+                p_child as SpecParserParser.AttrContext;
+            return attr != null;
+        }
+
+        /*
          * basic: OPEN_RE ID more* CLOSE_RE ;
          *
          * decl : OPEN_PAREN ID more* CLOSE_PAREN ;
@@ -243,57 +256,42 @@ namespace Piggy
             IParseTree p_more = null;
             IParseTree t_more = null;
             bool result = true;
-            for (; ; )
+            int not_counting_parens_and_id = 3;
+            for ( ; p_pos < basic.ChildCount - not_counting_parens_and_id; ++p_pos)
             {
-                for (; ; )
-                {
-                    p_more = basic.GetChild(p_pos);
-                    if (p_more == null) break;
-                    if (!(p_more as SpecParserParser.CodeContext != null
-                        || p_more as SpecParserParser.TextContext != null))
-                        break;
-                    p_pos++;
-                }
+                p_more = basic.GetChild(p_pos);
                 if (p_more == null) break;
-                t_more = decl.GetChild(t_pos);
-                if (t_more == null)
-                {
-                    result = false;
-                    break;
-                }
-
+                if (p_more as SpecParserParser.CodeContext != null
+                    || p_more as SpecParserParser.TextContext != null)
+                    continue;
                 SpecParserParser.MoreContext c11 =
                     p_more as SpecParserParser.MoreContext;
-                if (c11 == null)
-                {
-                    result = false;
-                    break;
-                }
-                AstParserParser.MoreContext c22 =
-                    t_more as AstParserParser.MoreContext;
-                if (c22 == null) break;
-
+                if (c11 == null) return false;
                 var p_child = p_more.GetChild(0);
                 if (p_child as SpecParserParser.CodeContext != null
                     || p_child as SpecParserParser.TextContext != null)
-                {
-                    p_pos++;
                     continue;
-                }
 
-                if (match_more(c11, c22))
+                // If this element of the pattern is an attribute,
+                // go through all previous elements of t.
+                bool is_attr = this.is_attr(p_more);
+                bool matched = false;
+                for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens_and_id; ++j)
                 {
-                    // advance both.
-                    p_pos++;
-                    t_pos++;
-                    continue;
+                    t_more = decl.GetChild(j);
+                    AstParserParser.MoreContext c22 =
+                        t_more as AstParserParser.MoreContext;
+                    if (c22 == null) return false;
+                    if (match_more(c11, c22))
+                    {
+                        matched = true;
+                        t_pos = j;
+                        break;
+                    }
                 }
-                // advance t.
-                t_pos++;
+                if (!matched) return false;
             }
-
-            if (t_more == null) return true;
-            return false;
+            return true;
         }
 
         /* pattern grammar--
