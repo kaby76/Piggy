@@ -231,6 +231,10 @@ namespace Piggy
             foreach (SpecParserParser.TemplateContext t in this.templates)
             {
                 var matches = regex.dfs_match(t, ast.GetChild(0));
+                foreach (var match in matches)
+                {
+                    System.Console.WriteLine(match.GetText());
+                }
             }
         }
     }
