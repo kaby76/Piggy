@@ -13,37 +13,44 @@ namespace Piggy
         // Pattern matcher.
 
         private IParseTree current_ast_node;
-        private Stack<IParseTree> matches = new Stack<IParseTree>();
+        public Dictionary<IParseTree, IParseTree> matches = new Dictionary<IParseTree, IParseTree>();
+        public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
+        public Dictionary<IParseTree, int> dfs_number = new Dictionary<IParseTree, int>();
 
-        public List<IParseTree> dfs_match(IParseTree t, IParseTree start)
+        public void dfs_match(IParseTree t, IParseTree start)
         {
-            List<IParseTree> matches = new List<IParseTree>();
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
             stack.Push(start);
+            depth[start] = 0;
+            int current_dfs_number = 0;
 
             while (stack.Count > 0)
             {
                 var vertex = stack.Pop();
+                var current_depth = depth[vertex];
 
                 if (visited.Contains(vertex))
                     continue;
 
                 visited.Add(vertex);
+                dfs_number[vertex] = current_dfs_number;
 
-                // Try matching at vertex.
-                bool matched = match_template(t, vertex);
-                if (matched) matches.Add(vertex);
+                // Try matching at vertex, if the node hasn't been already matched.
+                if (!matches.ContainsKey(t))
+                {
+                    bool matched = match_template(t, vertex);
+                    if (matched) matches.Add(t, vertex);
+                }
 
                 for (int i = vertex.ChildCount - 1; i >= 0; --i)
                 {
                     var neighbor = vertex.GetChild(i);
+                    depth[neighbor] = current_depth + 1;
                     if (!visited.Contains(neighbor))
                         stack.Push(neighbor);
                 }
             }
-
-            return matches;
         }
 
         /* Match template: TEMPLATE rexp SEMI ;
