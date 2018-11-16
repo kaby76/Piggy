@@ -4,16 +4,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
 namespace Piggy
 {
+    public class Intercept<K, V> : Dictionary<K, V>
+    {
+        public void MyAdd(K k, V v)
+        {
+            this[k] = v;
+        }
+
+        public V this[K key]
+        {
+            get
+            {
+                return base[key];
+            }
+            set
+            {
+                var t = (IParseTree) key;
+                var p = (IParseTree) value;
+                System.Console.WriteLine(
+                    String.Format("Adding match[{0}] = {1}",
+                        TreeRegEx.sourceTextForContext(t), TreeRegEx.sourceTextForContext(p)));
+                base[key] = value;
+            }
+        }
+    }
+
     public class TreeRegEx
     {
         // Pattern matcher.
+        public static string sourceTextForContext(IParseTree context)
+        {
+            var c = (Antlr4.Runtime.ParserRuleContext) context;
+            IToken startToken = c.Start;
+            IToken stopToken = c.Stop;
+            ICharStream cs = startToken.InputStream;
+            int stopIndex = stopToken.StopIndex;
+            return cs.GetText(new Antlr4.Runtime.Misc.Interval(startToken.StartIndex, stopIndex));
+        }
 
         private IParseTree current_ast_node;
-        public Dictionary<IParseTree, IParseTree> matches = new Dictionary<IParseTree, IParseTree>();
+        public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
         public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
         public Dictionary<IParseTree, int> dfs_number = new Dictionary<IParseTree, int>();
 
