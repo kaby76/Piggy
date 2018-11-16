@@ -8,7 +8,8 @@ As with ClangSharp and CppSharp, input C files are parsed
 by Clang to get an [abstract syntax tree (AST)](http://clang.llvm.org/docs/IntroductionToTheClangAST.html).
 However, Piggy moves the visitor code into templates which are compiled and run during a DFS traversal of the
 AST. Ttemplates contain tree regular expressions, inlined code, and embedded C# code for processing of the tree
-data into output. This tool does not read DLLs for P/Invoke generation, only the headers.
+data into output. The advantage of this approach is to make it easy for people to change the translation of
+C code into C# pinvoke code. This tool does not read DLLs for P/Invoke generation, only the headers.
 
 Piggy extends the ideas of other pinvoke generators:
 * [SWIG](http://swig.org/), the original pinvoke generator, which uses a specification file containing type maps.
