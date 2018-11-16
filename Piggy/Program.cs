@@ -228,13 +228,11 @@ namespace Piggy
         void FindAndOutput(IParseTree ast)
         {
             TreeRegEx regex = new TreeRegEx();
-            foreach (SpecParserParser.TemplateContext t in this.templates)
+            List<SpecParserParser.TemplateContext> templates = this.templates;
+            regex.dfs_match(templates, ast.GetChild(0));
+            foreach (var match in regex.matches)
             {
-                regex.dfs_match(t, ast.GetChild(0));
-                foreach (var match in regex.matches)
-                {
-                    System.Console.WriteLine(match.Value.GetText());
-                }
+                System.Console.WriteLine(match.Value.GetText());
             }
         }
     }

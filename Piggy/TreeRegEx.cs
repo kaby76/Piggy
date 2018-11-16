@@ -17,7 +17,32 @@ namespace Piggy
         public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
         public Dictionary<IParseTree, int> dfs_number = new Dictionary<IParseTree, int>();
 
-        public void dfs_match(IParseTree t, IParseTree start)
+        public bool has_output(IParseTree p)
+        {
+            bool result = false;
+            var visited = new HashSet<IParseTree>();
+            var stack = new Stack<IParseTree>();
+            stack.Push(p);
+            while (stack.Count > 0)
+            {
+                var v = stack.Pop();
+                if (visited.Contains(v))
+                    continue;
+                visited.Add(v);
+                if (v as SpecParserParser.TextContext != null
+                    || v as SpecParserParser.CodeContext != null)
+                    return true;
+                for (int i = v.ChildCount - 1; i >= 0; --i)
+                {
+                    var c = v.GetChild(i);
+                    if (!visited.Contains(c))
+                        stack.Push(c);
+                }
+            }
+            return false;
+        }
+
+        public void dfs_match(List<SpecParserParser.TemplateContext> templates, IParseTree start)
         {
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
@@ -27,88 +52,100 @@ namespace Piggy
 
             while (stack.Count > 0)
             {
-                var vertex = stack.Pop();
-                var current_depth = depth[vertex];
+                var v = stack.Pop();
+                var current_depth = depth[v];
 
-                if (visited.Contains(vertex))
+                if (visited.Contains(v))
                     continue;
 
-                visited.Add(vertex);
-                dfs_number[vertex] = current_dfs_number;
+                visited.Add(v);
+                dfs_number[v] = current_dfs_number;
 
-                // Try matching at vertex, if the node hasn't been already matched.
-                if (!matches.ContainsKey(t))
+                foreach (SpecParserParser.TemplateContext t in templates)
                 {
-                    bool matched = match_template(t, vertex);
-                    if (matched) matches.Add(t, vertex);
+                    // Try matching at vertex, if the node hasn't been already matched.
+                    if (!matches.ContainsKey(t))
+                    {
+                        bool matched = match_template(t, v);
+                        if (matched) match_template(t, v, true);
+                    }
                 }
 
-                for (int i = vertex.ChildCount - 1; i >= 0; --i)
+                for (int i = v.ChildCount - 1; i >= 0; --i)
                 {
-                    var neighbor = vertex.GetChild(i);
-                    depth[neighbor] = current_depth + 1;
-                    if (!visited.Contains(neighbor))
-                        stack.Push(neighbor);
+                    var c = v.GetChild(i);
+                    depth[c] = current_depth + 1;
+                    if (!visited.Contains(c))
+                        stack.Push(c);
                 }
             }
         }
 
         /* Match template: TEMPLATE rexp SEMI ;
          */
-        public bool match_template(IParseTree p, IParseTree t)
+        public bool match_template(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.TemplateContext template =
                 p as SpecParserParser.TemplateContext;
             if (template == null) return false;
             var re = p.GetChild(1);
             if (re == null) return false;
-            return match_rexp(re, t);
+            bool result = match_rexp(re, t, map);
+            if (result && map && has_output(p)) matches[p] = t;
+            return result;
         }
 
         /* Match rexp : simple_rexp (OR simple_rexp)* ;
         */
-        bool match_rexp(IParseTree p, IParseTree t)
+        bool match_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.RexpContext re =
                 p as SpecParserParser.RexpContext;
             if (re == null) return false;
             int pos = 0;
             IParseTree start = re.GetChild(0);
-            if (match_simple_re(start, t)) return true;
+            bool result = match_simple_re(start, t, map);
+            if (result && map && has_output(start)) matches[start] = t;
+            if (result) return true;
             for (; ; )
             {
                 pos += 2;
                 start = re.GetChild(pos);
                 if (start == null) break;
-                if (match_simple_re(start, t))
-                    return true;
+                result = match_simple_re(start, t, map);
+                if (result && map && has_output(start)) matches[start] = t;
+                if (match_simple_re(start, t, map)) return true;
             }
             return false;
         }
 
         /* Match simple_rexp : basic_rexp+ ;
         */
-        bool match_simple_re(IParseTree p, IParseTree t)
+        bool match_simple_re(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Simple_rexpContext simple_re =
                 p as SpecParserParser.Simple_rexpContext;
             if (simple_re == null) return false;
             int pos = 0;
             IParseTree start = simple_re.GetChild(0);
-            if (!match_basic_re(start, t)) return false;
+            var result = match_basic_re(start, t, map);
+            if (result && map && has_output(start)) matches[start] = t;
+            if (!result) return false;
             for (; ; )
             {
                 pos += 1;
                 start = simple_re.GetChild(pos);
                 if (start == null) break;
-                if (!match_basic_re(start, t)) return false;
+                result = match_basic_re(start, t, map);
+                if (result && map && has_output(start)) matches[start] = t;
+                if (!result) return false;
             }
             return true;
         }
 
         /* Match basic_rexp : star_rexp | plus_rexp | elementary_rexp ;
          */
-        bool match_basic_re(IParseTree p, IParseTree t)
+        bool match_basic_re(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Basic_rexpContext basic_re =
                 p as SpecParserParser.Basic_rexpContext;
@@ -119,32 +156,45 @@ namespace Piggy
             SpecParserParser.Star_rexpContext star_rexp =
                 child as SpecParserParser.Star_rexpContext;
             if (star_rexp != null)
-                return match_star_rexp(star_rexp, t);
+            {
+                var result = match_star_rexp(star_rexp, t, map);
+                if (result && map && has_output(star_rexp)) matches[star_rexp] = t;
+                return result;
+            }
             SpecParserParser.Plus_rexpContext plus_rexp =
                 child as SpecParserParser.Plus_rexpContext;
             if (plus_rexp != null)
-                return match_plus_rexp(plus_rexp, t);
-
-            return match_elementary_rexp(child, t);
+            {
+                var result = match_plus_rexp(plus_rexp, t, map);
+                if (result && map && has_output(plus_rexp)) matches[plus_rexp] = t;
+                return result;
+            }
+            {
+                var result = match_elementary_rexp(child, t, map);
+                if (result && map && has_output(child)) matches[child] = t;
+                return result;
+            }
         }
 
         /*
          * star_rexp: elementary_rexp STAR;
          */
-        bool match_star_rexp(IParseTree p, IParseTree t)
+        bool match_star_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Star_rexpContext star_rexp =
                 p as SpecParserParser.Star_rexpContext;
             if (star_rexp == null) return false;
-            var child = star_rexp.GetChild(0);
+            int pos = 0;
+            var child = star_rexp.GetChild(pos);
             if (child == null) return false;
             // Match zero or more of elementary.
             var result = false;
             for (; ; )
             {
-                bool b = match_elementary_rexp(child, t);
+                bool b = match_elementary_rexp(child, t, map);
                 if (!b) break;
                 result = true;
+                pos++;
                 // advance...
             }
             return result;
@@ -153,7 +203,7 @@ namespace Piggy
         /*
          * plus_rexp: elementary_rexp PLUS;
          */
-        bool match_plus_rexp(IParseTree p, IParseTree t)
+        bool match_plus_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Star_rexpContext star_rexp =
                 p as SpecParserParser.Star_rexpContext;
@@ -164,7 +214,7 @@ namespace Piggy
             var result = true;
             for (; ; )
             {
-                bool b = match_elementary_rexp(child, t);
+                bool b = match_elementary_rexp(child, t, map);
                 if (!b) break;
                 result = true;
                 // advance...
@@ -175,7 +225,7 @@ namespace Piggy
         /*
          * elementary_rexp: group_rexp | basic ;
          */
-        bool match_elementary_rexp(IParseTree p, IParseTree t)
+        bool match_elementary_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Elementary_rexpContext elementary_rexp =
                 p as SpecParserParser.Elementary_rexpContext;
@@ -185,11 +235,19 @@ namespace Piggy
             SpecParserParser.Group_rexpContext group_rexp =
                 child as SpecParserParser.Group_rexpContext;
             if (group_rexp != null)
-                return match_group_rexp(group_rexp, t);
+            {
+                var result = match_group_rexp(group_rexp, t, map);
+                if (result && map && has_output(group_rexp)) matches[group_rexp] = t;
+                return result;
+            }
             SpecParserParser.BasicContext basic =
                 child as SpecParserParser.BasicContext;
             if (basic != null)
-                return match_basic(basic, t);
+            {
+                var result = match_basic(basic, t, map);
+                if (result && map && has_output(basic)) matches[basic] = t;
+                return result;
+            }
 
             return false;
         }
@@ -197,14 +255,16 @@ namespace Piggy
         /*
          * group_rexp:   OPEN_PAREN rexp CLOSE_PAREN ;
          */
-        bool match_group_rexp(IParseTree p, IParseTree t)
+        bool match_group_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Group_rexpContext group_rexp =
                 p as SpecParserParser.Group_rexpContext;
             if (group_rexp == null) return false;
             var child = group_rexp.GetChild(1);
             if (child == null) return false;
-            return match_rexp(child, t);
+            var result = match_rexp(child, t, map);
+            if (result && map && has_output(child)) matches[child] = t;
+            return result;
         }
 
         /*
@@ -224,7 +284,7 @@ namespace Piggy
          *
          * decl : OPEN_PAREN ID more* CLOSE_PAREN ;
          */
-        bool match_basic(IParseTree p, IParseTree t)
+        bool match_basic(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.BasicContext basic =
                 p as SpecParserParser.BasicContext;
@@ -289,7 +349,7 @@ namespace Piggy
                     AstParserParser.MoreContext c22 =
                         t_more as AstParserParser.MoreContext;
                     if (c22 == null) return false;
-                    if (match_more(c11, c22))
+                    if (match_more(c11, c22, map))
                     {
                         matched = true;
                         t_pos = j;
@@ -298,6 +358,8 @@ namespace Piggy
                 }
                 if (!matched) return false;
             }
+
+            if (true && map && has_output(p)) matches[p] = t;
             return true;
         }
 
@@ -307,7 +369,7 @@ namespace Piggy
          * tree grammar--
          * more : decl | attr ;
          */
-        bool match_more(IParseTree p, IParseTree t)
+        bool match_more(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.MoreContext p_more =
                 p as SpecParserParser.MoreContext;
@@ -328,12 +390,19 @@ namespace Piggy
             SpecParserParser.RexpContext rexp =
                 p_child as SpecParserParser.RexpContext;
             if (rexp != null)
-                return match_rexp(p_child, t_child);
+            {
+                var res = match_rexp(p_child, t_child, map);
+                if (res && map && has_output(p_child)) matches[p_child] = t_child;
+                return res;
+            }
 
             SpecParserParser.AttrContext attr =
                 p_child as SpecParserParser.AttrContext;
             if (attr != null)
-                return match_attr(p_child, t_child);
+            {
+                var res = match_attr(p_child, t_child, map);
+                return res;
+            }
 
             return false;
         }
@@ -341,7 +410,7 @@ namespace Piggy
         /*
          * code: LCURLY OTHER* RCURLY ;
          */
-        bool match_code(IParseTree p, IParseTree t)
+        bool match_code(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.CodeContext code =
                 p as SpecParserParser.CodeContext;
@@ -352,7 +421,7 @@ namespace Piggy
         /*
          * text: LANG OTHER_ANG* RANG ;
          */
-        bool match_text(IParseTree p, IParseTree t)
+        bool match_text(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.TextContext text =
                 p as SpecParserParser.TextContext;
@@ -363,7 +432,7 @@ namespace Piggy
         /*
          * attr: ID EQ (StringLiteral | STAR);
          */
-        bool match_attr(IParseTree p, IParseTree t)
+        bool match_attr(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.AttrContext p_attr =
                 p as SpecParserParser.AttrContext;
