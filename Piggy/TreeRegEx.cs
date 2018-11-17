@@ -39,7 +39,12 @@ namespace Piggy
         // Pattern matcher.
         public static string sourceTextForContext(IParseTree context)
         {
-            var c = (Antlr4.Runtime.ParserRuleContext) context;
+            var x = context as Antlr4.Runtime.ParserRuleContext;
+            if (x == null)
+            {
+                return "";
+            }
+            var c = x;
             IToken startToken = c.Start;
             IToken stopToken = c.Stop;
             ICharStream cs = startToken.InputStream;
@@ -102,8 +107,11 @@ namespace Piggy
                     if (!matches.ContainsKey(t))
                     {
                         bool matched = match_template(t, v);
-                        if (matched) match_template(t, v, true);
+                        if (matched)
+                            match_template(t, v, true);
                     }
+                    else
+                    { }
                 }
 
                 for (int i = v.ChildCount - 1; i >= 0; --i)
@@ -126,7 +134,7 @@ namespace Piggy
             var re = p.GetChild(1);
             if (re == null) return false;
             bool result = match_rexp(re, t, map);
-            if (result && map && has_output(p)) matches[p] = t;
+            //if (result && map && has_output(p)) matches[p] = t;
             return result;
         }
 
@@ -140,7 +148,7 @@ namespace Piggy
             int pos = 0;
             IParseTree start = re.GetChild(0);
             bool result = match_simple_re(start, t, map);
-            if (result && map && has_output(start)) matches[start] = t;
+            // if (result && map && has_output(start)) matches[start] = t;
             if (result) return true;
             for (; ; )
             {
@@ -148,7 +156,7 @@ namespace Piggy
                 start = re.GetChild(pos);
                 if (start == null) break;
                 result = match_simple_re(start, t, map);
-                if (result && map && has_output(start)) matches[start] = t;
+                //if (result && map && has_output(start)) matches[start] = t;
                 if (match_simple_re(start, t, map)) return true;
             }
             return false;
@@ -164,7 +172,7 @@ namespace Piggy
             int pos = 0;
             IParseTree start = simple_re.GetChild(0);
             var result = match_basic_re(start, t, map);
-            if (result && map && has_output(start)) matches[start] = t;
+            // if (result && map && has_output(start)) matches[start] = t;
             if (!result) return false;
             for (; ; )
             {
@@ -172,7 +180,7 @@ namespace Piggy
                 start = simple_re.GetChild(pos);
                 if (start == null) break;
                 result = match_basic_re(start, t, map);
-                if (result && map && has_output(start)) matches[start] = t;
+                // if (result && map && has_output(start)) matches[start] = t;
                 if (!result) return false;
             }
             return true;
@@ -193,7 +201,7 @@ namespace Piggy
             if (star_rexp != null)
             {
                 var result = match_star_rexp(star_rexp, t, map);
-                if (result && map && has_output(star_rexp)) matches[star_rexp] = t;
+                //if (result && map && has_output(star_rexp)) matches[star_rexp] = t;
                 return result;
             }
             SpecParserParser.Plus_rexpContext plus_rexp =
@@ -201,12 +209,12 @@ namespace Piggy
             if (plus_rexp != null)
             {
                 var result = match_plus_rexp(plus_rexp, t, map);
-                if (result && map && has_output(plus_rexp)) matches[plus_rexp] = t;
+                //if (result && map && has_output(plus_rexp)) matches[plus_rexp] = t;
                 return result;
             }
             {
                 var result = match_elementary_rexp(child, t, map);
-                if (result && map && has_output(child)) matches[child] = t;
+                // if (result && map && has_output(child)) matches[child] = t;
                 return result;
             }
         }
@@ -272,7 +280,7 @@ namespace Piggy
             if (group_rexp != null)
             {
                 var result = match_group_rexp(group_rexp, t, map);
-                if (result && map && has_output(group_rexp)) matches[group_rexp] = t;
+                //if (result && map && has_output(group_rexp)) matches[group_rexp] = t;
                 return result;
             }
             SpecParserParser.BasicContext basic =
@@ -280,7 +288,7 @@ namespace Piggy
             if (basic != null)
             {
                 var result = match_basic(basic, t, map);
-                if (result && map && has_output(basic)) matches[basic] = t;
+                // if (result && map && has_output(basic)) matches[basic] = t;
                 return result;
             }
 
@@ -298,7 +306,7 @@ namespace Piggy
             var child = group_rexp.GetChild(1);
             if (child == null) return false;
             var result = match_rexp(child, t, map);
-            if (result && map && has_output(child)) matches[child] = t;
+            //if (result && map && has_output(child)) matches[child] = t;
             return result;
         }
 
@@ -394,7 +402,7 @@ namespace Piggy
                 if (!matched) return false;
             }
 
-            if (true && map && has_output(p)) matches[p] = t;
+            if (true && map && has_output(p)) matches[t] = p;
             return true;
         }
 
@@ -427,7 +435,7 @@ namespace Piggy
             if (rexp != null)
             {
                 var res = match_rexp(p_child, t_child, map);
-                if (res && map && has_output(p_child)) matches[p_child] = t_child;
+                //if (res && map && has_output(p_child)) matches[p_child] = t_child;
                 return res;
             }
 

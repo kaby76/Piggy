@@ -232,7 +232,8 @@ namespace Piggy
             regex.dfs_match(templates, ast.GetChild(0));
             foreach (var match in regex.matches)
             {
-                System.Console.WriteLine(match.Value.GetText());
+                System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(match.Value)
+                   + " matches tree node " + TreeRegEx.sourceTextForContext(match.Key));
             }
         }
     }
