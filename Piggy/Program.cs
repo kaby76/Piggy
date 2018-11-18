@@ -165,58 +165,6 @@ namespace Piggy
                 // Templates contain code, which has to be compiled and run.
                 FindAndOutput(ast_tree);
                 return;
-                string code = @"
-                using System;
-                using System.IO;
-                using System.Runtime.InteropServices;
-                namespace First
-                {
-                    public class Program
-                    {
-                        [System.Runtime.InteropServices.DllImport(""" + full_path.Replace("\\", "\\\\") +
-                              @"ClangCode.dll"", EntryPoint = ""Name"", CallingConvention = System.Runtime.InteropServices.CallingConvention.StdCall)]
-                        private static unsafe extern IntPtr Name(void* pp);
-
-                        public static unsafe void Main(IntPtr p)
-                        {
-                            for (void ** q = (void**)p; *q != null; ++q)
-                            {
-                                IntPtr pc = Name(*q);
-                                string c = Marshal.PtrToStringAnsi(pc);
-                                System.Console.WriteLine(c);
-                            }
-                        }
-                    }
-                }
-            ";
-
-                CSharpCodeProvider provider = new CSharpCodeProvider();
-                CompilerParameters parameters = new CompilerParameters();
-                // parameters.ReferencedAssemblies.Add("System.Drawing.dll");
-                // True - memory generation, false - external file generation
-                parameters.GenerateInMemory = true;
-                // True - exe file generation, false - dll file generation
-                parameters.GenerateExecutable = false;
-                parameters.CompilerOptions = "/unsafe";
-                CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
-                if (results.Errors.HasErrors)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    foreach (CompilerError error in results.Errors)
-                    {
-                        sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
-                    }
-
-                    System.Console.WriteLine(sb.ToString());
-                    throw new InvalidOperationException(sb.ToString());
-                }
-
-                Assembly assembly = results.CompiledAssembly;
-                Type program = assembly.GetType("First.Program");
-                MethodInfo main = program.GetMethod("Main");
-                object[] a = new object[1];
-                a[0] = (IntPtr) v;
-                main.Invoke(null, a);
             }
             finally
             {
@@ -235,6 +183,9 @@ namespace Piggy
                 System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(match.Value)
                    + " matches tree node " + TreeRegEx.sourceTextForContext(match.Key));
             }
+
+            OutputEngine output = new OutputEngine();
+            output.Generate(regex, ast);
         }
     }
 }

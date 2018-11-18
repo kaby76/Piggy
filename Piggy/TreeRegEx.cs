@@ -52,10 +52,9 @@ namespace Piggy
             return cs.GetText(new Antlr4.Runtime.Misc.Interval(startToken.StartIndex, stopIndex));
         }
 
-        private IParseTree current_ast_node;
         public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
         public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
-        public Dictionary<IParseTree, int> dfs_number = new Dictionary<IParseTree, int>();
+        public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
 
         public bool has_output(IParseTree p)
         {
@@ -86,6 +85,7 @@ namespace Piggy
         {
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
+            var pre_order = new List<IParseTree>();
             stack.Push(start);
             depth[start] = 0;
             int current_dfs_number = 0;
@@ -94,13 +94,30 @@ namespace Piggy
             {
                 var v = stack.Pop();
                 var current_depth = depth[v];
-
-                if (visited.Contains(v))
-                    continue;
-
+                if (visited.Contains(v)) continue;
                 visited.Add(v);
-                dfs_number[v] = current_dfs_number;
+                pre_order_number[v] = current_dfs_number;
+                pre_order.Add(v);
+                for (int i = v.ChildCount - 1; i >= 0; --i)
+                {
+                    var c = v.GetChild(i);
+                    depth[c] = current_depth + 1;
+                    if (!visited.Contains(c))
+                        stack.Push(c);
+                }
+            }
 
+            // Do pre-order walk to find matches.
+            var copy = new Stack<IParseTree>(pre_order);
+            var post_order = new List<IParseTree>();
+            while (copy.Any())
+            {
+                var x = copy.Pop();
+                post_order.Add(x);
+            }
+
+            foreach (var v in pre_order)
+            {
                 foreach (SpecParserParser.TemplateContext t in templates)
                 {
                     // Try matching at vertex, if the node hasn't been already matched.
@@ -110,23 +127,13 @@ namespace Piggy
                         if (matched)
                             match_template(t, v, true);
                     }
-                    else
-                    { }
-                }
-
-                for (int i = v.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = v.GetChild(i);
-                    depth[c] = current_depth + 1;
-                    if (!visited.Contains(c))
-                        stack.Push(c);
                 }
             }
         }
 
         /* Match template: TEMPLATE rexp SEMI ;
          */
-        public bool match_template(IParseTree p, IParseTree t, bool map = false)
+        private bool match_template(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.TemplateContext template =
                 p as SpecParserParser.TemplateContext;
@@ -140,7 +147,7 @@ namespace Piggy
 
         /* Match rexp : simple_rexp (OR simple_rexp)* ;
         */
-        bool match_rexp(IParseTree p, IParseTree t, bool map = false)
+        private bool match_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.RexpContext re =
                 p as SpecParserParser.RexpContext;
@@ -164,7 +171,7 @@ namespace Piggy
 
         /* Match simple_rexp : basic_rexp+ ;
         */
-        bool match_simple_re(IParseTree p, IParseTree t, bool map = false)
+        private bool match_simple_re(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Simple_rexpContext simple_re =
                 p as SpecParserParser.Simple_rexpContext;
@@ -188,7 +195,7 @@ namespace Piggy
 
         /* Match basic_rexp : star_rexp | plus_rexp | elementary_rexp ;
          */
-        bool match_basic_re(IParseTree p, IParseTree t, bool map = false)
+        private bool match_basic_re(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Basic_rexpContext basic_re =
                 p as SpecParserParser.Basic_rexpContext;
@@ -222,7 +229,7 @@ namespace Piggy
         /*
          * star_rexp: elementary_rexp STAR;
          */
-        bool match_star_rexp(IParseTree p, IParseTree t, bool map = false)
+        private bool match_star_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Star_rexpContext star_rexp =
                 p as SpecParserParser.Star_rexpContext;
@@ -246,7 +253,7 @@ namespace Piggy
         /*
          * plus_rexp: elementary_rexp PLUS;
          */
-        bool match_plus_rexp(IParseTree p, IParseTree t, bool map = false)
+        private bool match_plus_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Star_rexpContext star_rexp =
                 p as SpecParserParser.Star_rexpContext;
@@ -268,7 +275,7 @@ namespace Piggy
         /*
          * elementary_rexp: group_rexp | basic ;
          */
-        bool match_elementary_rexp(IParseTree p, IParseTree t, bool map = false)
+        private bool match_elementary_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Elementary_rexpContext elementary_rexp =
                 p as SpecParserParser.Elementary_rexpContext;
@@ -298,7 +305,7 @@ namespace Piggy
         /*
          * group_rexp:   OPEN_PAREN rexp CLOSE_PAREN ;
          */
-        bool match_group_rexp(IParseTree p, IParseTree t, bool map = false)
+        private bool match_group_rexp(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Group_rexpContext group_rexp =
                 p as SpecParserParser.Group_rexpContext;
@@ -314,7 +321,7 @@ namespace Piggy
          * Determine via lookahead if a node for a pattern matcher
          * is an attribute or not.
          */
-        bool is_attr(IParseTree p)
+        private bool is_attr(IParseTree p)
         {
             var p_child = p.GetChild(0);
             SpecParserParser.AttrContext attr =
@@ -327,7 +334,7 @@ namespace Piggy
          *
          * decl : OPEN_PAREN ID more* CLOSE_PAREN ;
          */
-        bool match_basic(IParseTree p, IParseTree t, bool map = false)
+        private bool match_basic(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.BasicContext basic =
                 p as SpecParserParser.BasicContext;
@@ -412,7 +419,7 @@ namespace Piggy
          * tree grammar--
          * more : decl | attr ;
          */
-        bool match_more(IParseTree p, IParseTree t, bool map = false)
+        private bool match_more(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.MoreContext p_more =
                 p as SpecParserParser.MoreContext;
@@ -453,7 +460,7 @@ namespace Piggy
         /*
          * code: LCURLY OTHER* RCURLY ;
          */
-        bool match_code(IParseTree p, IParseTree t, bool map = false)
+        private bool match_code(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.CodeContext code =
                 p as SpecParserParser.CodeContext;
@@ -464,7 +471,7 @@ namespace Piggy
         /*
          * text: LANG OTHER_ANG* RANG ;
          */
-        bool match_text(IParseTree p, IParseTree t, bool map = false)
+        private bool match_text(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.TextContext text =
                 p as SpecParserParser.TextContext;
@@ -475,7 +482,7 @@ namespace Piggy
         /*
          * attr: ID EQ (StringLiteral | STAR);
          */
-        bool match_attr(IParseTree p, IParseTree t, bool map = false)
+        private bool match_attr(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.AttrContext p_attr =
                 p as SpecParserParser.AttrContext;
