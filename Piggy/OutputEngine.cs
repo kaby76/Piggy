@@ -20,75 +20,72 @@ namespace Piggy
             // Perform post-order traversal of AST, generate output for nodes
             // that have an associated pattern.
 
-            var visited = new HashSet<IParseTree>();
-            var stack = new Stack<IParseTree>();
-            stack.Push(t);
-            while (stack.Count > 0)
+            foreach (var v in re.post_order)
             {
-                var v = stack.Pop();
-                if (visited.Contains(v))
-                    continue;
-                visited.Add(v);
-                for (int i = v.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = v.GetChild(i);
-                    if (!visited.Contains(c))
-                        stack.Push(c);
-                }
-
                 // Get associated pattern.
                 re.matches.TryGetValue(v, out IParseTree p);
+                if (p == null) continue;
 
-                if (p as SpecParserParser.TextContext != null)
+                // Walk children, if any, to generate output.
+                for (int i = 0; i < p.ChildCount; ++i)
                 {
-                    builder.Append(TreeRegEx.sourceTextForContext(v));
-                }
-
-                if (p as SpecParserParser.CodeContext != null)
-                {
-                    string code = @"
-                using System;
-                using System.IO;
-                using System.Runtime.InteropServices;
-                namespace First
-                {
-                    public class Program
+                    var c = p.GetChild(i);
+                    
+                    if (re.is_text(c))
                     {
-                        public static string Gen()
-                        {
-                            return ""Hello world"";
-                        }
-                    }
-                }
-            ";
-                    CSharpCodeProvider provider = new CSharpCodeProvider();
-                    CompilerParameters parameters = new CompilerParameters();
-                    // parameters.ReferencedAssemblies.Add("System.Drawing.dll");
-                    // True - memory generation, false - external file generation
-                    parameters.GenerateInMemory = true;
-                    // True - exe file generation, false - dll file generation
-                    parameters.GenerateExecutable = false;
-                    parameters.CompilerOptions = "/unsafe";
-                    CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
-                    if (results.Errors.HasErrors)
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        foreach (CompilerError error in results.Errors)
-                        {
-                            sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
-                        }
-
-                        System.Console.WriteLine(sb.ToString());
-                        throw new InvalidOperationException(sb.ToString());
+                        string s = TreeRegEx.sourceTextForContext(c);
+                        string s2 = s.Substring(1);
+                        string s3 = s2.Substring(0, s2.Length - 1);
+                        builder.Append(s3);
                     }
 
-                    Assembly assembly = results.CompiledAssembly;
-                    Type program = assembly.GetType("First.Program");
-                    MethodInfo main = program.GetMethod("Main");
-                    object[] a = new object[0];
-                    var res = main.Invoke(null, a);
+                    if (c as SpecParserParser.CodeContext != null)
+                    {
+                        string code = @"
+                    using System;
+                    using System.IO;
+                    using System.Runtime.InteropServices;
+                    namespace First
+                    {
+                        public class Program
+                        {
+                            public static string Gen()
+                            {
+                                return ""Hello world"";
+                            }
+                        }
+                    }
+                ";
+                        CSharpCodeProvider provider = new CSharpCodeProvider();
+                        CompilerParameters parameters = new CompilerParameters();
+                        // parameters.ReferencedAssemblies.Add("System.Drawing.dll");
+                        // True - memory generation, false - external file generation
+                        parameters.GenerateInMemory = true;
+                        // True - exe file generation, false - dll file generation
+                        parameters.GenerateExecutable = false;
+                        parameters.CompilerOptions = "/unsafe";
+                        CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
+                        if (results.Errors.HasErrors)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            foreach (CompilerError error in results.Errors)
+                            {
+                                sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
+                            }
+
+                            System.Console.WriteLine(sb.ToString());
+                            throw new InvalidOperationException(sb.ToString());
+                        }
+
+                        Assembly assembly = results.CompiledAssembly;
+                        Type program = assembly.GetType("First.Program");
+                        MethodInfo main = program.GetMethod("Main");
+                        object[] a = new object[0];
+                        var res = main.Invoke(null, a);
+                    }
                 }
             }
+
             return builder.ToString();
         }
     }

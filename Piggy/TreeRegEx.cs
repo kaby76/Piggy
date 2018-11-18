@@ -55,6 +55,8 @@ namespace Piggy
         public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
         public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
         public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
+        public List<IParseTree> pre_order = new List<IParseTree>();
+        public List<IParseTree> post_order = new List<IParseTree>();
 
         public bool has_output(IParseTree p)
         {
@@ -85,7 +87,7 @@ namespace Piggy
         {
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
-            var pre_order = new List<IParseTree>();
+            pre_order = new List<IParseTree>();
             stack.Push(start);
             depth[start] = 0;
             int current_dfs_number = 0;
@@ -109,7 +111,7 @@ namespace Piggy
 
             // Do pre-order walk to find matches.
             var copy = new Stack<IParseTree>(pre_order);
-            var post_order = new List<IParseTree>();
+            post_order = new List<IParseTree>();
             while (copy.Any())
             {
                 var x = copy.Pop();
@@ -321,12 +323,24 @@ namespace Piggy
          * Determine via lookahead if a node for a pattern matcher
          * is an attribute or not.
          */
-        private bool is_attr(IParseTree p)
+        public bool is_attr(IParseTree p)
         {
             var p_child = p.GetChild(0);
             SpecParserParser.AttrContext attr =
                 p_child as SpecParserParser.AttrContext;
             return attr != null;
+        }
+
+        /*
+         * Determine via lookahead if a node for a pattern matcher
+         * is text or not.
+         */
+        public bool is_text(IParseTree p)
+        {
+            var p_child = p.GetChild(0);
+            SpecParserParser.TextContext text =
+                p_child as SpecParserParser.TextContext;
+            return text != null;
         }
 
         /*

@@ -163,7 +163,8 @@ namespace Piggy
                 //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
-                FindAndOutput(ast_tree);
+                string result = FindAndOutput(ast_tree);
+                System.Console.WriteLine(result);
                 return;
             }
             finally
@@ -173,11 +174,13 @@ namespace Piggy
         }
 
 
-        void FindAndOutput(IParseTree ast)
+        string FindAndOutput(IParseTree ast)
         {
             TreeRegEx regex = new TreeRegEx();
             List<SpecParserParser.TemplateContext> templates = this.templates;
+
             regex.dfs_match(templates, ast.GetChild(0));
+
             foreach (var match in regex.matches)
             {
                 System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(match.Value)
@@ -185,7 +188,8 @@ namespace Piggy
             }
 
             OutputEngine output = new OutputEngine();
-            output.Generate(regex, ast);
+            string @out = output.Generate(regex, ast);
+            return @out;
         }
     }
 }
