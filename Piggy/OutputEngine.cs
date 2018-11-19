@@ -26,6 +26,10 @@ namespace Piggy
                 re.matches.TryGetValue(v, out IParseTree p);
                 if (p == null) continue;
 
+                System.Console.WriteLine("=====");
+                System.Console.WriteLine("Node in tree " + TreeRegEx.sourceTextForContext(v));
+                System.Console.WriteLine("Partial pattern " + TreeRegEx.sourceTextForContext(p));
+
                 // Walk children, if any, to generate output.
                 for (int i = 0; i < p.ChildCount; ++i)
                 {

@@ -237,19 +237,12 @@ namespace Piggy
                 p as SpecParserParser.Star_rexpContext;
             if (star_rexp == null) return false;
             int pos = 0;
-            var child = star_rexp.GetChild(pos);
-            if (child == null) return false;
-            // Match zero or more of elementary.
-            var result = false;
-            for (; ; )
-            {
-                bool b = match_elementary_rexp(child, t, map);
-                if (!b) break;
-                result = true;
-                pos++;
-                // advance...
-            }
-            return result;
+            var child = star_rexp.GetChild(0);
+            if (child == null) return true;
+            // Match zero or more of elementary. Note, we are matching
+            // a elementary_rexp with a "more" type in the ast.
+            bool b = match_elementary_rexp(child, t, map);
+            return b;
         }
 
         /*
@@ -262,16 +255,10 @@ namespace Piggy
             if (star_rexp == null) return false;
             var child = star_rexp.GetChild(0);
             if (child == null) return false;
-            // Match zero or more of elementary.
+            // Match one or more of elementary.
             var result = true;
-            for (; ; )
-            {
-                bool b = match_elementary_rexp(child, t, map);
-                if (!b) break;
-                result = true;
-                // advance...
-            }
-            return result;
+            bool b = match_elementary_rexp(child, t, map);
+            return b;
         }
 
         /*
@@ -387,8 +374,8 @@ namespace Piggy
             IParseTree p_more = null;
             IParseTree t_more = null;
             bool result = true;
-            int not_counting_parens_and_id = 3;
-            for ( ; p_pos < basic.ChildCount - not_counting_parens_and_id; ++p_pos)
+            int not_counting_parens = 1;
+            for ( ; p_pos < basic.ChildCount - not_counting_parens; ++p_pos)
             {
                 p_more = basic.GetChild(p_pos);
                 if (p_more == null) break;
@@ -407,7 +394,7 @@ namespace Piggy
                 // go through all previous elements of t.
                 bool is_attr = this.is_attr(p_more);
                 bool matched = false;
-                for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens_and_id; ++j)
+                for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens; ++j)
                 {
                     t_more = decl.GetChild(j);
                     AstParserParser.MoreContext c22 =
