@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Microsoft.CSharp;
 
@@ -12,38 +13,77 @@ namespace Piggy
 {
     public class OutputEngine
     {
+        public bool is_ast_node(IParseTree x)
+        {
+            return (x as AstParserParser.AttrContext != null
+                    || x as AstParserParser.AstContext != null
+                    || x as AstParserParser.DeclContext != null
+                    || x as AstParserParser.MoreContext != null);
+        }
+
+        public bool is_spec_node(IParseTree x)
+        {
+            return false
+                   || x as SpecParserParser.Add_after_usingsContext != null
+                   || x as SpecParserParser.AttrContext != null
+                   || x as SpecParserParser.BasicContext != null
+                   || x as SpecParserParser.Basic_rexpContext != null
+                   || x as SpecParserParser.Calling_conventionContext != null
+                   || x as SpecParserParser.Class_nameContext != null
+                   || x as SpecParserParser.CodeContext != null
+                   || x as SpecParserParser.Elementary_rexpContext != null
+                   || x as SpecParserParser.Group_rexpContext != null
+                   || x as SpecParserParser.ItemsContext != null
+                   || x as SpecParserParser.MoreContext != null
+                   || x as SpecParserParser.NamespaceContext != null
+                   || x as SpecParserParser.Plus_rexpContext != null
+                   || x as SpecParserParser.Prefix_stripContext != null
+                   || x as SpecParserParser.RexpContext != null
+                   || x as SpecParserParser.Simple_rexpContext != null
+                   || x as SpecParserParser.SpecContext != null
+                   || x as SpecParserParser.Star_rexpContext != null
+                   || x as SpecParserParser.TemplateContext != null
+                   || x as SpecParserParser.TextContext != null
+                ;
+        }
 
         public string Generate(TreeRegEx re, IParseTree t)
         {
             StringBuilder builder = new StringBuilder();
-
-            // Perform post-order traversal of AST, generate output for nodes
-            // that have an associated pattern.
-
-            foreach (var v in re.post_order)
+            var visited = new HashSet<IParseTree>();
+            Stack<IParseTree> stack = new Stack<IParseTree>();
+            stack.Push(t);
+            while (stack.Count > 0)
             {
-                // Get associated pattern.
-                re.matches.TryGetValue(v, out IParseTree p);
-                if (p == null) continue;
+                var x = stack.Pop();
+                if (visited.Contains(x)) continue;
+                visited.Add(x);
 
-                System.Console.WriteLine("=====");
-                System.Console.WriteLine("Node in tree " + TreeRegEx.sourceTextForContext(v));
-                System.Console.WriteLine("Partial pattern " + TreeRegEx.sourceTextForContext(p));
-
-                // Walk children, if any, to generate output.
-                for (int i = 0; i < p.ChildCount; ++i)
+                // x could be either an AST node, or a pattern node.
+                if (is_ast_node(x))
                 {
-                    var c = p.GetChild(i);
-                    
-                    if (re.is_text(c))
+                    re.matches.TryGetValue(x, out IParseTree p);
+                    if (p != null)
                     {
-                        string s = TreeRegEx.sourceTextForContext(c);
+                        System.Console.WriteLine("+++++");
+                        System.Console.WriteLine("p " + TreeRegEx.sourceTextForContext(p));
+                        System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
+                        System.Console.WriteLine("-----");
+                        stack.Push(p);
+                        continue;
+                    }
+                }
+                else if (is_spec_node(x))
+                {
+                    if (x as SpecParserParser.TextContext != null)
+                    {
+                        string s = TreeRegEx.sourceTextForContext(x);
                         string s2 = s.Substring(1);
                         string s3 = s2.Substring(0, s2.Length - 1);
                         builder.Append(s3);
                     }
 
-                    if (c as SpecParserParser.CodeContext != null)
+                    if (x as SpecParserParser.CodeContext != null)
                     {
                         string code = @"
                     using System;
@@ -85,8 +125,17 @@ namespace Piggy
                         Type program = assembly.GetType("First.Program");
                         MethodInfo main = program.GetMethod("Main");
                         object[] a = new object[0];
-                        var res = main.Invoke(null, a);
+                //        var res = main.Invoke(null, a);
                     }
+                }
+                else if (x as ParserRuleContext != null)
+                    throw new Exception();
+
+                for (int i = x.ChildCount - 1; i >= 0; --i)
+                {
+                    var c = x.GetChild(i);
+                    if (!visited.Contains(c))
+                        stack.Push(c);
                 }
             }
 

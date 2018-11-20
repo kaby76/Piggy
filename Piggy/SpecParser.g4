@@ -180,6 +180,9 @@ compiler_option: COMPILER_OPTION StringLiteral SEMI ;
  *     %)
  *     ;
  */
+// CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
+// BNF Grammar of Regular Expressions
+// Following the precedence rules given previously, a BNF grammar for Perl-style regular expressions can be constructed as follows.
 template: TEMPLATE rexp SEMI ;
 rexp : simple_rexp (OR simple_rexp)* ;
 simple_rexp : basic_rexp+ ;
@@ -192,24 +195,3 @@ basic: OPEN_RE ID more* CLOSE_RE ;
 more : rexp | text | code | attr ;
 text: LANG OTHER_ANG* RANG ;
 attr: ID EQ (StringLiteral | STAR);
-
-
-// CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
-// BNF Grammar of Regular Expressions
-// Following the precedence rules given previously, a BNF grammar for Perl-style regular expressions can be constructed as follows.
-re: simple_re (OR simple_re)*;
-simple_re: basic_re+;
-basic_re: star | plus | elementary_re;
-star: elementary_re STAR;
-plus: elementary_re PLUS;
-elementary_re: group | any | eos | char | set;
-group:   OPEN_PAREN re CLOSE_PAREN;
-any: DOT;
-eos: DOLLAR;
-char:    ID;
-set:    positive_set | negative_set;
-positive_set:  OPEN_BRACKET set_items CLOSE_BRACKET;
-negative_set:  OPEN_BRACKET_NOT set_items CLOSE_BRACKET;
-set_items:  set_item+;
-set_item:  range | char;
-range:    char MINUS char;
