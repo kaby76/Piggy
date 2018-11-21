@@ -53,6 +53,7 @@ namespace Piggy
             var visited = new HashSet<IParseTree>();
             Stack<IParseTree> stack = new Stack<IParseTree>();
             stack.Push(t);
+            Dictionary<string, object> vars = new Dictionary<string, object>();
             while (stack.Count > 0)
             {
                 var x = stack.Pop();
@@ -87,15 +88,23 @@ namespace Piggy
                     {
                         string code = @"
                     using System;
+                    using System.CodeDom.Compiler;
+                    using System.Collections.Generic;
+                    using System.Linq;
+                    using System.Reflection;
+                    using System.Text;
+                    using System.Threading.Tasks;
                     using System.IO;
                     using System.Runtime.InteropServices;
                     namespace First
                     {
                         public class Program
                         {
-                            public static string Gen()
+                            public static void Gen(
+                                Dictionary<string, object> vars,
+                                StringBuilder result)
                             {
-                                return ""Hello world"";
+" + TreeRegEx.sourceTextForContext(x) + @"
                             }
                         }
                     }
@@ -125,7 +134,7 @@ namespace Piggy
                         Type program = assembly.GetType("First.Program");
                         MethodInfo main = program.GetMethod("Main");
                         object[] a = new object[0];
-                //        var res = main.Invoke(null, a);
+                        var res = main.Invoke(null, a);
                     }
                 }
                 else if (x as ParserRuleContext != null)

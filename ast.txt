@@ -1,0 +1,16 @@
+( TranslationUnitDecl Pointer="0x1ef39be01b8" SrcRange="<invalid sloc>"  SrcLoc="<invalid sloc>"
+  ( FunctionDecl Pointer="0x1ef39d26a18" SrcRange="c:\temp\include\help.h:2:1, col:7"  SrcLoc="col:5" Name="j" Type="int (void)" Attrs=""
+  )
+  ( EnumDecl Pointer="0x1ef39d26af8" SrcRange="line:3:1, col:17"  SrcLoc="col:6" Name="e"
+    ( EnumConstantDecl Pointer="0x1ef39d26bc0" SrcRange="col:10"  SrcLoc="col:10" Name="a" Type="enum e"
+    )
+    ( EnumConstantDecl Pointer="0x1ef39d26c10" SrcRange="col:13"  SrcLoc="col:13" Name="b" Type="enum e"
+    )
+    ( EnumConstantDecl Pointer="0x1ef39d26c60" SrcRange="col:16"  SrcLoc="col:16" Name="c" Type="enum e"
+  ) )
+  ( EnumDecl Pointer="0x1ef39d26cb0" SrcRange="line:4:1, col:14"  SrcLoc="col:6" Name="f"
+    ( EnumConstantDecl Pointer="0x1ef39d26d70" SrcRange="col:10"  SrcLoc="col:10" Name="d" Type="enum f"
+    )
+    ( EnumConstantDecl Pointer="0x1ef39d26dc0" SrcRange="col:13"  SrcLoc="col:13" Name="e" Type="enum f"
+
+) ) )

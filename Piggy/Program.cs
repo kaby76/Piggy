@@ -165,7 +165,6 @@ namespace Piggy
                 // Templates contain code, which has to be compiled and run.
                 string result = FindAndOutput(ast_tree);
                 System.Console.WriteLine(result);
-                return;
             }
             finally
             {
