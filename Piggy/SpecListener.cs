@@ -8,9 +8,9 @@ namespace Piggy
 {
     public class SpecListener : SpecParserBaseListener
     {
-        Program _program;
+        Piggy _program;
 
-        public SpecListener(Program program)
+        public SpecListener(Piggy program)
         {
             _program = program;
         }

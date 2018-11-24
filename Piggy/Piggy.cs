@@ -14,8 +14,10 @@ namespace Piggy
     using System.Text;
     using System.Reflection;
 
-    public class Program
+    public class Piggy
     {
+        public Piggy() { }
+
         public static string copyright = @"
 ";
         public List<string> files = new List<string>();
@@ -32,6 +34,8 @@ namespace Piggy
         public List<string> compiler_options = new List<string>();
         public bool ast = false;
         public List<SpecParserParser.TemplateContext> templates = new List<SpecParserParser.TemplateContext>();
+        ErrorListener<IToken> listener = new ErrorListener<IToken>();
+        IParseTree tree;
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
         private static extern void ClangAddOption([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @include);
@@ -44,7 +48,7 @@ namespace Piggy
 
         public static void Main(string[] args)
         {
-            var p = new Program();
+            var p = new Piggy();
             p.Doit(args);
         }
 
@@ -54,7 +58,7 @@ namespace Piggy
             try
             {
 
-                string full_path = Path.GetDirectoryName(Path.GetFullPath(typeof(Program).Assembly.Location))
+                string full_path = Path.GetDirectoryName(Path.GetFullPath(typeof(Piggy).Assembly.Location))
                                    + Path.DirectorySeparatorChar;
 
                 Regex re = new Regex(@"(?<switch>-{1,2}\S*)(?:[=:]?|\s+)(?<value>[^-\s].*?)?(?=\s+[-]|$)");
@@ -87,21 +91,25 @@ namespace Piggy
                     }
                 }
 
-                // Parse specification file.
-                ICharStream stream = CharStreams.fromPath(specification);
-                ITokenSource lexer = new SpecLexer(stream);
-                ITokenStream tokens = new CommonTokenStream(lexer);
-                SpecParserParser parser = new SpecParserParser(tokens);
-                parser.BuildParseTree = true;
-                var listener = new ErrorListener<IToken>();
-                parser.AddErrorListener(listener);
-                IParseTree tree = parser.spec();
-                if (listener.had_error) throw new Exception();
-
-                SpecListener printer = new SpecListener(this);
-                ParseTreeWalker.Default.Walk(printer, tree);
-
                 var errorList = new List<string>();
+
+                if (!specification.Any())
+                    errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
+                else
+                {
+                    // Parse specification file.
+                    ICharStream stream = CharStreams.fromPath(specification);
+                    ITokenSource lexer = new SpecLexer(stream);
+                    ITokenStream tokens = new CommonTokenStream(lexer);
+                    SpecParserParser parser = new SpecParserParser(tokens);
+                    parser.BuildParseTree = true;
+                    parser.AddErrorListener(listener);
+                    tree = parser.spec();
+                    if (listener.had_error) throw new Exception();
+                    SpecListener printer = new SpecListener(this);
+                    ParseTreeWalker.Default.Walk(printer, tree);
+                }
+
                 if (!files.Any())
                     errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
                 if (string.IsNullOrWhiteSpace(@namespace))
@@ -118,6 +126,7 @@ namespace Piggy
                     {
                         Console.WriteLine(error);
                     }
+                    return;
                 }
 
                 if (excludeFunctions.Any())

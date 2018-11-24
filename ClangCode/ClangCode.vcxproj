@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Kenne\Documents\clang-llvm\build\tools\clang\include;C:\Users\Kenne\Documents\clang-llvm\build\include;C:\Users\Kenne\Documents\clang-llvm\llvm\include;C:\Users\Kenne\Documents\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>/wd4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -86,12 +86,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Kenne\Documents\clang-llvm\llvm\tools\clang\tools;C:\Users\Kenne\Documents\clang-llvm\build\tools\clang\include;C:\Users\Kenne\Documents\clang-llvm\build\include;C:\Users\Kenne\Documents\clang-llvm\llvm\include;C:\Users\Kenne\Documents\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>e:\clang-llvm\llvm\tools\clang\tools\include;e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4146;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>clangAnalysis.lib;clangAST.lib;clangASTMatchers.lib;clangBasic.lib;clangDriver.lib;clangDynamicASTMatchers.lib;clangEdit.lib;clangFormat.lib;clangFrontend.lib;clangLex.lib;clangParse.lib;clangQuery.lib;clangRewrite.lib;clangSema.lib;clangSerialization.lib;clangTooling.lib;clangToolingCore.lib;clangToolingInclusions.lib;LLVMBinaryFormat.lib;LLVMBitReader.lib;LLVMCore.lib;LLVMDebugInfoCodeView.lib;LLVMDebugInfoMSF.lib;LLVMDemangle.lib;LLVMLineEditor.lib;LLVMMC.lib;LLVMMCParser.lib;LLVMOption.lib;LLVMProfileData.lib;LLVMSupport.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Kenne\Documents\clang-llvm\build\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>e:\clang-llvm\build\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,7 +102,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Kenne\Documents\clang-llvm\build\tools\clang\include;C:\Users\Kenne\Documents\clang-llvm\build\include;C:\Users\Kenne\Documents\clang-llvm\llvm\include;C:\Users\Kenne\Documents\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>/wd4146;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -118,14 +118,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Kenne\Documents\clang-llvm\llvm\tools\clang\tools;C:\Users\Kenne\Documents\clang-llvm\build\tools\clang\include;C:\Users\Kenne\Documents\clang-llvm\build\include;C:\Users\Kenne\Documents\clang-llvm\llvm\include;C:\Users\Kenne\Documents\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>e:\clang-llvm\llvm\tools\clang\tools;e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>e:\clang-llvm\llvm\tools\clang\tools;e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4146;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>clangAnalysis.lib;clangAST.lib;clangASTMatchers.lib;clangBasic.lib;clangDriver.lib;clangDynamicASTMatchers.lib;clangEdit.lib;clangFormat.lib;clangFrontend.lib;clangLex.lib;clangParse.lib;clangQuery.lib;clangRewrite.lib;clangSema.lib;clangSerialization.lib;clangTooling.lib;clangToolingCore.lib;clangToolingInclusions.lib;LLVMBinaryFormat.lib;LLVMBitReader.lib;LLVMCore.lib;LLVMDebugInfoCodeView.lib;LLVMDebugInfoMSF.lib;LLVMDemangle.lib;LLVMLineEditor.lib;LLVMMC.lib;LLVMMCParser.lib;LLVMOption.lib;LLVMProfileData.lib;LLVMSupport.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\Kenne\Documents\clang-llvm\build\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>e:\clang-llvm\build\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

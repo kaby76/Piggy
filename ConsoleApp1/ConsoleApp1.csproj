@@ -1,27 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net472</TargetFramework>
     <ApplicationIcon />
-    <StartupObject />
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="AstDump.cs" />
-    <Compile Remove="EnumVisitor.cs" />
-    <Compile Remove="Extensions.cs" />
-    <Compile Remove="ForwardDeclarationVisitor.cs" />
-    <Compile Remove="FunctionVisitor.cs" />
-    <Compile Remove="ICXCursorVisitor.cs" />
-    <Compile Remove="StructVisitor.cs" />
-    <Compile Remove="TypedefUses.cs" />
-    <Compile Remove="TypeDefVisitor.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="x" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.1.1" />
@@ -33,6 +16,7 @@
       <Name>ClangCode</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\Piggy\Piggy.csproj" />
   </ItemGroup>
 
   <!-- libclang name, unlikely to need overriding -->

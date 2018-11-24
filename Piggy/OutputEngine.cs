@@ -87,31 +87,33 @@ namespace Piggy
                     if (x as SpecParserParser.CodeContext != null)
                     {
                         string code = @"
-                    using System;
-                    using System.CodeDom.Compiler;
-                    using System.Collections.Generic;
-                    using System.Linq;
-                    using System.Reflection;
-                    using System.Text;
-                    using System.Threading.Tasks;
-                    using System.IO;
-                    using System.Runtime.InteropServices;
-                    namespace First
-                    {
-                        public class Program
-                        {
-                            public static void Gen(
-                                Dictionary<string, object> vars,
-                                StringBuilder result)
-                            {
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Piggy;
+using System.Runtime.InteropServices;
+
+namespace First
+{
+    public class Program
+    {
+        public static void Gen(
+            Dictionary<string, object> vars,
+            Piggy.Tree tree,
+            StringBuilder result)
+        {
 " + TreeRegEx.sourceTextForContext(x) + @"
-                            }
-                        }
-                    }
-                ";
+        }
+    }
+}
+";
                         CSharpCodeProvider provider = new CSharpCodeProvider();
                         CompilerParameters parameters = new CompilerParameters();
-                        // parameters.ReferencedAssemblies.Add("System.Drawing.dll");
+                        string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
+                        parameters.ReferencedAssemblies.Add(full_path);
                         // True - memory generation, false - external file generation
                         parameters.GenerateInMemory = true;
                         // True - exe file generation, false - dll file generation
@@ -126,14 +128,19 @@ namespace Piggy
                                 sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
                             }
 
+                            System.Console.WriteLine("Compilation error for this code:");
+                            System.Console.WriteLine(code);
                             System.Console.WriteLine(sb.ToString());
                             throw new InvalidOperationException(sb.ToString());
                         }
 
                         Assembly assembly = results.CompiledAssembly;
                         Type program = assembly.GetType("First.Program");
-                        MethodInfo main = program.GetMethod("Main");
-                        object[] a = new object[0];
+                        MethodInfo main = program.GetMethod("Gen");
+                        object[] a = new object[3];
+                        a[0] = vars;
+                        a[1] = new Tree();
+                        a[2] = builder;
                         var res = main.Invoke(null, a);
                     }
                 }

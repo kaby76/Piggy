@@ -1,6 +1,5 @@
-//import_file 'c:/temp/include/clang-c/Index.h';
-import_file 'c:/temp/include/help.h';
-compiler_option '-IC:/temp/include';
+import_file './help.h';
+compiler_option '-I.';
 
 namespace ClangSharp;
 dllimport 'libclang';
@@ -34,9 +33,10 @@ template (% ParmVarDecl Name=* Type=*
 
 template (% FunctionDecl Name=* Type=*
    {
-      System.Console.WriteLine("[DllImport(\" + dll_name + "\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,");
-      System.Console.WriteLine("\t EntryPoint=\"" + Mangled($$) + "\")]");
-      System.Console.WriteLine("internal static extern " + Surgery($$.Type) + " " + $$.Name + "(" + $$.Children.Output + ");");
+      System.Console.WriteLine("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,");
+      System.Console.WriteLine("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]");
+      System.Console.WriteLine("internal static extern " + tree.Peek(0).Attr("Type") + " "
+		+ tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");");
    }
    %)
    ;
