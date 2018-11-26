@@ -54,8 +54,12 @@ template
                   if ((bool)vars["first"])
                      vars["first"] = false;
                   else
-                     result.Append(",");
-                  result.Append(tree.Peek(0).Attr("Name") + " = " + tree.Peek(0).Attr("Value") + Environment.NewLine);
+                     result.Append(", ");
+                  var tt = tree.Peek(1);
+                  var na = tt.Attr("Name");
+                  var t2 = tree.Peek(0);
+                  var va = t2.Attr("Value");
+                  result.Append(tree.Peek(1).Attr("Name") + " xx= " + tree.Peek(0).Attr("Value") + Environment.NewLine);
                }
             )
          )
@@ -65,12 +69,14 @@ template
                if ((bool)vars["first"])
                   vars["first"] = false;
                else
-                  result.Append(",");
+                  result.Append(", ");
                result.Append(tree.Peek(0).Attr("Name") + Environment.NewLine);
             }
          )
       %)*
-		{ result.Append("\u007D"); }
+      {
+         result.Append("\u007D"); // Closing curly.
+      }
    )
    ;
 

@@ -462,7 +462,7 @@ namespace Piggy
                     {
                         matched = true;
                         t_pos = j;
-                        break;
+                        //break;
                     }
                 }
                 if (!matched) return false;

@@ -76,6 +76,10 @@ namespace Piggy
                 }
                 else if (is_spec_node(x))
                 {
+                    System.Console.WriteLine("+sss+");
+                    System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
+                    System.Console.WriteLine("-----");
+
                     if (x as SpecParserParser.TextContext != null)
                     {
                         string s = TreeRegEx.sourceTextForContext(x);
@@ -148,25 +152,27 @@ namespace First
                             var level = 0;
                             IParseTree par = null;
                             IParseTree c = x;
+                            // This node is an output node. Go up the pattern
+                            // tree to find a SpecParserParser.BasicContext.
                             while (c != null)
                             {
-                                foreach (var kvp in re.matches)
-                                {
-                                    if (kvp.Value == c)
-                                    {
-                                        par = kvp.Key;
-                                        break;
-                                    }
-                                }
-
-                                if (par != null) break;
+                                SpecParserParser.BasicContext c_bc =
+                                    c as SpecParserParser.BasicContext;
+                                if (c_bc != null) break;
                                 re.parent.TryGetValue(c, out IParseTree pp);
                                 c = pp;
                             }
 
-                            a[1] = new Tree(re, t, par);
-                            a[2] = builder;
-                            var res = main.Invoke(null, a);
+                            foreach (var kvp in re.matches)
+                            {
+                                if (kvp.Value == c)
+                                {
+                                    par = kvp.Key;
+                                    a[1] = new Tree(re, t, par);
+                                    a[2] = builder;
+                                    var res = main.Invoke(null, a);
+                                }
+                            }
                         }
                         finally
                         {
