@@ -196,11 +196,11 @@ namespace Piggy
             TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
             regex.dfs_match();
 
-            foreach (var match in regex.matches)
-            {
-                System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(match.Value)
-                   + " matches tree node " + TreeRegEx.sourceTextForContext(match.Key));
-            }
+            //foreach (var match in regex.matches)
+            //{
+            //    System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(match.Value)
+            //       + " matches tree node " + TreeRegEx.sourceTextForContext(match.Key));
+            //}
 
             OutputEngine output = new OutputEngine();
             string @out = output.Generate(regex, ast);

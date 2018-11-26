@@ -66,19 +66,19 @@ namespace Piggy
                     re.matches.TryGetValue(x, out IParseTree p);
                     if (p != null)
                     {
-                        System.Console.WriteLine("+++++");
-                        System.Console.WriteLine("p " + TreeRegEx.sourceTextForContext(p));
-                        System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
-                        System.Console.WriteLine("-----");
+                        //System.Console.WriteLine("+++++");
+                        //System.Console.WriteLine("p " + TreeRegEx.sourceTextForContext(p));
+                        //System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
+                        //System.Console.WriteLine("-----");
                         stack.Push(p);
                         continue;
                     }
                 }
                 else if (is_spec_node(x))
                 {
-                    System.Console.WriteLine("+sss+");
-                    System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
-                    System.Console.WriteLine("-----");
+                    //System.Console.WriteLine("+sss+");
+                    //System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
+                    //System.Console.WriteLine("-----");
 
                     if (x as SpecParserParser.TextContext != null)
                     {

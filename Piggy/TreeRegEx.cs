@@ -23,9 +23,9 @@ namespace Piggy
             {
                 var t = (IParseTree) key;
                 var p = (IParseTree) value;
-                System.Console.WriteLine(
-                    String.Format("Adding match[{0}] = {1}",
-                        TreeRegEx.sourceTextForContext(t), TreeRegEx.sourceTextForContext(p)));
+                //System.Console.WriteLine(
+                //    String.Format("Adding match[{0}] = {1}",
+                //        TreeRegEx.sourceTextForContext(t), TreeRegEx.sourceTextForContext(p)));
                 base[key] = value;
             }
         }
