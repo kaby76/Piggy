@@ -10,11 +10,14 @@ namespace Piggy
     {
         IParseTree ast;
         IParseTree current;
-        StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
+        private TreeRegEx re;
 
-        public Tree(IParseTree t, IParseTree cur)
+        public Tree(TreeRegEx r, IParseTree t, IParseTree cur)
         {
+            re = r;
             ast = t;
+            current = cur;
+            StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
             var visited = new HashSet<IParseTree>();
             stack.Push(ast);
             while (stack.Count > 0)
@@ -34,7 +37,13 @@ namespace Piggy
 
         public Tree Peek(int level)
         {
-            Tree t = new Tree(ast, stack.PeekTop(level));
+            IParseTree v = current;
+            for (int j = 0; j < level; ++j)
+            {
+                re.parent.TryGetValue(v, out IParseTree par);
+                v = par;
+            }
+            Tree t = new Tree(re, ast, v);
             return t;
         }
 
@@ -45,19 +54,17 @@ namespace Piggy
             for (int i = 0; i < n; ++i)
             {
                 var t = current.GetChild(i);
-                AstParserParser.AttrContext t_attr =
-                    t as AstParserParser.AttrContext;
-                if (t_attr == null) continue;
-
+                var is_attr = re.is_ast_attr(t.GetChild(0));
+                if (!is_attr) continue;
                 int pos = 0;
-                var t_id = t_attr.GetChild(pos);
+                var t_id = t.GetChild(0).GetChild(pos);
                 if (name != t_id.GetText()) continue;
-
                 pos++;
                 pos++;
-
-                var t_val = t_attr.GetChild(pos);
-                return t_val.GetText();
+                var t_val = t.GetChild(0).GetChild(pos);
+                var str = t_val.GetText();
+                var nstr = str.Substring(1).Substring(0, str.Length - 2);
+                return nstr;
             }
             return "";
         }

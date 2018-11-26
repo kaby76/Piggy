@@ -105,7 +105,11 @@ namespace Piggy
                     parser.BuildParseTree = true;
                     parser.AddErrorListener(listener);
                     tree = parser.spec();
-                    if (listener.had_error) throw new Exception();
+                    if (listener.had_error)
+                    {
+                        System.Console.WriteLine(tree.GetText());
+                        throw new Exception();
+                    }
                     SpecListener printer = new SpecListener(this);
                     ParseTreeWalker.Default.Walk(printer, tree);
                 }
@@ -126,7 +130,7 @@ namespace Piggy
                     {
                         Console.WriteLine(error);
                     }
-                    return;
+                    throw new Exception();
                 }
 
                 if (excludeFunctions.Any())
@@ -184,10 +188,9 @@ namespace Piggy
 
         string FindAndOutput(IParseTree ast)
         {
-            TreeRegEx regex = new TreeRegEx();
             List<SpecParserParser.TemplateContext> templates = this.templates;
-
-            regex.dfs_match(templates, ast.GetChild(0));
+            TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
+            regex.dfs_match();
 
             foreach (var match in regex.matches)
             {

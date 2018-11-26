@@ -1,9 +1,6 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
@@ -36,6 +33,49 @@ namespace Piggy
 
     public class TreeRegEx
     {
+        public TreeRegEx(List<SpecParserParser.TemplateContext> t, IParseTree s)
+        {
+            start = s;
+            bool result = false;
+            var visited = new HashSet<IParseTree>();
+            var stack = new Stack<IParseTree>();
+            stack.Push(start);
+            while (stack.Count > 0)
+            {
+                var v = stack.Pop();
+                if (visited.Contains(v))
+                    continue;
+                visited.Add(v);
+                for (int i = v.ChildCount - 1; i >= 0; --i)
+                {
+                    var c = v.GetChild(i);
+                    parent[c] = v;
+                    if (!visited.Contains(c))
+                        stack.Push(c);
+                }
+            }
+
+            templates = t;
+            foreach (var te in templates)
+            {
+                stack.Push(te);
+                while (stack.Count > 0)
+                {
+                    var v = stack.Pop();
+                    if (visited.Contains(v))
+                        continue;
+                    visited.Add(v);
+                    for (int i = v.ChildCount - 1; i >= 0; --i)
+                    {
+                        var c = v.GetChild(i);
+                        parent[c] = v;
+                        if (!visited.Contains(c))
+                            stack.Push(c);
+                    }
+                }
+            }
+        }
+
         // Pattern matcher.
         public static string sourceTextForContext(IParseTree context)
         {
@@ -52,11 +92,14 @@ namespace Piggy
             return cs.GetText(new Antlr4.Runtime.Misc.Interval(startToken.StartIndex, stopIndex));
         }
 
+        private IParseTree start;
+        private List<SpecParserParser.TemplateContext> templates;
         public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
         public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
         public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
         public List<IParseTree> pre_order = new List<IParseTree>();
         public List<IParseTree> post_order = new List<IParseTree>();
+        public Dictionary<IParseTree, IParseTree> parent = new Dictionary<IParseTree, IParseTree>();
 
         public bool has_output(IParseTree p)
         {
@@ -83,7 +126,7 @@ namespace Piggy
             return false;
         }
 
-        public void dfs_match(List<SpecParserParser.TemplateContext> templates, IParseTree start)
+        public void dfs_match()
         {
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
@@ -125,6 +168,9 @@ namespace Piggy
                     // Try matching at vertex, if the node hasn't been already matched.
                     if (!matches.ContainsKey(t))
                     {
+                        //System.Console.WriteLine("Trying match ");
+                        //System.Console.WriteLine("Template " + sourceTextForContext(t));
+                        //System.Console.WriteLine("Tree " + sourceTextForContext(v));
                         bool matched = match_template(t, v);
                         if (matched)
                             match_template(t, v, true);
@@ -310,11 +356,23 @@ namespace Piggy
          * Determine via lookahead if a node for a pattern matcher
          * is an attribute or not.
          */
-        public bool is_attr(IParseTree p)
+        public bool is_pattern_attr(IParseTree p)
         {
-            var p_child = p.GetChild(0);
+            if (p == null) return false;
             SpecParserParser.AttrContext attr =
-                p_child as SpecParserParser.AttrContext;
+                p as SpecParserParser.AttrContext;
+            return attr != null;
+        }
+
+        /*
+         * Determine via lookahead if a node for a pattern matcher
+         * is an attribute or not.
+         */
+        public bool is_ast_attr(IParseTree p)
+        {
+            if (p == null) return false;
+            AstParserParser.AttrContext attr =
+                p as AstParserParser.AttrContext;
             return attr != null;
         }
 
@@ -331,7 +389,7 @@ namespace Piggy
         }
 
         /*
-         * basic: OPEN_RE ID more* CLOSE_RE ;
+         * basic: OPEN_PAREN ID more* CLOSE_PAREN ;
          *
          * decl : OPEN_PAREN ID more* CLOSE_PAREN ;
          */
@@ -354,7 +412,7 @@ namespace Piggy
             var p_tok = p_c as TerminalNodeImpl;
             if (p_tok == null) return false;
             var p_sym = p_tok.Symbol;
-            if (p_sym.Type != SpecParserParser.OPEN_RE) return false;
+            if (p_sym.Type != SpecParserParser.OPEN_PAREN) return false;
 
             pos++;
 
@@ -392,7 +450,7 @@ namespace Piggy
 
                 // If this element of the pattern is an attribute,
                 // go through all previous elements of t.
-                bool is_attr = this.is_attr(p_more);
+                bool is_attr = this.is_pattern_attr(p_more.GetChild(0));
                 bool matched = false;
                 for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens; ++j)
                 {

@@ -1076,13 +1076,13 @@ public partial class SpecParserParser : Parser {
 			State = 143;
 			ErrorHandler.Sync(this);
 			switch (TokenStream.LA(1)) {
-			case OPEN_PAREN:
+			case OPEN_RE:
 				EnterOuterAlt(_localctx, 1);
 				{
 				State = 141; group_rexp();
 				}
 				break;
-			case OPEN_RE:
+			case OPEN_PAREN:
 				EnterOuterAlt(_localctx, 2);
 				{
 				State = 142; basic();
@@ -1104,11 +1104,11 @@ public partial class SpecParserParser : Parser {
 	}
 
 	public partial class Group_rexpContext : ParserRuleContext {
-		public ITerminalNode OPEN_PAREN() { return GetToken(SpecParserParser.OPEN_PAREN, 0); }
+		public ITerminalNode OPEN_RE() { return GetToken(SpecParserParser.OPEN_RE, 0); }
 		public RexpContext rexp() {
 			return GetRuleContext<RexpContext>(0);
 		}
-		public ITerminalNode CLOSE_PAREN() { return GetToken(SpecParserParser.CLOSE_PAREN, 0); }
+		public ITerminalNode CLOSE_RE() { return GetToken(SpecParserParser.CLOSE_RE, 0); }
 		public Group_rexpContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -1131,9 +1131,9 @@ public partial class SpecParserParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 145; Match(OPEN_PAREN);
+			State = 145; Match(OPEN_RE);
 			State = 146; rexp();
-			State = 147; Match(CLOSE_PAREN);
+			State = 147; Match(CLOSE_RE);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1148,9 +1148,9 @@ public partial class SpecParserParser : Parser {
 	}
 
 	public partial class BasicContext : ParserRuleContext {
-		public ITerminalNode OPEN_RE() { return GetToken(SpecParserParser.OPEN_RE, 0); }
+		public ITerminalNode OPEN_PAREN() { return GetToken(SpecParserParser.OPEN_PAREN, 0); }
 		public ITerminalNode ID() { return GetToken(SpecParserParser.ID, 0); }
-		public ITerminalNode CLOSE_RE() { return GetToken(SpecParserParser.CLOSE_RE, 0); }
+		public ITerminalNode CLOSE_PAREN() { return GetToken(SpecParserParser.CLOSE_PAREN, 0); }
 		public MoreContext[] more() {
 			return GetRuleContexts<MoreContext>();
 		}
@@ -1180,7 +1180,7 @@ public partial class SpecParserParser : Parser {
 		try {
 			EnterOuterAlt(_localctx, 1);
 			{
-			State = 149; Match(OPEN_RE);
+			State = 149; Match(OPEN_PAREN);
 			State = 150; Match(ID);
 			State = 154;
 			ErrorHandler.Sync(this);
@@ -1195,7 +1195,7 @@ public partial class SpecParserParser : Parser {
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
 			}
-			State = 157; Match(CLOSE_RE);
+			State = 157; Match(CLOSE_PAREN);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1513,14 +1513,14 @@ public partial class SpecParserParser : Parser {
 		'\x92', '\x5', '(', '\x15', '\x2', '\x90', '\x92', '\x5', '*', '\x16', 
 		'\x2', '\x91', '\x8F', '\x3', '\x2', '\x2', '\x2', '\x91', '\x90', '\x3', 
 		'\x2', '\x2', '\x2', '\x92', '\'', '\x3', '\x2', '\x2', '\x2', '\x93', 
-		'\x94', '\a', '\x1C', '\x2', '\x2', '\x94', '\x95', '\x5', '\x1C', '\xF', 
-		'\x2', '\x95', '\x96', '\a', '\x1D', '\x2', '\x2', '\x96', ')', '\x3', 
-		'\x2', '\x2', '\x2', '\x97', '\x98', '\a', '\x1A', '\x2', '\x2', '\x98', 
+		'\x94', '\a', '\x1A', '\x2', '\x2', '\x94', '\x95', '\x5', '\x1C', '\xF', 
+		'\x2', '\x95', '\x96', '\a', '\x1B', '\x2', '\x2', '\x96', ')', '\x3', 
+		'\x2', '\x2', '\x2', '\x97', '\x98', '\a', '\x1C', '\x2', '\x2', '\x98', 
 		'\x9C', '\a', '%', '\x2', '\x2', '\x99', '\x9B', '\x5', ',', '\x17', '\x2', 
 		'\x9A', '\x99', '\x3', '\x2', '\x2', '\x2', '\x9B', '\x9E', '\x3', '\x2', 
 		'\x2', '\x2', '\x9C', '\x9A', '\x3', '\x2', '\x2', '\x2', '\x9C', '\x9D', 
 		'\x3', '\x2', '\x2', '\x2', '\x9D', '\x9F', '\x3', '\x2', '\x2', '\x2', 
-		'\x9E', '\x9C', '\x3', '\x2', '\x2', '\x2', '\x9F', '\xA0', '\a', '\x1B', 
+		'\x9E', '\x9C', '\x3', '\x2', '\x2', '\x2', '\x9F', '\xA0', '\a', '\x1D', 
 		'\x2', '\x2', '\xA0', '+', '\x3', '\x2', '\x2', '\x2', '\xA1', '\xA6', 
 		'\x5', '\x1C', '\xF', '\x2', '\xA2', '\xA6', '\x5', '.', '\x18', '\x2', 
 		'\xA3', '\xA6', '\x5', '\x10', '\t', '\x2', '\xA4', '\xA6', '\x5', '\x30', 

@@ -17,58 +17,60 @@ prefix_strip clang_;
 // the tree.
 
 
-template (% ParmVarDecl Name=* Type="const wchar_t *"
+template ( ParmVarDecl Name=* Type="const wchar_t *"
    {
-		System.Console.Write("int " + $$.Name);
+        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
    }
-   %)
+   )
    ;
 
-template (% ParmVarDecl Name=* Type=*
+template ( ParmVarDecl Name=* Type=*
    {
-		System.Console.Write(MapDefaultType($1.Type) + " " + $$.Name);
+        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
    }
-   %)
+   )
    ;
 
-template (% FunctionDecl Name=* Type=*
+template ( FunctionDecl Name=* Type=*
    {
-      System.Console.WriteLine("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,");
-      System.Console.WriteLine("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]");
-      System.Console.WriteLine("internal static extern " + tree.Peek(0).Attr("Type") + " "
-		+ tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");");
+      result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall," + Environment.NewLine);
+      result.Append("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
+      result.Append("internal static extern " + tree.Peek(0).Attr("Type") + " "
+         + tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");" + Environment.NewLine);
    }
-   %)
+   )
    ;
 
 template
-   (% EnumDecl Name=*
-      { vars["first"] = true; }
-      < enum $$.Name { >
-		(
-			(% EnumConstantDecl Name=*
-				(% IntegerLiteral Value=*
-					{
+   ( EnumDecl Name=*
+      {
+         vars["first"] = true;
+         result.Append("enum " + tree.Peek(0).Attr("Name") + "\u007B" + Environment.NewLine);
+      }
+      (%
+         ( EnumConstantDecl Name=*
+            ( IntegerLiteral Value=*
+               {
                   if ((bool)vars["first"])
                      vars["first"] = false;
                   else
-                     result.Append(",")
+                     result.Append(",");
+                  result.Append(tree.Peek(0).Attr("Name") + " = " + tree.Peek(0).Attr("Value") + Environment.NewLine);
                }
-               < $$.Name = $$.Value >
-				%)
-			%)
+            )
+         )
          |
-			(% EnumConstantDecl Name=*
-				{
-					if ((bool)vars["first"])
-						vars["first"] = false;
-					else
-						result.Append(",")
-				}
-				< $$.Name >
-			%)
-      )*
-      < } >
-   %)
-    ;
+         ( EnumConstantDecl Name=*
+            {
+               if ((bool)vars["first"])
+                  vars["first"] = false;
+               else
+                  result.Append(",");
+               result.Append(tree.Peek(0).Attr("Name") + Environment.NewLine);
+            }
+         )
+      %)*
+		{ result.Append("\u007D"); }
+   )
+   ;
 

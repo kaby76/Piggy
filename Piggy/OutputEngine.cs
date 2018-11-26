@@ -110,53 +110,68 @@ namespace First
     }
 }
 ";
-                        CSharpCodeProvider provider = new CSharpCodeProvider();
-                        CompilerParameters parameters = new CompilerParameters();
-                        string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
-                        parameters.ReferencedAssemblies.Add(full_path);
-                        // True - memory generation, false - external file generation
-                        parameters.GenerateInMemory = true;
-                        // True - exe file generation, false - dll file generation
-                        parameters.GenerateExecutable = false;
-                        parameters.CompilerOptions = "/unsafe";
-                        CompilerResults results = provider.CompileAssemblyFromSource(parameters, code);
-                        if (results.Errors.HasErrors)
+                        string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cs";
+                        try
                         {
-                            StringBuilder sb = new StringBuilder();
-                            foreach (CompilerError error in results.Errors)
+                            System.IO.File.WriteAllText(fileName, code);
+                            CSharpCodeProvider provider = new CSharpCodeProvider();
+                            CompilerParameters parameters = new CompilerParameters();
+                            string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
+                            parameters.ReferencedAssemblies.Add(full_path);
+                            // True - memory generation, false - external file generation
+                            parameters.GenerateInMemory = true;
+                            // True - exe file generation, false - dll file generation
+                            parameters.GenerateExecutable = false;
+                            parameters.CompilerOptions = "/unsafe";
+                            parameters.IncludeDebugInformation = true;
+                            CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[] {fileName});
+                            if (results.Errors.HasErrors)
                             {
-                                sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber, error.ErrorText));
+                                StringBuilder sb = new StringBuilder();
+                                foreach (CompilerError error in results.Errors)
+                                {
+                                    sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
+                                        error.ErrorText));
+                                }
+
+                                System.Console.WriteLine("Compilation error for this code:");
+                                System.Console.WriteLine(code);
+                                System.Console.WriteLine(sb.ToString());
+                                throw new InvalidOperationException(sb.ToString());
                             }
 
-                            System.Console.WriteLine("Compilation error for this code:");
-                            System.Console.WriteLine(code);
-                            System.Console.WriteLine(sb.ToString());
-                            throw new InvalidOperationException(sb.ToString());
-                        }
-
-                        Assembly assembly = results.CompiledAssembly;
-                        Type program = assembly.GetType("First.Program");
-                        MethodInfo main = program.GetMethod("Gen");
-                        object[] a = new object[3];
-                        a[0] = vars;
-                        var level = 0;
-                        IParseTree par = null;
-                        while (stack.PeekTop(level) != null)
-                        {
-                            var c = stack.PeekTop(level);
-                            foreach (var kvp in re.matches)
+                            Assembly assembly = results.CompiledAssembly;
+                            Type program = assembly.GetType("First.Program");
+                            MethodInfo main = program.GetMethod("Gen");
+                            object[] a = new object[3];
+                            a[0] = vars;
+                            var level = 0;
+                            IParseTree par = null;
+                            IParseTree c = x;
+                            while (c != null)
                             {
-                                par = kvp.Key;
-                                if (kvp.Key == c)
-                                    break;
-                                if (kvp.Value == c)
-                                    break;
+                                foreach (var kvp in re.matches)
+                                {
+                                    if (kvp.Value == c)
+                                    {
+                                        par = kvp.Key;
+                                        break;
+                                    }
+                                }
+
+                                if (par != null) break;
+                                re.parent.TryGetValue(c, out IParseTree pp);
+                                c = pp;
                             }
-                            level++;
+
+                            a[1] = new Tree(re, t, par);
+                            a[2] = builder;
+                            var res = main.Invoke(null, a);
                         }
-                        a[1] = new Tree(t, par);
-                        a[2] = builder;
-                        var res = main.Invoke(null, a);
+                        finally
+                        {
+                            System.IO.File.Delete(fileName);
+                        }
                     }
                 }
                 else if (x as ParserRuleContext != null)
