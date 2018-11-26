@@ -51,7 +51,7 @@ namespace Piggy
         {
             StringBuilder builder = new StringBuilder();
             var visited = new HashSet<IParseTree>();
-            Stack<IParseTree> stack = new Stack<IParseTree>();
+            StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
             stack.Push(t);
             Dictionary<string, object> vars = new Dictionary<string, object>();
             while (stack.Count > 0)
@@ -139,7 +139,22 @@ namespace First
                         MethodInfo main = program.GetMethod("Gen");
                         object[] a = new object[3];
                         a[0] = vars;
-                        a[1] = new Tree();
+                        var level = 0;
+                        IParseTree par = null;
+                        while (stack.PeekTop(level) != null)
+                        {
+                            var c = stack.PeekTop(level);
+                            foreach (var kvp in re.matches)
+                            {
+                                par = kvp.Key;
+                                if (kvp.Key == c)
+                                    break;
+                                if (kvp.Value == c)
+                                    break;
+                            }
+                            level++;
+                        }
+                        a[1] = new Tree(t, par);
                         a[2] = builder;
                         var res = main.Invoke(null, a);
                     }
