@@ -152,33 +152,79 @@ compiler_option: COMPILER_OPTION StringLiteral SEMI ;
 
 /* Specifies a template for output. Basic elements of the template:
  *
- *    (% ... %) denotes a tree pattern for AST matching.
- *    < ... > denotes text which is output to the file.
- *    { ... } denotes C# code which is executed after matching the pattern.
+ * () ast match
+ * <> text
+ * {} code
  *
- * Tree patterns can be nested, denoting matching of children. Eg, "(% ... (% ... %) %)"
- * matches a node with another node nesting.
- * Text output can be place almost anywhere in a pattern, e.g., "(% ... <> (% ... %) %)".
- * It is output after matching in a tree traversal corresponding to the pattern.
+ * (... (...)) <> vs (... <> (...)). An AST expression matches a set of sub-tree. The
+ * first matches the entire sub tree. The later matches the node, then matches additional
+ * sub-tree information (presumably for more template processing). In the implementation,
+ * the matcher processes in a tree traversal, so templated text is outputed while walking
+ * the tree.
  *
- * Examples:
  *
- * template
- *     (% EnumDecl Name=*
- *         < enum $1.Name { >
- *             ( 
- *                 (% EnumConstantDecl Name=* Type=*
- *                     (% IntegerLiteral Value=*
- *                         < {first?"":","; first = false;} $2.Name = $3.Value >
- *                     %)
- *                 %) |
- *                 (% EnumConstantDecl Name=* Type=*
- *                     < {first?"":","; first = false;} $5 >
- *                 %)
- *              )*
- *         < } >
- *     %)
- *     ;
+ *template ( ParmVarDecl Name=* Type="const wchar_t *"
+ *   {
+ *        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
+ *   }
+ *   )
+ *   ;
+ *
+ *template ( ParmVarDecl Name=* Type=*
+ *   {
+ *        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
+ *   }
+ *   )
+ *   ;
+ *
+ *template ( FunctionDecl Name=* Type=*
+ *   {
+ *      result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall," + Environment.NewLine);
+ *      result.Append("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
+ *      result.Append("internal static extern " + tree.Peek(0).Attr("Type") + " "
+ *         + tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");" + Environment.NewLine);
+ *   }
+ *   )
+ *   ;
+ *
+ *template
+ *   ( EnumDecl Name=*
+ *      {
+ *         vars["first"] = true;
+ *         result.Append("enum " + tree.Peek(0).Attr("Name") + "\u007B" + Environment.NewLine);
+ *      }
+ *      (%
+ *         ( EnumConstantDecl Name=*
+ *            ( IntegerLiteral Value=*
+ *               {
+ *                  if ((bool)vars["first"])
+ *                     vars["first"] = false;
+ *                  else
+ *                     result.Append(", ");
+ *                  var tt = tree.Peek(1);
+ *                  var na = tt.Attr("Name");
+ *                  var t2 = tree.Peek(0);
+ *                  var va = t2.Attr("Value");
+ *                  result.Append(tree.Peek(1).Attr("Name") + " xx= " + tree.Peek(0).Attr("Value") + Environment.NewLine);
+ *               }
+ *            )
+ *         )
+ *         |
+ *         ( EnumConstantDecl Name=*
+ *            {
+ *               if ((bool)vars["first"])
+ *                  vars["first"] = false;
+ *               else
+ *                  result.Append(", ");
+ *               result.Append(tree.Peek(0).Attr("Name") + Environment.NewLine);
+ *            }
+ *         )
+ *      %)*
+ *      {
+ *         result.Append("\u007D"); // Closing curly.
+ *      }
+ *   )
+ *   ;
  */
 // CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
 // BNF Grammar of Regular Expressions

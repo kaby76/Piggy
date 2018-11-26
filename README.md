@@ -206,34 +206,83 @@ high quality parser generator.
 
     /* Specifies a template for output. Basic elements of the template:
      *
-     *    (% ... %) denotes a tree pattern for AST matching.
-     *    < ... > denotes text which is output to the file.
-     *    { ... } denotes C# code which is executed after matching the pattern.
+     * () ast match
+     * <> text
+     * {} code
      *
-     * Tree patterns can be nested, denoting matching of children. Eg, "(% ... (% ... %) %)"
-     * matches a node with another node nesting.
-     * Text output can be place almost anywhere in a pattern, e.g., "(% ... <> (% ... %) %)".
-     * It is output after matching in a tree traversal corresponding to the pattern.
+     * (... (...)) <> vs (... <> (...)). An AST expression matches a set of sub-tree. The
+     * first matches the entire sub tree. The later matches the node, then matches additional
+     * sub-tree information (presumably for more template processing). In the implementation,
+     * the matcher processes in a tree traversal, so templated text is outputed while walking
+     * the tree.
      *
-     * Examples:
      *
-     * template
-     *     (% EnumDecl Name=*
-     *         < enum $1.Name { >
-     *             ( 
-     *                 (% EnumConstantDecl Name=* Type=*
-     *                     (% IntegerLiteral Value=*
-     *                         < {first?"":","; first = false;} $2.Name = $3.Value >
-     *                     %)
-     *                 %) |
-     *                 (% EnumConstantDecl Name=* Type=*
-     *                     < {first?"":","; first = false;} $5 >
-     *                 %)
-     *              )*
-     *         < } >
-     *     %)
-     *     ;
+     *template ( ParmVarDecl Name=* Type="const wchar_t *"
+     *   {
+     *        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
+     *   }
+     *   )
+     *   ;
+     *
+     *template ( ParmVarDecl Name=* Type=*
+     *   {
+     *        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
+     *   }
+     *   )
+     *   ;
+     *
+     *template ( FunctionDecl Name=* Type=*
+     *   {
+     *      result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall," + Environment.NewLine);
+     *      result.Append("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
+     *      result.Append("internal static extern " + tree.Peek(0).Attr("Type") + " "
+     *         + tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");" + Environment.NewLine);
+     *   }
+     *   )
+     *   ;
+     *
+     *template
+     *   ( EnumDecl Name=*
+     *      {
+     *         vars["first"] = true;
+     *         result.Append("enum " + tree.Peek(0).Attr("Name") + "\u007B" + Environment.NewLine);
+     *      }
+     *      (%
+     *         ( EnumConstantDecl Name=*
+     *            ( IntegerLiteral Value=*
+     *               {
+     *                  if ((bool)vars["first"])
+     *                     vars["first"] = false;
+     *                  else
+     *                     result.Append(", ");
+     *                  var tt = tree.Peek(1);
+     *                  var na = tt.Attr("Name");
+     *                  var t2 = tree.Peek(0);
+     *                  var va = t2.Attr("Value");
+     *                  result.Append(tree.Peek(1).Attr("Name") + " xx= " + tree.Peek(0).Attr("Value") + Environment.NewLine);
+     *               }
+     *            )
+     *         )
+     *         |
+     *         ( EnumConstantDecl Name=*
+     *            {
+     *               if ((bool)vars["first"])
+     *                  vars["first"] = false;
+     *               else
+     *                  result.Append(", ");
+     *               result.Append(tree.Peek(0).Attr("Name") + Environment.NewLine);
+     *            }
+     *         )
+     *      %)*
+     *      {
+     *         result.Append("\u007D"); // Closing curly.
+     *      }
+     *   )
+     *   ;
      */
+    // CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
+    // BNF Grammar of Regular Expressions
+    // Following the precedence rules given previously, a BNF grammar for Perl-style regular expressions can be constructed as follows.
     template: TEMPLATE rexp SEMI ;
     rexp : simple_rexp (OR simple_rexp)* ;
     simple_rexp : basic_rexp+ ;
@@ -241,32 +290,11 @@ high quality parser generator.
     star_rexp: elementary_rexp STAR;
     plus_rexp: elementary_rexp PLUS;
     elementary_rexp: group_rexp | basic ;
-    group_rexp:   OPEN_PAREN rexp CLOSE_PAREN ;
-    basic: OPEN_RE ID more* CLOSE_RE ;
+    group_rexp:   OPEN_RE rexp CLOSE_RE ;
+    basic: OPEN_PAREN ID more* CLOSE_PAREN ;
     more : rexp | text | code | attr ;
     text: LANG OTHER_ANG* RANG ;
     attr: ID EQ (StringLiteral | STAR);
-
-
-    // CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
-    // BNF Grammar of Regular Expressions
-    // Following the precedence rules given previously, a BNF grammar for Perl-style regular expressions can be constructed as follows.
-    re: simple_re (OR simple_re)*;
-    simple_re: basic_re+;
-    basic_re: star | plus | elementary_re;
-    star: elementary_re STAR;
-    plus: elementary_re PLUS;
-    elementary_re: group | any | eos | char | set;
-    group:   OPEN_PAREN re CLOSE_PAREN;
-    any: DOT;
-    eos: DOLLAR;
-    char:    ID;
-    set:    positive_set | negative_set;
-    positive_set:  OPEN_BRACKET set_items CLOSE_BRACKET;
-    negative_set:  OPEN_BRACKET_NOT set_items CLOSE_BRACKET;
-    set_items:  set_item+;
-    set_item:  range | char;
-    range:    char MINUS char;
 
 
 #### SpecLexer.g4
@@ -308,7 +336,9 @@ high quality parser generator.
     MINUS       :   '-';
     LCURLY      :   '{' -> pushMode(CODE_0);
     LANG : '<' -> pushMode(TEXT_0);
-    StringLiteral   :   '\'' ( Escape | ~('\'' | '\n' | '\r') )* '\'';
+    StringLiteral   :
+        '\'' ( Escape | ~('\'' | '\n' | '\r') )* '\''
+        | '"' ( Escape | ~('"' | '\n' | '\r') )* '"';
     ID      :   [a-zA-Z_1234567890.]+ ;
 
     fragment InputCharacter:       ~[\r\n\u0085\u2028\u2029];
@@ -335,6 +365,7 @@ high quality parser generator.
     TEXT_N_RANG: '>' -> type(OTHER_ANG), popMode;
     OTHER_ANG: ~[<>]+;
 
+
 (Note: I highly recommend using my [AntlrVSIX](https://marketplace.visualstudio.com/items?itemName=KenDomino.AntlrVSIX) plugin for reading and editing Antlr grammars in Visual Studio 2017!)
 
 ## Building Piggy ##
@@ -345,16 +376,17 @@ Download [llvm](http://releases.llvm.org/7.0.0/llvm-7.0.0.src.tar.xz),
 
 Untar the downloads. Then,
 ~~~~
- mv llvm-7.0.0.src llvm               # rename directory to "llvm"
- mv cfe-7.0.0.src llvm/tools/clang;   # move and rename directory to "clang" 
- mv clang-tools-extra-7.0.0.src llvm/tools/clang/tools/extra  # #move and rename
+ mv llvm-7.0.0.src clang-llvm               # rename directory to "llvm"
+ mv cfe-7.0.0.src clang-llvm/tools/clang;   # move and rename directory to "clang" 
+ mv clang-tools-extra-7.0.0.src clang-llvm/tools/clang/tools/extra  # #move and rename
 ~~~~
- Build using cmake (see [instructions](https://clang.llvm.org/get_started.html)).
+Build using cmake (see [instructions](https://clang.llvm.org/get_started.html)).
 ~~~~
 mkdir build; cd build
 cmake -G "Visual Studio 15 2017" -A x64 -Thost=x64 ..\llvm
 msbuild LLVM.sln /p:Configuration=Debug /p:Platform=x64
 ~~~~
-Once you have built LLVM and Clang, you can build Piggy.
+Once you have built LLVM and Clang, you can build Piggy. Make sure to map e:/ to the
+location of clang-llvm/.
 
 
