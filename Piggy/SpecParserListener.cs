@@ -270,4 +270,14 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitAttr([NotNull] SpecParserParser.AttrContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.pass"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterPass([NotNull] SpecParserParser.PassContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.pass"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitPass([NotNull] SpecParserParser.PassContext context);
 }

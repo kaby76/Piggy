@@ -33,9 +33,10 @@ namespace Piggy
         public string calling_convention = "";
         public List<string> compiler_options = new List<string>();
         public bool ast = false;
-        public List<SpecParserParser.TemplateContext> templates = new List<SpecParserParser.TemplateContext>();
+        public List<List<SpecParserParser.TemplateContext>> templates = new List<List<SpecParserParser.TemplateContext>>();
         ErrorListener<IToken> listener = new ErrorListener<IToken>();
         IParseTree tree;
+        public List<string> passes = new List<string>();
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
         private static extern void ClangAddOption([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @include);
@@ -176,8 +177,11 @@ namespace Piggy
                 //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
-                string result = FindAndOutput(ast_tree);
-                System.Console.WriteLine(result);
+                for (int pass = 0; pass < passes.Count; ++pass)
+                {
+                    string result = FindAndOutput(pass, ast_tree);
+                    System.Console.WriteLine(result);
+                }
             }
             finally
             {
@@ -186,9 +190,9 @@ namespace Piggy
         }
 
 
-        string FindAndOutput(IParseTree ast)
+        string FindAndOutput(int pass, IParseTree ast)
         {
-            List<SpecParserParser.TemplateContext> templates = this.templates;
+            List<SpecParserParser.TemplateContext> templates = this.templates[pass];
             TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
             regex.dfs_match();
 

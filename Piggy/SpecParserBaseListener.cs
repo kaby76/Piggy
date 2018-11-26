@@ -322,6 +322,18 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitAttr([NotNull] SpecParserParser.AttrContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.pass"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterPass([NotNull] SpecParserParser.PassContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.pass"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitPass([NotNull] SpecParserParser.PassContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

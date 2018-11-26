@@ -15,6 +15,7 @@ DLLIMPORT	:	'dllimport';
 EXCLUDE		:	'exclude';
 IMPORT_FILE	:	'import_file';
 NAMESPACE	:	'namespace';
+PASS	: 'pass';
 PREFIX_STRIP	:	'prefix_strip';
 TEMPLATE        :	'template';
 REWRITE		:	'=>';

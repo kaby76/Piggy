@@ -15,6 +15,7 @@ items
     | calling_convention
     | compiler_option
     | template
+	| pass
     ;
 
 /* Specifies a namespace name for the generated C# code.
@@ -241,3 +242,12 @@ basic: OPEN_PAREN ID more* CLOSE_PAREN ;
 more : rexp | text | code | attr ;
 text: LANG OTHER_ANG* RANG ;
 attr: ID EQ (StringLiteral | STAR);
+
+/* Specifies the pass for pattern matching. Templates are associated with a
+ * pass, matched only for that pass. When the next pass occurs, the pattern matcher
+ * is output and reset.
+ * It is not required.
+ * Example:
+ *   pass Enums;
+ */
+pass: PASS ID SEMI ;

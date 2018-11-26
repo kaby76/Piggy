@@ -16,30 +16,7 @@ prefix_strip clang_;
 // the matcher processes in a tree traversal, so templated text is outputed while walking
 // the tree.
 
-
-template ( ParmVarDecl Name=* Type="const wchar_t *"
-   {
-        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
-   }
-   )
-   ;
-
-template ( ParmVarDecl Name=* Type=*
-   {
-        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
-   }
-   )
-   ;
-
-template ( FunctionDecl Name=* Type=*
-   {
-      result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall," + Environment.NewLine);
-      result.Append("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
-      result.Append("internal static extern " + tree.Peek(0).Attr("Type") + " "
-         + tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");" + Environment.NewLine);
-   }
-   )
-   ;
+pass Enums;
 
 template
    ( EnumDecl Name=*
@@ -80,3 +57,28 @@ template
    )
    ;
 
+pass Functions;
+
+template ( ParmVarDecl Name=* Type="const wchar_t *"
+   {
+        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
+   }
+   )
+   ;
+
+template ( ParmVarDecl Name=* Type=*
+   {
+        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
+   }
+   )
+   ;
+
+template ( FunctionDecl Name=* Type=*
+   {
+      result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall," + Environment.NewLine);
+      result.Append("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
+      result.Append("internal static extern " + tree.Peek(0).Attr("Type") + " "
+         + tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");" + Environment.NewLine);
+   }
+   )
+   ;

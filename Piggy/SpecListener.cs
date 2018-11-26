@@ -87,7 +87,19 @@ namespace Piggy
 
         public override void ExitTemplate(SpecParserParser.TemplateContext context)
         {
-            _program.templates.Add(context);
+            _program.templates[_program.templates.Count - 1].Add(context);
+        }
+
+        public override void ExitPass(SpecParserParser.PassContext context)
+        {
+        }
+
+        public override void EnterPass(SpecParserParser.PassContext context)
+        {
+            var c = context.GetChild(1);
+            var text = c.GetText();
+            _program.passes.Add(text);
+            _program.templates.Add(new List<SpecParserParser.TemplateContext>());
         }
     }
 }
