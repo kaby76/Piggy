@@ -17,22 +17,6 @@ namespace Piggy
             re = r;
             ast = t;
             current = cur;
-            StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
-            var visited = new HashSet<IParseTree>();
-            stack.Push(ast);
-            while (stack.Count > 0)
-            {
-                var v = stack.Pop();
-                if (visited.Contains(v)) continue;
-                if (v == cur) return;
-                visited.Add(v);
-                for (int i = v.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = v.GetChild(i);
-                    if (!visited.Contains(c))
-                        stack.Push(c);
-                }
-            }
         }
 
         public Tree Peek(int level)

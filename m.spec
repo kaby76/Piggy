@@ -1,5 +1,5 @@
-import_file './help.h';
-compiler_option '-I.';
+import_file 'c:/temp/include/clang-c/Index.h';
+compiler_option '-IC:/temp/include';
 
 namespace ClangSharp;
 dllimport 'libclang';
