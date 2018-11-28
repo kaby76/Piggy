@@ -1,5 +1,7 @@
 # Piggy
 
+_NB Status: Piggy is currently being developed and does not work yet._
+
 Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This free and open source software
 is a pinvoke generator from C++ headers. It uses the same basic algorithm of DFS traversal of the
 AST commonly used in all pinvoke generators, such as in ClangSharp and CppSharp,
