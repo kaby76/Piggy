@@ -227,9 +227,8 @@ compiler_option: COMPILER_OPTION StringLiteral SEMI ;
  *   )
  *   ;
  */
-// CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
-// BNF Grammar of Regular Expressions
-// Following the precedence rules given previously, a BNF grammar for Perl-style regular expressions can be constructed as follows.
+
+// Note: the regular expression grammar is based on that of Cameron.
 template: TEMPLATE rexp SEMI ;
 rexp : simple_rexp (OR simple_rexp)* ;
 simple_rexp : basic_rexp+ ;
@@ -242,6 +241,29 @@ basic: OPEN_PAREN ID more* CLOSE_PAREN ;
 more : rexp | text | code | attr ;
 text: LANG OTHER_ANG* RANG ;
 attr: ID EQ (StringLiteral | STAR);
+/*
+// CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
+// BNF Grammar of Regular Expressions
+// http://www.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
+<RE>	::=	<union> | <simple-RE>
+<union>	::=	<RE> "|" <simple-RE>
+<simple-RE>	::=	<concatenation> | <basic-RE>
+<concatenation>	::=	<simple-RE> <basic-RE>
+<basic-RE>	::=	<star> | <plus> | <elementary-RE>
+<star>	::=	<elementary-RE> "*"
+<plus>	::=	<elementary-RE> "+"
+<elementary-RE>	::=	<group> | <any> | <eos> | <char> | <set>
+<group>	::=	"(" <RE> ")"
+<any>	::=	"."
+<eos>	::=	"$"
+<char>	::=	any non metacharacter | "\" metacharacter
+<set>	::=	<positive-set> | <negative-set>
+<positive-set>	::=	"[" <set-items> "]"
+<negative-set>	::=	"[^" <set-items> "]"
+<set-items>	::=	<set-item> | <set-item> <set-items>
+<set-items>	::=	<range> | <char>
+<range>	::=	<char> "-" <char>
+ */
 
 /* Specifies the pass for pattern matching. Templates are associated with a
  * pass, matched only for that pass. When the next pass occurs, the pattern matcher

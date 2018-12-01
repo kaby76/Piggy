@@ -47,31 +47,55 @@ namespace Piggy
                 ;
         }
 
-        public string Generate(TreeRegEx re, IParseTree t)
+        public string Generate(TreeRegEx re)
         {
             StringBuilder builder = new StringBuilder();
             var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
-            stack.Push(t);
+            StackQueue<List<IParseTree>> dfs_parent_chain = new StackQueue<List<IParseTree>>();
+            stack.Push(re._ast);
+            dfs_parent_chain.Push(new List<IParseTree>(){ });
             Dictionary<string, object> vars = new Dictionary<string, object>();
             while (stack.Count > 0)
             {
                 var x = stack.Pop();
-                if (visited.Contains(x)) continue;
-                visited.Add(x);
-
-                // x could be either an AST node, or a pattern node.
+                var context = dfs_parent_chain.Pop();
                 if (is_ast_node(x))
                 {
-                    re.matches.TryGetValue(x, out IParseTree p);
-                    if (p != null)
+                    if (visited.Contains(x)) continue;
+                    visited.Add(x);
+                    // Mutate the AST node to a pattern node if there is one.
+                    re.matches.TryGetValue(x, out IParseTree pattern);
+                    if (pattern != null)
                     {
-                        //System.Console.WriteLine("+++++");
-                        //System.Console.WriteLine("p " + TreeRegEx.sourceTextForContext(p));
-                        //System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
-                        //System.Console.WriteLine("-----");
-                        stack.Push(p);
-                        continue;
+			            System.Console.WriteLine("+++++");
+			            System.Console.WriteLine("visiting x " + x.GetText().Substring(0, x.GetText().Length > 30 ? 30 : x.GetText().Length ));
+                        //System.Console.WriteLine("looking for x " + TreeRegEx.sourceTextForContext(x));
+                        System.Console.WriteLine("pattern " + TreeRegEx.sourceTextForContext(pattern));
+			            System.Console.WriteLine("-----");
+                        //stack.Push(pattern);
+                        var en = (new List<IParseTree>()).Concat(context).Concat(new List<IParseTree>() {x, pattern}).ToList();
+                        //dfs_parent_chain.Push(en);
+
+                        // Immediately push children of pattern so as to avoid mutating the node back to an AST.
+                        for (int i = pattern.ChildCount - 1; i >= 0; --i)
+                        {
+                            var c = pattern.GetChild(i);
+                            stack.Push(c);
+                            dfs_parent_chain.Push(en);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = x.ChildCount - 1; i >= 0; --i)
+                        {
+                            var c = x.GetChild(i);
+                            if (!visited.Contains(c))
+                            {
+                                stack.Push(c);
+                                dfs_parent_chain.Push((new List<IParseTree>()).Concat(context).Concat(new List<IParseTree>() { x }).ToList());
+                            }
+                        }
                     }
                 }
                 else if (is_spec_node(x))
@@ -87,8 +111,7 @@ namespace Piggy
                         string s3 = s2.Substring(0, s2.Length - 1);
                         builder.Append(s3);
                     }
-
-                    if (x as SpecParserParser.CodeContext != null)
+                    else if (x as SpecParserParser.CodeContext != null)
                     {
                         string code = @"
 using System;
@@ -149,46 +172,78 @@ namespace First
                             MethodInfo main = program.GetMethod("Gen");
                             object[] a = new object[3];
                             a[0] = vars;
-                            var level = 0;
-                            IParseTree par = null;
-                            IParseTree c = x;
-                            // This node is an output node. Go up the pattern
-                            // tree to find a SpecParserParser.BasicContext.
-                            while (c != null)
+                            int top = context.Count - 1;
+                            IParseTree con = null;
+                            while (top >= 0)
                             {
-                                SpecParserParser.BasicContext c_bc =
-                                    c as SpecParserParser.BasicContext;
-                                if (c_bc != null) break;
-                                re.parent.TryGetValue(c, out IParseTree pp);
-                                c = pp;
+                                con = context[top];
+                                if (is_ast_node(con)) break;
+                                top--;
                             }
-
-                            foreach (var kvp in re.matches)
-                            {
-                                if (kvp.Value == c)
-                                {
-                                    par = kvp.Key;
-                                    a[1] = new Tree(re, t, par);
-                                    a[2] = builder;
-                                    var res = main.Invoke(null, a);
-                                }
-                            }
+                            a[1] = new Tree(re, re._ast, con);
+                            a[2] = builder;
+                            var res = main.Invoke(null, a);
                         }
                         finally
                         {
                             System.IO.File.Delete(fileName);
                         }
                     }
-                }
-                else if (x as ParserRuleContext != null)
-                    throw new Exception();
+                    else if (x as SpecParserParser.BasicContext != null)
+                    {
+                        // For decl nodes, mutate back to AST.
+                        // This can be tricky because it's many to one AST to pattern.
+                        // Find possible AST nodes in matches.
+                        List<KeyValuePair<IParseTree, IParseTree>> found_ast_match =
+                            re.matches.Where(kvp => kvp.Value == x).ToList();
 
-                for (int i = x.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = x.GetChild(i);
-                    if (!visited.Contains(c))
-                        stack.Push(c);
+                        IParseTree look_for = null;
+                        for (var jj = context.Count - 1; jj >= 0 && jj >= context.Count - 4; --jj)
+                        {
+                            var kk = context[jj];
+                            if (kk.GetType().FullName.Contains("MoreContext"))
+                            {
+                                look_for = kk;
+                                stack.Push(look_for);
+                                dfs_parent_chain.Push((new List<IParseTree>()).Concat(context).Concat(new List<IParseTree>() { look_for }).ToList());
+                                break;
+                            }
+                        }
+
+                        if (look_for != null)
+                        {
+
+                        }
+                        else
+                        {
+                            for (int i = x.ChildCount - 1; i >= 0; --i)
+                            {
+                                var c = x.GetChild(i);
+                                if (!visited.Contains(c))
+                                {
+                                    stack.Push(c);
+                                    dfs_parent_chain.Push((new List<IParseTree>()).Concat(context).Concat(new List<IParseTree>() { x }).ToList());
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = x.ChildCount - 1; i >= 0; --i)
+                        {
+                            var c = x.GetChild(i);
+                            if (!visited.Contains(c))
+                            {
+                                stack.Push(c);
+                                dfs_parent_chain.Push((new List<IParseTree>()).Concat(context).Concat(new List<IParseTree>() { x }).ToList());
+                            }
+                        }
+                    }
                 }
+                else if (x as TerminalNodeImpl != null)
+                    ;
+                else
+                    throw new Exception();
             }
 
             return builder.ToString();

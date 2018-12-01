@@ -35,11 +35,11 @@ namespace Piggy
     {
         public TreeRegEx(List<SpecParserParser.TemplateContext> t, IParseTree s)
         {
-            start = s;
+            _ast = s;
             bool result = false;
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
-            stack.Push(start);
+            stack.Push(_ast);
             while (stack.Count > 0)
             {
                 var v = stack.Pop();
@@ -92,8 +92,8 @@ namespace Piggy
             return cs.GetText(new Antlr4.Runtime.Misc.Interval(startToken.StartIndex, stopIndex));
         }
 
-        private IParseTree start;
-        private List<SpecParserParser.TemplateContext> templates;
+        public IParseTree _ast;
+        public List<SpecParserParser.TemplateContext> templates;
         public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
         public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
         public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
@@ -131,8 +131,8 @@ namespace Piggy
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
             pre_order = new List<IParseTree>();
-            stack.Push(start);
-            depth[start] = 0;
+            stack.Push(_ast);
+            depth[_ast] = 0;
             int current_dfs_number = 0;
 
             while (stack.Count > 0)
@@ -203,7 +203,7 @@ namespace Piggy
             int pos = 0;
             IParseTree start = re.GetChild(0);
             bool result = match_simple_re(start, t, map);
-            // if (result && map && has_output(start)) matches[start] = t;
+            // if (result && map && has_output(_ast)) matches[_ast] = t;
             if (result) return true;
             for (; ; )
             {
@@ -211,7 +211,7 @@ namespace Piggy
                 start = re.GetChild(pos);
                 if (start == null) break;
                 result = match_simple_re(start, t, map);
-                //if (result && map && has_output(start)) matches[start] = t;
+                //if (result && map && has_output(_ast)) matches[_ast] = t;
                 if (match_simple_re(start, t, map)) return true;
             }
             return false;
@@ -227,7 +227,7 @@ namespace Piggy
             int pos = 0;
             IParseTree start = simple_re.GetChild(0);
             var result = match_basic_re(start, t, map);
-            // if (result && map && has_output(start)) matches[start] = t;
+            // if (result && map && has_output(_ast)) matches[_ast] = t;
             if (!result) return false;
             for (; ; )
             {
@@ -235,7 +235,7 @@ namespace Piggy
                 start = simple_re.GetChild(pos);
                 if (start == null) break;
                 result = match_basic_re(start, t, map);
-                // if (result && map && has_output(start)) matches[start] = t;
+                // if (result && map && has_output(_ast)) matches[_ast] = t;
                 if (!result) return false;
             }
             return true;

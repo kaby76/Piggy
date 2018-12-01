@@ -22,7 +22,7 @@ template
    ( EnumDecl Name=*
       {
          vars["first"] = true;
-         result.Append("enum " + tree.Peek(0).Attr("Name") + "\u007B" + Environment.NewLine);
+         result.Append("enum " + tree.Peek(0).Attr("Name") + " " + "\u007B" + Environment.NewLine);
       }
       (%
          ( EnumConstantDecl Name=*
@@ -52,7 +52,9 @@ template
          )
       %)*
       {
-         result.Append("\u007D"); // Closing curly.
+         result.Append("\u007D");  // Closing curly.
+         result.Append(Environment.NewLine);
+         result.Append(Environment.NewLine);
       }
    )
    ;
