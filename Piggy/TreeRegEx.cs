@@ -6,31 +6,6 @@ using Antlr4.Runtime.Tree;
 
 namespace Piggy
 {
-    public class Intercept<K, V> : Dictionary<K, V>
-    {
-        public void MyAdd(K k, V v)
-        {
-            this[k] = v;
-        }
-
-        public V this[K key]
-        {
-            get
-            {
-                return base[key];
-            }
-            set
-            {
-                var t = (IParseTree) key;
-                var p = (IParseTree) value;
-                //System.Console.WriteLine(
-                //    String.Format("Adding match[{0}] = {1}",
-                //        TreeRegEx.sourceTextForContext(t), TreeRegEx.sourceTextForContext(p)));
-                base[key] = value;
-            }
-        }
-    }
-
     public class TreeRegEx
     {
         public TreeRegEx(List<SpecParserParser.TemplateContext> t, IParseTree s)
@@ -79,10 +54,14 @@ namespace Piggy
         // Pattern matcher.
         public static string sourceTextForContext(IParseTree context)
         {
+            if (context as Antlr4.Runtime.Tree.TerminalNodeImpl != null)
+            {
+                return context.GetText();
+            }
             var x = context as Antlr4.Runtime.ParserRuleContext;
             if (x == null)
             {
-                return "";
+                return "UNKNOWN TYPE!";
             }
             var c = x;
             IToken startToken = c.Start;
@@ -100,31 +79,6 @@ namespace Piggy
         public List<IParseTree> pre_order = new List<IParseTree>();
         public List<IParseTree> post_order = new List<IParseTree>();
         public Dictionary<IParseTree, IParseTree> parent = new Dictionary<IParseTree, IParseTree>();
-
-        public bool has_output(IParseTree p)
-        {
-            bool result = false;
-            var visited = new HashSet<IParseTree>();
-            var stack = new Stack<IParseTree>();
-            stack.Push(p);
-            while (stack.Count > 0)
-            {
-                var v = stack.Pop();
-                if (visited.Contains(v))
-                    continue;
-                visited.Add(v);
-                if (v as SpecParserParser.TextContext != null
-                    || v as SpecParserParser.CodeContext != null)
-                    return true;
-                for (int i = v.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = v.GetChild(i);
-                    if (!visited.Contains(c))
-                        stack.Push(c);
-                }
-            }
-            return false;
-        }
 
         public void dfs_match()
         {
@@ -179,31 +133,33 @@ namespace Piggy
             }
         }
 
-        /* Match template: TEMPLATE rexp SEMI ;
+        /*
+         * Match template: TEMPLATE rexp SEMI ;
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_template(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.TemplateContext template =
-                p as SpecParserParser.TemplateContext;
+            SpecParserParser.TemplateContext template = p as SpecParserParser.TemplateContext;
             if (template == null) return false;
             var re = p.GetChild(1);
             if (re == null) return false;
             bool result = match_rexp(re, t, map);
-            //if (result && map && has_output(p)) matches[p] = t;
+            if (result && map) matches.MyAdd(t, p);
             return result;
         }
 
-        /* Match rexp : simple_rexp (OR simple_rexp)* ;
-        */
+        /*
+         * Match rexp : simple_rexp (OR simple_rexp)* ;
+         * Add entry into matches t => p if there is a match and map is true.
+         */
         private bool match_rexp(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.RexpContext re =
-                p as SpecParserParser.RexpContext;
+            SpecParserParser.RexpContext re = p as SpecParserParser.RexpContext;
             if (re == null) return false;
             int pos = 0;
             IParseTree start = re.GetChild(0);
             bool result = match_simple_re(start, t, map);
-            // if (result && map && has_output(_ast)) matches[_ast] = t;
+            if (result && map) matches.MyAdd(t, p);
             if (result) return true;
             for (; ; )
             {
@@ -211,14 +167,15 @@ namespace Piggy
                 start = re.GetChild(pos);
                 if (start == null) break;
                 result = match_simple_re(start, t, map);
-                //if (result && map && has_output(_ast)) matches[_ast] = t;
-                if (match_simple_re(start, t, map)) return true;
+                if (result && map) matches.MyAdd(t, p);
+                if (result) return true;
             }
             return false;
         }
 
         /* Match simple_rexp : basic_rexp+ ;
-        */
+         * Add entry into matches t => p if there is a match and map is true.
+         */
         private bool match_simple_re(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.Simple_rexpContext simple_re =
@@ -227,7 +184,6 @@ namespace Piggy
             int pos = 0;
             IParseTree start = simple_re.GetChild(0);
             var result = match_basic_re(start, t, map);
-            // if (result && map && has_output(_ast)) matches[_ast] = t;
             if (!result) return false;
             for (; ; )
             {
@@ -235,13 +191,14 @@ namespace Piggy
                 start = simple_re.GetChild(pos);
                 if (start == null) break;
                 result = match_basic_re(start, t, map);
-                // if (result && map && has_output(_ast)) matches[_ast] = t;
-                if (!result) return false;
+                if (!result) return false; // If any non-match, the whole is non-match.
             }
+            if (map) matches.MyAdd(t, p);
             return true;
         }
 
         /* Match basic_rexp : star_rexp | plus_rexp | elementary_rexp ;
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_basic_re(IParseTree p, IParseTree t, bool map = false)
         {
@@ -256,7 +213,7 @@ namespace Piggy
             if (star_rexp != null)
             {
                 var result = match_star_rexp(star_rexp, t, map);
-                //if (result && map && has_output(star_rexp)) matches[star_rexp] = t;
+                if (result && map) matches.MyAdd(t, p);
                 return result;
             }
             SpecParserParser.Plus_rexpContext plus_rexp =
@@ -264,18 +221,19 @@ namespace Piggy
             if (plus_rexp != null)
             {
                 var result = match_plus_rexp(plus_rexp, t, map);
-                //if (result && map && has_output(plus_rexp)) matches[plus_rexp] = t;
+                if (result && map) matches.MyAdd(t, p);
                 return result;
             }
             {
                 var result = match_elementary_rexp(child, t, map);
-                // if (result && map && has_output(child)) matches[child] = t;
+                if (result && map) matches.MyAdd(t, p);
                 return result;
             }
         }
 
         /*
          * star_rexp: elementary_rexp STAR;
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_star_rexp(IParseTree p, IParseTree t, bool map = false)
         {
@@ -284,15 +242,23 @@ namespace Piggy
             if (star_rexp == null) return false;
             int pos = 0;
             var child = star_rexp.GetChild(0);
-            if (child == null) return true;
+            if (child == null)
+            {
+                // It is possible that there are no children for AST.
+                // But, this is OK because it still matches.
+                if (map) matches.MyAdd(t, p);
+                return true;
+            }
             // Match zero or more of elementary. Note, we are matching
             // a elementary_rexp with a "more" type in the ast.
-            bool b = match_elementary_rexp(child, t, map);
-            return b;
+            bool result = match_elementary_rexp(child, t, map);
+            if (result && map) matches.MyAdd(t, p);
+            return result;
         }
 
         /*
          * plus_rexp: elementary_rexp PLUS;
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_plus_rexp(IParseTree p, IParseTree t, bool map = false)
         {
@@ -302,13 +268,14 @@ namespace Piggy
             var child = star_rexp.GetChild(0);
             if (child == null) return false;
             // Match one or more of elementary.
-            var result = true;
-            bool b = match_elementary_rexp(child, t, map);
-            return b;
+            bool result = match_elementary_rexp(child, t, map);
+            if (result && map) matches.MyAdd(t, p);
+            return result;
         }
 
         /*
          * elementary_rexp: group_rexp | basic ;
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_elementary_rexp(IParseTree p, IParseTree t, bool map = false)
         {
@@ -322,7 +289,7 @@ namespace Piggy
             if (group_rexp != null)
             {
                 var result = match_group_rexp(group_rexp, t, map);
-                //if (result && map && has_output(group_rexp)) matches[group_rexp] = t;
+                if (result && map) matches.MyAdd(t, p);
                 return result;
             }
             SpecParserParser.BasicContext basic =
@@ -330,25 +297,26 @@ namespace Piggy
             if (basic != null)
             {
                 var result = match_basic(basic, t, map);
-                // if (result && map && has_output(basic)) matches[basic] = t;
+                if (result && map) matches.MyAdd(t, p);
                 return result;
             }
-
             return false;
         }
 
         /*
-         * group_rexp:   OPEN_PAREN rexp CLOSE_PAREN ;
+         * pattern grammar--
+         * group_rexp:   OPEN_RE rexp CLOSE_RE ;
+         *
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_group_rexp(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.Group_rexpContext group_rexp =
-                p as SpecParserParser.Group_rexpContext;
+            SpecParserParser.Group_rexpContext group_rexp = p as SpecParserParser.Group_rexpContext;
             if (group_rexp == null) return false;
             var child = group_rexp.GetChild(1);
             if (child == null) return false;
             var result = match_rexp(child, t, map);
-            //if (result && map && has_output(child)) matches[child] = t;
+            if (result && map) matches.MyAdd(t, p);
             return result;
         }
 
@@ -359,8 +327,7 @@ namespace Piggy
         public bool is_pattern_attr(IParseTree p)
         {
             if (p == null) return false;
-            SpecParserParser.AttrContext attr =
-                p as SpecParserParser.AttrContext;
+            SpecParserParser.AttrContext attr = p as SpecParserParser.AttrContext;
             return attr != null;
         }
 
@@ -371,8 +338,7 @@ namespace Piggy
         public bool is_ast_attr(IParseTree p)
         {
             if (p == null) return false;
-            AstParserParser.AttrContext attr =
-                p as AstParserParser.AttrContext;
+            AstParserParser.AttrContext attr = p as AstParserParser.AttrContext;
             return attr != null;
         }
 
@@ -389,14 +355,17 @@ namespace Piggy
         }
 
         /*
+         * pattern grammar--
          * basic: OPEN_PAREN ID more* CLOSE_PAREN ;
          *
+         * tree grammar--
          * decl : OPEN_PAREN ID more* CLOSE_PAREN ;
+         *
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_basic(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.BasicContext basic =
-                p as SpecParserParser.BasicContext;
+            SpecParserParser.BasicContext basic = p as SpecParserParser.BasicContext;
             if (basic == null) return false;
 
             // Match open paren.
@@ -414,12 +383,16 @@ namespace Piggy
             var p_sym = p_tok.Symbol;
             if (p_sym.Type != SpecParserParser.OPEN_PAREN) return false;
 
+            if (map) matches.MyAdd(t_c, p_c);
+
             pos++;
 
             // Match ID.
             var id_tree = decl.GetChild(pos);
             var id = basic.GetChild(pos);
             if (id.GetText() != id_tree.GetText()) return false;
+
+            if (map) matches.MyAdd(id_tree, id);
 
             pos++;
 
@@ -440,8 +413,7 @@ namespace Piggy
                 if (p_more as SpecParserParser.CodeContext != null
                     || p_more as SpecParserParser.TextContext != null)
                     continue;
-                SpecParserParser.MoreContext c11 =
-                    p_more as SpecParserParser.MoreContext;
+                SpecParserParser.MoreContext c11 = p_more as SpecParserParser.MoreContext;
                 if (c11 == null) return false;
                 var p_child = p_more.GetChild(0);
                 if (p_child as SpecParserParser.CodeContext != null
@@ -455,8 +427,7 @@ namespace Piggy
                 for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens; ++j)
                 {
                     t_more = decl.GetChild(j);
-                    AstParserParser.MoreContext c22 =
-                        t_more as AstParserParser.MoreContext;
+                    AstParserParser.MoreContext c22 = t_more as AstParserParser.MoreContext;
                     if (c22 == null) return false;
                     if (match_more(c11, c22, map))
                     {
@@ -467,102 +438,83 @@ namespace Piggy
                 }
                 if (!matched) return false;
             }
-
-            if (true && map && has_output(p)) matches[t] = p;
+            if (true && map) matches.MyAdd(t, p);
             return true;
         }
 
-        /* pattern grammar--
+        /*
+         * pattern grammar--
          * more : rexp | text | code | attr ;
          *
          * tree grammar--
          * more : decl | attr ;
+         *
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_more(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.MoreContext p_more =
-                p as SpecParserParser.MoreContext;
+            SpecParserParser.MoreContext p_more = p as SpecParserParser.MoreContext;
             if (p_more == null) return false;
-
-            AstParserParser.MoreContext t_more =
-                t as AstParserParser.MoreContext;
+            AstParserParser.MoreContext t_more = t as AstParserParser.MoreContext;
             if (t_more == null) return false;
-
             bool result = true;
             var p_child = p_more.GetChild(0);
             if (p_child as SpecParserParser.CodeContext != null
                 || p_child as SpecParserParser.TextContext != null)
+            {
+                if (map) matches.MyAdd(t, p);
                 return true;
-
+            }
             var t_child = t.GetChild(0);
-
-            SpecParserParser.RexpContext rexp =
-                p_child as SpecParserParser.RexpContext;
+            SpecParserParser.RexpContext rexp = p_child as SpecParserParser.RexpContext;
             if (rexp != null)
             {
                 var res = match_rexp(p_child, t_child, map);
-                //if (res && map && has_output(p_child)) matches[p_child] = t_child;
+                if (res && map) matches.MyAdd(t, p);
                 return res;
             }
-
-            SpecParserParser.AttrContext attr =
-                p_child as SpecParserParser.AttrContext;
+            SpecParserParser.AttrContext attr = p_child as SpecParserParser.AttrContext;
             if (attr != null)
             {
                 var res = match_attr(p_child, t_child, map);
+                if (res && map) matches.MyAdd(t, p);
                 return res;
             }
-
             return false;
         }
 
         /*
-         * code: LCURLY OTHER* RCURLY ;
-         */
-        private bool match_code(IParseTree p, IParseTree t, bool map = false)
-        {
-            SpecParserParser.CodeContext code =
-                p as SpecParserParser.CodeContext;
-            if (code == null) return false;
-            return true;
-        }
-
-        /*
-         * text: LANG OTHER_ANG* RANG ;
-         */
-        private bool match_text(IParseTree p, IParseTree t, bool map = false)
-        {
-            SpecParserParser.TextContext text =
-                p as SpecParserParser.TextContext;
-            if (text == null) return false;
-            return true;
-        }
-
-        /*
+         *
+         * pattern grammar--
          * attr: ID EQ (StringLiteral | STAR);
+         *
+         * tree grammar--
+         * attr : ID EQUALS StringLiteral ;
+         *
+         * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_attr(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.AttrContext p_attr =
-                p as SpecParserParser.AttrContext;
+            SpecParserParser.AttrContext p_attr = p as SpecParserParser.AttrContext;
             if (p_attr == null) return false;
-            AstParserParser.AttrContext t_attr =
-                t as AstParserParser.AttrContext;
+            AstParserParser.AttrContext t_attr = t as AstParserParser.AttrContext;
             if (t_attr == null) return false;
-
             int pos = 0;
             var p_id = p_attr.GetChild(pos);
             var t_id = t_attr.GetChild(pos);
             if (p_id.GetText() != t_id.GetText()) return false;
-
             pos++;
             pos++;
-
             var p_val = p_attr.GetChild(pos);
             var t_val = t_attr.GetChild(pos);
-            if (p_val.GetText() == "*") return true;
-
-            return p_val.GetText() == t_val.GetText();
+            if (p_val.GetText() == "*")
+            {
+                if (map) matches.MyAdd(t, p);
+                return true;
+            }
+            var result = p_val.GetText() == t_val.GetText();
+            if (result && map) matches.MyAdd(t, p);
+            return result;
         }
     }
 }

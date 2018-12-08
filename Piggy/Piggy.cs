@@ -196,16 +196,18 @@ namespace Piggy
             TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
             regex.dfs_match();
 
-            foreach (var match in regex.matches)
+            foreach (KeyValuePair<IParseTree, HashSet<IParseTree>> match in regex.matches)
             {
                 System.Console.WriteLine("==========================");
-                System.Console.WriteLine("Pattern type " + match.Value.GetType());
-                System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(match.Value));
                 System.Console.WriteLine("Tree type " + match.Key.GetType());
                 System.Console.WriteLine("Tree " + TreeRegEx.sourceTextForContext(match.Key));
+                foreach (var m in match.Value)
+                {
+                    System.Console.WriteLine("Pattern type " + m.GetType());
+                    System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(m));
+                }
             }
             System.Console.WriteLine("==========================");
-
             OutputEngine output = new OutputEngine();
             string @out = output.Generate(regex);
             return @out;
