@@ -1,11 +1,12 @@
-﻿using System;
+﻿
+//#define DEBUGOUTPUT
+
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Microsoft.CSharp;
 
@@ -84,6 +85,7 @@ namespace Piggy
 
                         if (pattern != null && pc != null)
                         {
+#if DEBUGOUTPUT
                             System.Console.WriteLine("------------- types");
                             System.Console.WriteLine("x type " + x.GetType());
                             System.Console.WriteLine("c type " + c.GetType());
@@ -94,16 +96,17 @@ namespace Piggy
                             System.Console.WriteLine("c value " + TreeRegEx.sourceTextForContext(c));
                             System.Console.WriteLine("p value " + TreeRegEx.sourceTextForContext(pattern));
                             System.Console.WriteLine("pc value " + TreeRegEx.sourceTextForContext(pc));
-
+#endif
                             for (; ci < pattern.ChildCount; ++ci)
                             {
                                 var cp = pattern.GetChild(ci);
                                 // We only care if the pattern node is directly an
                                 // attr or code node. Otherwise, it will be handled
                                 // by dfs of the child.
+#if DEBUGOUTPUT
                                 System.Console.WriteLine("cp type " + cp.GetType());
                                 System.Console.WriteLine("cp value " + TreeRegEx.sourceTextForContext(cp));
-
+#endif
                                 if (cp as SpecParserParser.MoreContext != null
                                     && cp.ChildCount == 1
                                     && (cp.GetChild(0) as SpecParserParser.TextContext != null
@@ -154,8 +157,10 @@ namespace Piggy
                         while (top >= 0)
                         {
                             con = context[top];
+#if DEBUGOUTPUT
                             System.Console.WriteLine("con " + TreeRegEx.sourceTextForContext(con));
                             System.Console.WriteLine("-----");
+#endif
                             if (is_ast_node(con)) break;
                             top--;
                         }

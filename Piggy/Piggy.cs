@@ -195,7 +195,7 @@ namespace Piggy
             List<SpecParserParser.TemplateContext> templates = this.templates[pass];
             TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
             regex.dfs_match();
-
+#if DEBUGOUTPUT
             foreach (KeyValuePair<IParseTree, HashSet<IParseTree>> match in regex.matches)
             {
                 System.Console.WriteLine("==========================");
@@ -208,6 +208,7 @@ namespace Piggy
                 }
             }
             System.Console.WriteLine("==========================");
+#endif
             OutputEngine output = new OutputEngine();
             string @out = output.Generate(regex);
             return @out;

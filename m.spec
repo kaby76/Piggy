@@ -19,14 +19,14 @@ prefix_strip clang_;
 pass Enums;
 
 template
-   ( EnumDecl Name=*
+   ( EnumDecl
       {
          vars["first"] = true;
          result.Append("enum " + tree.Peek(0).Attr("Name") + " " + "\u007B" + Environment.NewLine);
       }
       (%
-         ( EnumConstantDecl Name=*
-            ( IntegerLiteral Value=*
+         ( EnumConstantDecl
+            ( IntegerLiteral
                {
                   if ((bool)vars["first"])
                      vars["first"] = false;
@@ -41,7 +41,7 @@ template
             )
          )
          |
-         ( EnumConstantDecl Name=*
+         ( EnumConstantDecl
             {
                if ((bool)vars["first"])
                   vars["first"] = false;
@@ -61,21 +61,21 @@ template
 
 pass Functions;
 
-template ( ParmVarDecl Name=* Type="const wchar_t *"
+template ( ParmVarDecl Type="const wchar_t *"
    {
         result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
    }
    )
    ;
 
-template ( ParmVarDecl Name=* Type=*
+template ( ParmVarDecl
    {
         result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
    }
    )
    ;
 
-template ( FunctionDecl Name=* Type=*
+template ( FunctionDecl
    {
       result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall," + Environment.NewLine);
       result.Append("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);

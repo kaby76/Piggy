@@ -327,9 +327,60 @@ namespace Piggy
         public bool is_pattern_attr(IParseTree p)
         {
             if (p == null) return false;
+            if (p as SpecParserParser.MoreContext == null) return false;
+            p = p.GetChild(0);
             SpecParserParser.AttrContext attr = p as SpecParserParser.AttrContext;
             return attr != null;
         }
+
+        /*
+         * Determine via lookahead if a node for a pattern matcher
+         * is a star expression or not.
+         */
+        public bool is_pattern_star(IParseTree p)
+        {
+            if (p == null) return false;
+            if (p as SpecParserParser.MoreContext == null) return false;
+            p = p.GetChild(0);
+            if (p as SpecParserParser.RexpContext == null) return false;
+            var s = p.GetChild(0);
+            for (int i = 0; i < s.ChildCount; i += 2)
+            {
+                var q = s as SpecParserParser.Simple_rexpContext;
+                if (q == null) return false;
+                var r = q.GetChild(0);
+                var t = r as SpecParserParser.Basic_rexpContext;
+                if (t == null) return false;
+                var v = t.GetChild(0);
+                if (v as SpecParserParser.Star_rexpContext != null) return true;
+            }
+            return false;
+        }
+
+        /*
+         * Determine via lookahead if a node for a pattern matcher
+         * is a plus expression or not.
+         */
+        public bool is_pattern_plus(IParseTree p)
+        {
+            if (p == null) return false;
+            if (p as SpecParserParser.MoreContext == null) return false;
+            p = p.GetChild(0);
+            if (p as SpecParserParser.RexpContext == null) return false;
+            var s = p.GetChild(0);
+            for (int i = 0; i < s.ChildCount; i += 2)
+            {
+                var q = s as SpecParserParser.Simple_rexpContext;
+                if (q == null) return false;
+                var r = q.GetChild(0);
+                var t = r as SpecParserParser.Basic_rexpContext;
+                if (t == null) return false;
+                var v = t.GetChild(0);
+                if (v as SpecParserParser.Plus_rexpContext != null) return true;
+            }
+            return false;
+        }
+
 
         /*
          * Determine via lookahead if a node for a pattern matcher
@@ -372,18 +423,20 @@ namespace Piggy
             int pos = 0;
             var decl = t as AstParserParser.DeclContext;
             if (decl == null) return false;
-            var t_c = decl.GetChild(pos);
-            var t_tok = t_c as TerminalNodeImpl;
-            if (t_tok == null) return false;
-            var t_sym = t_tok.Symbol;
-            if (t_sym.Type != AstLexer.OPEN_PAREN) return false;
-            var p_c = basic.GetChild(pos);
-            var p_tok = p_c as TerminalNodeImpl;
-            if (p_tok == null) return false;
-            var p_sym = p_tok.Symbol;
-            if (p_sym.Type != SpecParserParser.OPEN_PAREN) return false;
 
-            if (map) matches.MyAdd(t_c, p_c);
+            {
+                var t_c = decl.GetChild(pos);
+                var t_tok = t_c as TerminalNodeImpl;
+                if (t_tok == null) return false;
+                var t_sym = t_tok.Symbol;
+                if (t_sym.Type != AstLexer.OPEN_PAREN) return false;
+                var p_c = basic.GetChild(pos);
+                var p_tok = p_c as TerminalNodeImpl;
+                if (p_tok == null) return false;
+                var p_sym = p_tok.Symbol;
+                if (p_sym.Type != SpecParserParser.OPEN_PAREN) return false;
+                if (map) matches.MyAdd(t_c, p_c);
+            }
 
             pos++;
 
@@ -402,6 +455,8 @@ namespace Piggy
 
             int p_pos = pos;
             int t_pos = pos;
+            int p_pos_max = p.ChildCount;
+            int t_pos_max = t.ChildCount;
             IParseTree p_more = null;
             IParseTree t_more = null;
             bool result = true;
@@ -410,6 +465,8 @@ namespace Piggy
             {
                 p_more = basic.GetChild(p_pos);
                 if (p_more == null) break;
+                var p_more_type = p_more.GetType();
+                var p_more_text = p_more.GetText();
                 if (p_more as SpecParserParser.CodeContext != null
                     || p_more as SpecParserParser.TextContext != null)
                     continue;
@@ -419,25 +476,73 @@ namespace Piggy
                 if (p_child as SpecParserParser.CodeContext != null
                     || p_child as SpecParserParser.TextContext != null)
                     continue;
+                var p_child_type = p_child.GetType();
 
                 // If this element of the pattern is an attribute,
-                // go through all previous elements of t.
-                bool is_attr = this.is_pattern_attr(p_more.GetChild(0));
+                // go through all previous elements of t. Children can be
+                // in any order! XXXXXXXXXXXXXXXXXXXXXXXXXX stop doing this Dec 9 2018
+
+
+                // Go through ast and look for pattern in the ast. If we
+                // found any match, then record this point in the ast matched.
+                // Continue matching until the end of the ast, which ends in
+                // a ")". Note, if the pattern is a "*" or "+" expression,
+                // we keep looking for this pattern. Otherwise, we skip to the
+                // next pattern child.
+                bool is_attr = this.is_pattern_attr(p_more);
+                bool is_plus = this.is_pattern_plus(p_more);
+                bool is_star = this.is_pattern_star(p_more);
                 bool matched = false;
-                for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens; ++j)
+                //for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens; ++j)
+                for (int j = t_pos; j < decl.ChildCount - not_counting_parens; ++j)
                 {
                     t_more = decl.GetChild(j);
+                    var t_more_type = t_more.GetType();
+                    var t_more_text = t_more.GetText();
                     AstParserParser.MoreContext c22 = t_more as AstParserParser.MoreContext;
-                    if (c22 == null) return false;
+                    if (c22 == null)
+                        return false;
                     if (match_more(c11, c22, map))
                     {
+                        // Current ast child matches.
                         matched = true;
                         t_pos = j;
-                        //break;
+                    }
+                    // Determine pattern child type. If it's a * or + grouping,
+                    // continue to look for this pattern. Otherwise, move onto the next
+                    // pattern child.
+                    if (matched && !(is_plus || is_star))
+                    {
+                        break;
                     }
                 }
+                // If you didn't match pattern child, then this pattern can't match.
                 if (!matched) return false;
             }
+
+            {
+                if (p_pos == basic.ChildCount - not_counting_parens)
+                {
+                    t_pos = decl.ChildCount - 2;
+                }
+                var t_c = decl.GetChild(t_pos + 1);
+                var t_tok = t_c as TerminalNodeImpl;
+                if (t_tok == null)
+                    return false;
+                var t_sym = t_tok.Symbol;
+                if (t_sym.Type != AstLexer.CLOSE_PAREN)
+                    return false;
+                var p_c = basic.GetChild(p_pos);
+                var p_tok = p_c as TerminalNodeImpl;
+                if (p_tok == null)
+                    return false;
+                var p_sym = p_tok.Symbol;
+                if (p_sym.Type != SpecParserParser.CLOSE_PAREN)
+                    return false;
+                if (map) matches.MyAdd(t_c, p_c);
+            }
+
+
             if (true && map) matches.MyAdd(t, p);
             return true;
         }
