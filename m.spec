@@ -36,7 +36,7 @@ template
                   var na = tt.Attr("Name");
                   var t2 = tree.Peek(0);
                   var va = t2.Attr("Value");
-                  result.Append(tree.Peek(1).Attr("Name") + " xx= " + tree.Peek(0).Attr("Value") + Environment.NewLine);
+                  result.Append(tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value") + Environment.NewLine);
                }
             )
          )

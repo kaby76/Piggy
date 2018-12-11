@@ -22,10 +22,25 @@ namespace Piggy
         public Tree Peek(int level)
         {
             IParseTree v = current;
-            for (int j = 0; j < level; ++j)
+            if (level > 0)
             {
-                re.parent.TryGetValue(v, out IParseTree par);
-                v = par;
+                while (v != null)
+                {
+                    re.parent.TryGetValue(v, out IParseTree par);
+                    if (par == null)
+                    {
+                        v = null;
+                        break;
+                    }
+                    if (v.GetText() != par.GetText())
+                    {
+                        v = par;
+                        level--;
+                        if (level == 0)
+                            break;
+                    }
+                    v = par;
+                }
             }
             Tree t = new Tree(re, ast, v);
             return t;

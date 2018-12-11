@@ -147,8 +147,6 @@ namespace Piggy
                     }
                     else if (x as SpecParserParser.CodeContext != null)
                     {
-                        if (TreeRegEx.sourceTextForContext(x).Contains("xx"))
-                        { }
                         // Verify:
                         // 1. This must have an AST context.
                         //   => Easy to know because the dfs parent list
