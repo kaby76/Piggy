@@ -241,6 +241,16 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitBasic([NotNull] SpecParserParser.BasicContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.id_or_star_or_empty"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterId_or_star_or_empty([NotNull] SpecParserParser.Id_or_star_or_emptyContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.id_or_star_or_empty"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitId_or_star_or_empty([NotNull] SpecParserParser.Id_or_star_or_emptyContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.more"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

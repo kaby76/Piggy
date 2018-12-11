@@ -407,7 +407,7 @@ namespace Piggy
 
         /*
          * pattern grammar--
-         * basic: OPEN_PAREN ID more* CLOSE_PAREN ;
+         * basic: OPEN_PAREN id_or_star_or_empty more* CLOSE_PAREN ;
          *
          * tree grammar--
          * decl : OPEN_PAREN ID more* CLOSE_PAREN ;
@@ -440,10 +440,15 @@ namespace Piggy
 
             pos++;
 
-            // Match ID.
+            // Match ID, if supplied.
             var id_tree = decl.GetChild(pos);
             var id = basic.GetChild(pos);
-            if (id.GetText() != id_tree.GetText()) return false;
+            if (id.GetText() == "")
+                ; // Match empty.
+            else if (id.GetText() == "*")
+                ; // Match anything.
+            else if (id.GetText() != id_tree.GetText())
+                return false;
 
             if (map) matches.MyAdd(id_tree, id);
 

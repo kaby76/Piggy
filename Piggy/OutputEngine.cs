@@ -28,6 +28,7 @@ namespace Piggy
                    || x as SpecParserParser.Add_after_usingsContext != null
                    || x as SpecParserParser.AttrContext != null
                    || x as SpecParserParser.BasicContext != null
+                   || x as SpecParserParser.Id_or_star_or_emptyContext != null
                    || x as SpecParserParser.Basic_rexpContext != null
                    || x as SpecParserParser.Calling_conventionContext != null
                    || x as SpecParserParser.Class_nameContext != null

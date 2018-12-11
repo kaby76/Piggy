@@ -1,20 +1,10 @@
 #include "clang/ASTMatchers/Dynamic/VariantValue.h"
-#include "clang/Basic/LLVM.h"
-#include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/StringRef.h"
-#include "llvm/ADT/Twine.h"
-#include "llvm/Support/raw_ostream.h"
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "clang/ASTMatchers/Dynamic/Parser.h"
-#include "clang/Frontend/TextDiagnostic.h"
-#include "clang/Basic/CharInfo.h"
-#include "llvm/ADT/StringRef.h"
-#include "llvm/ADT/StringSwitch.h"
-#include <set>
 #include <string>
 #include <vector>
 #include "clang/ASTMatchers/ASTMatchFinder.h"
-
 #include "clang/Tooling/Tooling.h"
 #include <iostream>
 

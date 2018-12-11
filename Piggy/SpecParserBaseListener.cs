@@ -287,6 +287,18 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitBasic([NotNull] SpecParserParser.BasicContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.id_or_star_or_empty"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterId_or_star_or_empty([NotNull] SpecParserParser.Id_or_star_or_emptyContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.id_or_star_or_empty"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitId_or_star_or_empty([NotNull] SpecParserParser.Id_or_star_or_emptyContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.more"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
