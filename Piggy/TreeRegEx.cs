@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using System.Text.RegularExpressions;
 
 namespace Piggy
 {
@@ -67,8 +68,11 @@ namespace Piggy
             IToken startToken = c.Start;
             IToken stopToken = c.Stop;
             ICharStream cs = startToken.InputStream;
+            int startIndex = startToken.StartIndex;
             int stopIndex = stopToken.StopIndex;
-            return cs.GetText(new Antlr4.Runtime.Misc.Interval(startToken.StartIndex, stopIndex));
+            if (startIndex > stopIndex)
+                startIndex = stopIndex;
+            return cs.GetText(new Antlr4.Runtime.Misc.Interval(startIndex, stopIndex));
         }
 
         public IParseTree _ast;
@@ -131,6 +135,39 @@ namespace Piggy
                     }
                 }
             }
+        }
+
+        /*
+         * Recursively go down ast and search for a match anywhere of the pattern tree.
+         *
+         * Add entry into matches t => p if there is a match and map is true.
+         */
+        private bool match_kleene_star_node(IParseTree p, IParseTree t, bool map = false)
+        {
+            SpecParserParser.Kleene_star_basicContext pstar = p as SpecParserParser.Kleene_star_basicContext;
+            if (pstar == null) return false;
+            AstParserParser.DeclContext t_decl = t as AstParserParser.DeclContext;
+            if (t_decl == null) return false;
+
+            // Go down tree node, looking for match in ast.
+            var stack = new Stack<IParseTree>();
+            stack.Push(t_decl);
+            while (stack.Count > 0)
+            {
+                var v = stack.Pop();
+                var r = match_basic_simple(pstar, v, map);
+                if (r)
+                {
+                    if (map) matches.MyAdd(t, p);
+                    return true;
+                }
+                for (int i = v.ChildCount - 1; i >= 0; --i)
+                {
+                    var c = v.GetChild(i);
+                    stack.Push(c);
+                }
+            }
+            return false;
         }
 
         /*
@@ -292,8 +329,7 @@ namespace Piggy
                 if (result && map) matches.MyAdd(t, p);
                 return result;
             }
-            SpecParserParser.BasicContext basic =
-                child as SpecParserParser.BasicContext;
+            SpecParserParser.BasicContext basic = child as SpecParserParser.BasicContext;
             if (basic != null)
             {
                 var result = match_basic(basic, t, map);
@@ -405,70 +441,102 @@ namespace Piggy
             return text != null;
         }
 
+        private bool match_basic(IParseTree p, IParseTree t, bool map = false)
+        {
+            var q = p.GetChild(0);
+            bool result = false;
+            if (q as SpecParserParser.Simple_basicContext != null)
+            {
+                result = match_basic_simple(q, t, map);
+            }
+            else if (q as SpecParserParser.Kleene_star_basicContext != null)
+            {
+                result = match_kleene_star_node(q, t, map);
+            }
+            if (result && map) matches.MyAdd(t, p);
+            return result;
+        }
+
         /*
          * pattern grammar--
-         * basic: OPEN_PAREN id_or_star_or_empty more* CLOSE_PAREN ;
+         * basic_simple: OPEN_PAREN id_or_star_or_empty more* CLOSE_PAREN ;
          *
          * tree grammar--
          * decl : OPEN_PAREN ID more* CLOSE_PAREN ;
          *
          * Add entry into matches t => p if there is a match and map is true.
          */
-        private bool match_basic(IParseTree p, IParseTree t, bool map = false)
+        private bool match_basic_simple(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.BasicContext basic = p as SpecParserParser.BasicContext;
-            if (basic == null) return false;
-
             // Match open paren.
-            int pos = 0;
+            int t_pos = 0;
+            int p_pos = 0;
             var decl = t as AstParserParser.DeclContext;
             if (decl == null) return false;
 
             {
-                var t_c = decl.GetChild(pos);
+                var t_c = decl.GetChild(t_pos);
                 var t_tok = t_c as TerminalNodeImpl;
                 if (t_tok == null) return false;
                 var t_sym = t_tok.Symbol;
                 if (t_sym.Type != AstLexer.OPEN_PAREN) return false;
-                var p_c = basic.GetChild(pos);
+                var p_c = p.GetChild(p_pos);
                 var p_tok = p_c as TerminalNodeImpl;
                 if (p_tok == null) return false;
                 var p_sym = p_tok.Symbol;
-                if (p_sym.Type != SpecParserParser.OPEN_PAREN) return false;
+                if (!(p_sym.Type == SpecParserParser.OPEN_PAREN ||
+                    p_sym.Type == SpecParserParser.OPEN_KLEENE_STAR_PAREN))
+                    return false;
+
                 if (map) matches.MyAdd(t_c, p_c);
             }
 
-            pos++;
+            p_pos++;
+            t_pos++;
 
             // Match ID, if supplied.
-            var id_tree = decl.GetChild(pos);
-            var id = basic.GetChild(pos);
-            if (id.GetText() == "")
-                ; // Match empty.
+            var id_tree = decl.GetChild(t_pos);
+            var id_or_star = p.GetChild(p_pos);
+            if (id_or_star as SpecParserParser.Id_or_star_or_emptyContext == null)
+                return false;
+            var id = id_or_star.GetChild(0);
+            if (id == null)
+            {
+                p_pos++;
+                t_pos++;
+            }
             else if (id.GetText() == "*")
-                ; // Match anything.
+            {
+                if (map) matches.MyAdd(id_tree, id);
+                p_pos++;
+                t_pos++;
+            }
             else if (id.GetText() != id_tree.GetText())
                 return false;
-
-            if (map) matches.MyAdd(id_tree, id);
-
-            pos++;
+            else
+            {
+                if (map) matches.MyAdd(id_tree, id);
+                t_pos++;
+                p_pos++;
+            }
+            if (map)
+            {
+                matches.MyAdd(id_tree, id_or_star);
+            }
 
             // We are now at "more" in both t and p.
             // p contains list of "more", as well as t.
             // p's items should all match t's in order.
 
-            int p_pos = pos;
-            int t_pos = pos;
             int p_pos_max = p.ChildCount;
             int t_pos_max = t.ChildCount;
             IParseTree p_more = null;
             IParseTree t_more = null;
             bool result = true;
             int not_counting_parens = 1;
-            for ( ; p_pos < basic.ChildCount - not_counting_parens; ++p_pos)
+            for ( ; p_pos < p.ChildCount - not_counting_parens; ++p_pos)
             {
-                p_more = basic.GetChild(p_pos);
+                p_more = p.GetChild(p_pos);
                 if (p_more == null) break;
                 var p_more_type = p_more.GetType();
                 var p_more_text = p_more.GetText();
@@ -483,11 +551,7 @@ namespace Piggy
                     continue;
                 var p_child_type = p_child.GetType();
 
-                // If this element of the pattern is an attribute,
-                // go through all previous elements of t. Children can be
-                // in any order! XXXXXXXXXXXXXXXXXXXXXXXXXX stop doing this Dec 9 2018
-
-
+                // Note order of attributes is significant.
                 // Go through ast and look for pattern in the ast. If we
                 // found any match, then record this point in the ast matched.
                 // Continue matching until the end of the ast, which ends in
@@ -526,7 +590,7 @@ namespace Piggy
             }
 
             {
-                if (p_pos == basic.ChildCount - not_counting_parens)
+                if (p_pos == p.ChildCount - not_counting_parens)
                 {
                     t_pos = decl.ChildCount - 2;
                 }
@@ -537,16 +601,16 @@ namespace Piggy
                 var t_sym = t_tok.Symbol;
                 if (t_sym.Type != AstLexer.CLOSE_PAREN)
                     return false;
-                var p_c = basic.GetChild(p_pos);
+                var p_c = p.GetChild(p_pos);
                 var p_tok = p_c as TerminalNodeImpl;
                 if (p_tok == null)
                     return false;
                 var p_sym = p_tok.Symbol;
-                if (p_sym.Type != SpecParserParser.CLOSE_PAREN)
+                if (!(p_sym.Type == SpecParserParser.CLOSE_PAREN
+                      || p_sym.Type == SpecParserParser.CLOSE_KLEENE_STAR_PAREN))
                     return false;
                 if (map) matches.MyAdd(t_c, p_c);
             }
-
 
             if (true && map) matches.MyAdd(t, p);
             return true;
@@ -622,7 +686,9 @@ namespace Piggy
                 if (map) matches.MyAdd(t, p);
                 return true;
             }
-            var result = p_val.GetText() == t_val.GetText();
+            Regex re = new Regex(p_val.GetText());
+            var matched = re.Match(t_val.GetText());
+            var result = matched.Success;
             if (result && map) matches.MyAdd(t, p);
             return result;
         }

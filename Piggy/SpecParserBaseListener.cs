@@ -287,6 +287,30 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitBasic([NotNull] SpecParserParser.BasicContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.simple_basic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterSimple_basic([NotNull] SpecParserParser.Simple_basicContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.simple_basic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitSimple_basic([NotNull] SpecParserParser.Simple_basicContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.kleene_star_basic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterKleene_star_basic([NotNull] SpecParserParser.Kleene_star_basicContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.kleene_star_basic"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitKleene_star_basic([NotNull] SpecParserParser.Kleene_star_basicContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.id_or_star_or_empty"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

@@ -19,43 +19,45 @@ prefix_strip clang_;
 pass Enums;
 
 template
-   ( EnumDecl
-      {
-         vars["first"] = true;
-         result.Append("enum " + tree.Peek(0).Attr("Name") + " " + "\u007B" + Environment.NewLine);
-      }
-      (%
-         ( EnumConstantDecl
-            ( IntegerLiteral
+   ( SrcRange=".*\\clang-c\\.*"
+      (* EnumDecl
+         {
+             vars["first"] = true;
+             result.Append("enum " + tree.Peek(0).Attr("Name") + " " + "\u007B" + Environment.NewLine);
+         }
+         (%
+            ( EnumConstantDecl
+               ( IntegerLiteral
+                  {
+                     if ((bool)vars["first"])
+                        vars["first"] = false;
+                     else
+                        result.Append(", ");
+                     var tt = tree.Peek(1);
+                     var na = tt.Attr("Name");
+                     var t2 = tree.Peek(0);
+                     var va = t2.Attr("Value");
+                     result.Append(tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value") + Environment.NewLine);
+                  }
+               )
+            )
+            |
+            ( EnumConstantDecl
                {
                   if ((bool)vars["first"])
                      vars["first"] = false;
                   else
                      result.Append(", ");
-                  var tt = tree.Peek(1);
-                  var na = tt.Attr("Name");
-                  var t2 = tree.Peek(0);
-                  var va = t2.Attr("Value");
-                  result.Append(tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value") + Environment.NewLine);
+                  result.Append(tree.Peek(0).Attr("Name") + Environment.NewLine);
                }
             )
-         )
-         |
-         ( EnumConstantDecl
-            {
-               if ((bool)vars["first"])
-                  vars["first"] = false;
-               else
-                  result.Append(", ");
-               result.Append(tree.Peek(0).Attr("Name") + Environment.NewLine);
-            }
-         )
-      %)*
-      {
-         result.Append("\u007D");  // Closing curly.
-         result.Append(Environment.NewLine);
-         result.Append(Environment.NewLine);
-      }
+         %)*
+         {
+            result.Append("\u007D");  // Closing curly.
+            result.Append(Environment.NewLine);
+            result.Append(Environment.NewLine);
+         }
+      *)
    )
    ;
 

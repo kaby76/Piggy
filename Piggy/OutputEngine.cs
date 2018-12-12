@@ -1,5 +1,5 @@
 ﻿
-//#define DEBUGOUTPUT
+// #define DEBUGOUTPUT
 
 using System;
 using System.CodeDom.Compiler;
@@ -42,6 +42,8 @@ namespace Piggy
                    || x as SpecParserParser.Prefix_stripContext != null
                    || x as SpecParserParser.RexpContext != null
                    || x as SpecParserParser.Simple_rexpContext != null
+                   || x as SpecParserParser.Simple_basicContext != null
+                   || x as SpecParserParser.Kleene_star_basicContext != null
                    || x as SpecParserParser.SpecContext != null
                    || x as SpecParserParser.Star_rexpContext != null
                    || x as SpecParserParser.TemplateContext != null
@@ -115,10 +117,16 @@ namespace Piggy
                                 {
                                     after.Insert(0, cp);
                                 }
-                                if (cp == pc)
+                                bool exit_loop = false;
+                                foreach (var ii in vc)
                                 {
-                                    break;
+                                    if (cp == ii)
+                                    {
+                                        exit_loop = true;
+                                        break;
+                                    }
                                 }
+                                if (exit_loop) break;
                             }
                         }
                         

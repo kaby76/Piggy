@@ -30,6 +30,8 @@ OPEN_RE         :       '(%';
 CLOSE_RE        :       '%)';
 OPEN_PAREN	:	'(';
 CLOSE_PAREN	:	')';
+OPEN_KLEENE_STAR_PAREN	:	'(*';
+CLOSE_KLEENE_STAR_PAREN	:	'*)';
 OPEN_BRACKET_NOT:	'[^';
 OPEN_BRACKET	:	'[';
 CLOSE_BRACKET	:	']';
