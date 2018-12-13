@@ -14,6 +14,13 @@ namespace Piggy
 {
     public class OutputEngine
     {
+        private Piggy _piggy;
+
+        public OutputEngine(Piggy piggy)
+        {
+            _piggy = piggy;
+        }
+
         public static bool is_ast_node(IParseTree x)
         {
             return (x as AstParserParser.AttrContext != null
@@ -51,8 +58,82 @@ namespace Piggy
                 ;
         }
 
+        public void CacheCompiledCodeBlocks()
+        {
+            var copy = _piggy.code_blocks.ToList();
+            foreach (var t in copy)
+            {
+                var key = t.Key;
+                var text = key.GetText();
+                string code = @"
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.IO;
+using Piggy;
+using System.Runtime.InteropServices;
+
+namespace First
+{
+    public class Program
+    {
+        public static void Gen(
+            Dictionary<string, object> vars,
+            Piggy.Tree tree,
+            StringBuilder result)
+        {
+" + text + @"
+        }
+    }
+}
+";
+                string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cs";
+                try
+                {
+                    System.IO.File.WriteAllText(fileName, code);
+                    CSharpCodeProvider provider = new CSharpCodeProvider();
+                    CompilerParameters parameters = new CompilerParameters();
+                    string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
+                    parameters.ReferencedAssemblies.Add(full_path);
+                    // True - memory generation, false - external file generation
+                    parameters.GenerateInMemory = true;
+                    // True - exe file generation, false - dll file generation
+                    parameters.GenerateExecutable = false;
+                    parameters.CompilerOptions = "/unsafe";
+                    parameters.IncludeDebugInformation = true;
+                    CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[] { fileName });
+                    if (results.Errors.HasErrors)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        foreach (CompilerError error in results.Errors)
+                        {
+                            sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
+                                error.ErrorText));
+                        }
+                        System.Console.WriteLine("Compilation error for this code:");
+                        System.Console.WriteLine(code);
+                        System.Console.WriteLine(sb.ToString());
+                        throw new InvalidOperationException(sb.ToString());
+                    }
+
+                    Assembly assembly = results.CompiledAssembly;
+                    Type program = assembly.GetType("First.Program");
+                    MethodInfo main = program.GetMethod("Gen");
+                    _piggy.code_blocks[key] = main;
+                }
+                finally
+                {
+                    //System.IO.File.Delete(fileName);
+                }
+            }
+        }
+
         public string Generate(TreeRegEx re)
         {
+            CacheCompiledCodeBlocks();
+
             StringBuilder builder = new StringBuilder();
             var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
@@ -149,8 +230,8 @@ namespace Piggy
                     if (x as SpecParserParser.TextContext != null)
                     {
                         string s = TreeRegEx.sourceTextForContext(x);
-                        string s2 = s.Substring(1);
-                        string s3 = s2.Substring(0, s2.Length - 1);
+                        string s2 = s.Substring(2);
+                        string s3 = s2.Substring(0, s2.Length - 2);
                         builder.Append(s3);
                     }
                     else if (x as SpecParserParser.CodeContext != null)
@@ -172,68 +253,16 @@ namespace Piggy
                             top--;
                         }
                         if (top < 0) continue;
+
                         // 2. It must be derived from a matching parent.
                         //   => Look up the dfs parent list, since this is the
                         //      combination of the ast and pattern trees.
                         //      Do not consider this node if the AST forms a
                         //      different group.
-                        string code = @"
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using Piggy;
-using System.Runtime.InteropServices;
 
-namespace First
-{
-    public class Program
-    {
-        public static void Gen(
-            Dictionary<string, object> vars,
-            Piggy.Tree tree,
-            StringBuilder result)
-        {
-" + TreeRegEx.sourceTextForContext(x) + @"
-        }
-    }
-}
-";
-                        string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cs";
                         try
                         {
-                            System.IO.File.WriteAllText(fileName, code);
-                            CSharpCodeProvider provider = new CSharpCodeProvider();
-                            CompilerParameters parameters = new CompilerParameters();
-                            string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
-                            parameters.ReferencedAssemblies.Add(full_path);
-                            // True - memory generation, false - external file generation
-                            parameters.GenerateInMemory = true;
-                            // True - exe file generation, false - dll file generation
-                            parameters.GenerateExecutable = false;
-                            parameters.CompilerOptions = "/unsafe";
-                            parameters.IncludeDebugInformation = true;
-                            CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[] {fileName});
-                            if (results.Errors.HasErrors)
-                            {
-                                StringBuilder sb = new StringBuilder();
-                                foreach (CompilerError error in results.Errors)
-                                {
-                                    sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
-                                        error.ErrorText));
-                                }
-
-                                System.Console.WriteLine("Compilation error for this code:");
-                                System.Console.WriteLine(code);
-                                System.Console.WriteLine(sb.ToString());
-                                throw new InvalidOperationException(sb.ToString());
-                            }
-
-                            Assembly assembly = results.CompiledAssembly;
-                            Type program = assembly.GetType("First.Program");
-                            MethodInfo main = program.GetMethod("Gen");
+                            MethodInfo main = _piggy.code_blocks[x];
                             object[] a = new object[3];
                             a[0] = vars;
                             a[1] = new Tree(re, re._ast, con);
@@ -242,7 +271,6 @@ namespace First
                         }
                         finally
                         {
-                            System.IO.File.Delete(fileName);
                         }
                     }
                     else if (x as SpecParserParser.BasicContext != null)

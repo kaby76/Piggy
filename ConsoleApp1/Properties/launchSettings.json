@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "--ast --s m.spec --o xxx.cs",
+      "commandLineArgs": "--s m.spec --o xxx.cs",
       "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3"
     }
   }

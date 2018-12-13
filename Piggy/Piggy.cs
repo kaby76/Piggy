@@ -37,6 +37,7 @@ namespace Piggy
         ErrorListener<IToken> listener = new ErrorListener<IToken>();
         IParseTree tree;
         public List<string> passes = new List<string>();
+        public Dictionary<IParseTree, MethodInfo> code_blocks = new Dictionary<IParseTree, MethodInfo>();
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
         private static extern void ClangAddOption([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @include);
@@ -102,6 +103,13 @@ namespace Piggy
                     ICharStream stream = CharStreams.fromPath(specification);
                     ITokenSource lexer = new SpecLexer(stream);
                     ITokenStream tokens = new CommonTokenStream(lexer);
+                    //while (true)
+                    //{
+                    //    IToken token = tokens.TokenSource.NextToken();
+                    //    System.Console.WriteLine(token);
+                    //    if (token.Type == SpecParserParser.Eof)
+                    //        break;
+                    //}
                     SpecParserParser parser = new SpecParserParser(tokens);
                     parser.BuildParseTree = true;
                     parser.AddErrorListener(listener);
@@ -174,6 +182,12 @@ namespace Piggy
                 IParseTree ast_tree = ast_parser.ast();
                 if (listener.had_error) throw new Exception();
                 System.Console.WriteLine("Parsed successfully.");
+
+		if (ast)
+		{
+		    Environment.Exit(0);
+		}
+
                 //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
@@ -209,7 +223,7 @@ namespace Piggy
             }
             System.Console.WriteLine("==========================");
 #endif
-            OutputEngine output = new OutputEngine();
+            OutputEngine output = new OutputEngine(this);
             string @out = output.Generate(regex);
             return @out;
         }

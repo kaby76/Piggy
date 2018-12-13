@@ -36,8 +36,8 @@ OPEN_BRACKET_NOT:	'[^';
 OPEN_BRACKET	:	'[';
 CLOSE_BRACKET	:	']';
 MINUS		:	'-';
-LCURLY		:	'{' -> pushMode(CODE_0);
-LANG : '<' -> pushMode(TEXT_0);
+LCURLY		:	'{{' -> pushMode(CODE_0);
+LANG : '[[' -> pushMode(TEXT_0);
 StringLiteral	:
     '\'' ( Escape | ~('\'' | '\n' | '\r') )* '\''
 	| '"' ( Escape | ~('"' | '\n' | '\r') )* '"';
@@ -48,22 +48,11 @@ fragment Escape : '\'' '\'';
 WS:    [ \t\r\n] -> skip;
 
 mode CODE_0;
-CODE_0_LCURLY: '{' -> type(OTHER), pushMode(CODE_N);
-RCURLY: '}' -> popMode;
-CODE_0_OTHER: ~[{}]+ -> type(OTHER);
-
-mode CODE_N;
-CODE_N_LCURLY: '{' -> type(OTHER), pushMode(CODE_N);
-CODE_N_RCURLY: '}' -> type(OTHER), popMode;
-OTHER: ~[{}]+;
+CODE_0_LCURLY: '{{' -> type(OTHER);
+RCURLY: '}}' -> popMode;
+OTHER: '}' ~'}' | ~'}' ;
 
 mode TEXT_0;
-TEXT_0_LANG: '<' -> type(OTHER_ANG), pushMode(TEXT_N);
-RANG: '>' -> popMode;
-TEXT_0_OTHER: ~[<>]+ -> type(OTHER_ANG);
-
-mode TEXT_N;
-TEXT_N_LANG: '<' -> type(OTHER_ANG), pushMode(TEXT_N);
-TEXT_N_RANG: '>' -> type(OTHER_ANG), popMode;
-OTHER_ANG: ~[<>]+;
-
+TEXT_0_LANG: '[[' -> type(OTHER_ANG);
+RANG: ']]' -> popMode;
+OTHER_ANG: ']' ~']' | ~']' ;

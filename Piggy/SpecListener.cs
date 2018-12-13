@@ -43,9 +43,7 @@ namespace Piggy
 
         public override void ExitCode([NotNull] SpecParserParser.CodeContext context)
         {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program.add_after_using = text;
+            _program.code_blocks[context] = null;
         }
 
         public override void ExitImport_file([NotNull] SpecParserParser.Import_fileContext context)

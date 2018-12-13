@@ -67,7 +67,8 @@ public partial class SpecParserParser : Parser {
 		"'class_name'", "'code'", "'compiler_option'", "'dllimport'", "'exclude'", 
 		"'import_file'", "'namespace'", "'pass'", "'prefix_strip'", "'template'", 
 		"'=>'", "'='", "';'", "'|'", "'*'", "'+'", "'.'", "'$'", "'(%'", "'%)'", 
-		"'('", "')'", "'(*'", "'*)'", "'[^'", "'['", "']'", "'-'", "'{'", "'<'"
+		"'('", "')'", "'(*'", "'*)'", "'[^'", "'['", "']'", "'-'", null, null, 
+		null, null, null, "'}}'", null, "']]'"
 	};
 	private static readonly string[] _SymbolicNames = {
 		null, "SINGLE_LINE_DOC_COMMENT", "DELIMITED_DOC_COMMENT", "SINGLE_LINE_COMMENT", 
