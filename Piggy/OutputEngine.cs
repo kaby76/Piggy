@@ -15,6 +15,7 @@ namespace Piggy
     public class OutputEngine
     {
         private Piggy _piggy;
+        static Dictionary<string, object> vars = new Dictionary<string, object>();
 
         public OutputEngine(Piggy piggy)
         {
@@ -32,21 +33,16 @@ namespace Piggy
         public static bool is_spec_node(IParseTree x)
         {
             return false
-                   || x as SpecParserParser.Add_after_usingsContext != null
                    || x as SpecParserParser.AttrContext != null
                    || x as SpecParserParser.BasicContext != null
                    || x as SpecParserParser.Id_or_star_or_emptyContext != null
                    || x as SpecParserParser.Basic_rexpContext != null
-                   || x as SpecParserParser.Calling_conventionContext != null
-                   || x as SpecParserParser.Class_nameContext != null
                    || x as SpecParserParser.CodeContext != null
                    || x as SpecParserParser.Elementary_rexpContext != null
                    || x as SpecParserParser.Group_rexpContext != null
                    || x as SpecParserParser.ItemsContext != null
                    || x as SpecParserParser.MoreContext != null
-                   || x as SpecParserParser.NamespaceContext != null
                    || x as SpecParserParser.Plus_rexpContext != null
-                   || x as SpecParserParser.Prefix_stripContext != null
                    || x as SpecParserParser.RexpContext != null
                    || x as SpecParserParser.Simple_rexpContext != null
                    || x as SpecParserParser.Simple_basicContext != null
@@ -140,7 +136,6 @@ namespace First
             StackQueue<List<IParseTree>> dfs_parent_chain = new StackQueue<List<IParseTree>>();
             stack.Push(re._ast);
             dfs_parent_chain.Push(new List<IParseTree>(){ });
-            Dictionary<string, object> vars = new Dictionary<string, object>();
             while (stack.Count > 0)
             {
                 var x = stack.Pop();

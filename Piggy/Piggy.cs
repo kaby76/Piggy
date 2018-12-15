@@ -23,14 +23,8 @@ namespace Piggy
         public List<string> files = new List<string>();
         public string outputFile = string.Empty;
         public string specification = string.Empty;
-        public string @namespace = string.Empty;
-        public string libraryPath = string.Empty;
-        public string prefixStrip = string.Empty;
-        public string methodClassName = "Methods";
-        public List<string> excludeFunctions = new List<string>();
         public string[] excludeFunctionsArray = null;
         public string add_after_using = "";
-        public string calling_convention = "";
         public List<string> compiler_options = new List<string>();
         public bool ast = false;
         public List<List<SpecParserParser.TemplateContext>> templates = new List<List<SpecParserParser.TemplateContext>>();
@@ -38,6 +32,7 @@ namespace Piggy
         IParseTree tree;
         public List<string> passes = new List<string>();
         public Dictionary<IParseTree, MethodInfo> code_blocks = new Dictionary<IParseTree, MethodInfo>();
+        public List<string> usings = new List<string>();
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
         private static extern void ClangAddOption([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @include);
@@ -125,12 +120,8 @@ namespace Piggy
 
                 if (!files.Any())
                     errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
-                if (string.IsNullOrWhiteSpace(@namespace))
-                    errorList.Add("Error: No namespace provided. Use --namespace or --n");
                 if (string.IsNullOrWhiteSpace(outputFile))
                     errorList.Add("Error: No output file location provided. Use --output or --o");
-                if (string.IsNullOrWhiteSpace(libraryPath))
-                    errorList.Add("Error: No library path location provided. Use --libraryPath or --l");
                 if (errorList.Any())
                 {
                     Console.WriteLine("Usage: Piggy --specification [fileLocation] --output [output.cs] --ast");
@@ -141,9 +132,6 @@ namespace Piggy
                     }
                     throw new Exception();
                 }
-
-                if (excludeFunctions.Any())
-                    excludeFunctionsArray = excludeFunctions.ToArray();
 
                 // Set up file containing #includes of all the input files.
                 StringBuilder str_builder = new StringBuilder();

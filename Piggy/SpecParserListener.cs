@@ -51,25 +51,15 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitItems([NotNull] SpecParserParser.ItemsContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.namespace"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.using"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterNamespace([NotNull] SpecParserParser.NamespaceContext context);
+	void EnterUsing([NotNull] SpecParserParser.UsingContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.namespace"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.using"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitNamespace([NotNull] SpecParserParser.NamespaceContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.exclude"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterExclude([NotNull] SpecParserParser.ExcludeContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.exclude"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitExclude([NotNull] SpecParserParser.ExcludeContext context);
+	void ExitUsing([NotNull] SpecParserParser.UsingContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.import_file"/>.
 	/// </summary>
@@ -80,66 +70,6 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitImport_file([NotNull] SpecParserParser.Import_fileContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.dllimport"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterDllimport([NotNull] SpecParserParser.DllimportContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.dllimport"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitDllimport([NotNull] SpecParserParser.DllimportContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.add_after_usings"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterAdd_after_usings([NotNull] SpecParserParser.Add_after_usingsContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.add_after_usings"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitAdd_after_usings([NotNull] SpecParserParser.Add_after_usingsContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.code"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterCode([NotNull] SpecParserParser.CodeContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.code"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitCode([NotNull] SpecParserParser.CodeContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.prefix_strip"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterPrefix_strip([NotNull] SpecParserParser.Prefix_stripContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.prefix_strip"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitPrefix_strip([NotNull] SpecParserParser.Prefix_stripContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.class_name"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterClass_name([NotNull] SpecParserParser.Class_nameContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.class_name"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitClass_name([NotNull] SpecParserParser.Class_nameContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.calling_convention"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterCalling_convention([NotNull] SpecParserParser.Calling_conventionContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.calling_convention"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitCalling_convention([NotNull] SpecParserParser.Calling_conventionContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.compiler_option"/>.
 	/// </summary>
@@ -280,6 +210,16 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitMore([NotNull] SpecParserParser.MoreContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.code"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterCode([NotNull] SpecParserParser.CodeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.code"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitCode([NotNull] SpecParserParser.CodeContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.text"/>.
 	/// </summary>

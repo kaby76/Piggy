@@ -15,32 +15,6 @@ namespace Piggy
             _program = program;
         }
 
-        public override void ExitNamespace([NotNull] SpecParserParser.NamespaceContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program.@namespace = text;
-        }
-
-        public override void ExitAdd_after_usings([NotNull] SpecParserParser.Add_after_usingsContext context)
-        {
-        }
-
-        public override void ExitClass_name([NotNull] SpecParserParser.Class_nameContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program.methodClassName = text;
-        }
-
-        public override void ExitDllimport([NotNull] SpecParserParser.DllimportContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            text = text.Replace("'", "");
-            _program.libraryPath = text;
-        }
-
         public override void ExitCode([NotNull] SpecParserParser.CodeContext context)
         {
             _program.code_blocks[context] = null;
@@ -52,27 +26,6 @@ namespace Piggy
             var text = c.GetText();
             text = text.Replace("'", "");
             _program.files.Add(text);
-        }
-
-        public override void ExitExclude([NotNull] SpecParserParser.ExcludeContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program.excludeFunctions.Add(text);
-        }
-
-        public override void ExitPrefix_strip([NotNull] SpecParserParser.Prefix_stripContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program.prefixStrip = text;
-        }
-
-        public override void ExitCalling_convention([NotNull] SpecParserParser.Calling_conventionContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program.calling_convention = text;
         }
 
         public override void ExitCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context)
@@ -98,6 +51,13 @@ namespace Piggy
             var text = c.GetText();
             _program.passes.Add(text);
             _program.templates.Add(new List<SpecParserParser.TemplateContext>());
+        }
+
+        public override void ExitUsing(SpecParserParser.UsingContext context)
+        {
+            var c = context.GetChild(1);
+            var text = c.GetText();
+            _program.usings.Add(text);
         }
     }
 }

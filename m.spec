@@ -1,19 +1,11 @@
 import_file 'c:/temp/include/clang-c/Index.h';
 compiler_option '-IC:/temp/include';
-
-namespace ClangSharp;
-dllimport 'libclang';
-class_name clang;
-prefix_strip clang_;
-
-// ( NodeType a=v ..... )
-// [[ text ]]
-// {{ code }}
+using "./Piggy/bin/bin/Debug/net472/Piggy.dll";
 
 pass GenerateHeader;
 
 template 
-// Force generation of declarations at start of the file.
+// Generate declarations at start of the file.
 ( TranslationUnitDecl
 [[
 // ----------------------------------------------------------------------------
@@ -26,7 +18,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace clang-c {
+namespace clangc {
 
 ]] Pointer=*
 )
@@ -64,37 +56,84 @@ template
                }}
             )
          %)*
-         [[
-}
+         [[}
 
-         ]]
+]]
       *)
    )
    ;
 
+pass CollectReturns;
+
+template
+   ( SrcRange=".*\\clang-c\\.*"
+      (* FunctionDecl Name=*
+         {{
+            object v;
+            vars.TryGetValue("signatures", out v);
+            if (v == null) { v = (object) new List<string>(); vars["signatures"] = v; }
+            var list = (List<string>) v;
+            list.Add((string)tree.Peek(0).Attr("Type"));
+         }}
+      *)
+   )
+   ;
+
+pass GenerateReturns;
+
+template
+   ( TranslationUnitDecl
+      {{
+         var list = (List<string>)vars["signatures"];
+         foreach (var l in list)
+         {
+				var m = Piggy.TemplateHelpers.GetFunctionReturn(l);
+				var b = Piggy.TemplateHelpers.BaseType(m);
+				if (!b) continue;
+            result.AppendLine(
+@"
+public partial struct " + l + @"
+{
+   public " + l + @"(IntPtr pointer)
+   {
+      this.Pointer = pointer;
+   }
+   public IntPtr Pointer;
+}
+
+");
+         }
+      }}
+   )
+   ;
+
+
 pass Functions;
 
-template ( ParmVarDecl Type="const wchar_t *"
-   {{
-        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
-   }}
-   )
-   ;
+template
+   ( SrcRange=".*\\clang-c\\.*"
+      (* FunctionDecl Name=*
+         {{
+            result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,"
+               + " EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
+            result.Append("public static extern "
+               + Piggy.TemplateHelpers.GetFunctionReturn((string)tree.Peek(0).Attr("Type")) + " "
+               + tree.Peek(0).Attr("Name") + "(");
+             vars["first"] = true;
+         }}
+         ( ParmVarDecl Name=* Type=*
+            {{
+               if ((bool)vars["first"])
+                  vars["first"] = false;
+               else
+                  result.Append(", ");
+               result.Append(tree.Peek(0).Attr("Type") + " " + tree.Peek(0).Attr("Name"));
+            }}
+         )*
+         [[);
 
-template ( ParmVarDecl
-   {{
-        result.Append("int " + tree.Peek(0).Attr("Name") + Environment.NewLine);
-   }}
-   )
-   ;
-
-template ( FunctionDecl
-   {{
-      result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall," + Environment.NewLine);
-      result.Append("\t EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
-      result.Append("internal static extern " + tree.Peek(0).Attr("Type") + " "
-         + tree.Peek(0).Attr("Name") + "(" + tree.Peek(0).ChildrenOutput() + ");" + Environment.NewLine);
-   }}
+]]
+      *)
    )
    ;
 

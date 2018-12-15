@@ -18,6 +18,7 @@ NAMESPACE	:	'namespace';
 PASS	: 'pass';
 PREFIX_STRIP	:	'prefix_strip';
 TEMPLATE        :	'template';
+USING           :	'using';
 REWRITE		:	'=>';
 EQ		:	'=';
 SEMI		:	';';
