@@ -87,9 +87,9 @@ template
          var list = (List<string>)vars["signatures"];
          foreach (var l in list)
          {
-				var m = Piggy.TemplateHelpers.GetFunctionReturn(l);
-				var b = Piggy.TemplateHelpers.BaseType(m);
-				if (!b) continue;
+            var m = Piggy.TemplateHelpers.GetFunctionReturn(l);
+            var b = Piggy.TemplateHelpers.BaseType(m);
+            if (!b) continue;
             result.AppendLine(
 @"
 public partial struct " + l + @"
@@ -127,7 +127,9 @@ template
                   vars["first"] = false;
                else
                   result.Append(", ");
-               result.Append(tree.Peek(0).Attr("Type") + " " + tree.Peek(0).Attr("Name"));
+               var premod_type = tree.Peek(0).Attr("Type");
+               var postmod_type = Piggy.TemplateHelpers.ModParamType(premod_type);
+               result.Append(postmod_type + " " + tree.Peek(0).Attr("Name"));
             }}
          )*
          [[);

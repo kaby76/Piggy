@@ -1,4 +1,3 @@
-
 namespace Piggy
 {
     using System.IO;
@@ -9,8 +8,6 @@ namespace Piggy
     using System.Text.RegularExpressions;
     using Antlr4.Runtime;
     using Antlr4.Runtime.Tree;
-    using Microsoft.CSharp;
-    using System.CodeDom.Compiler;
     using System.Text;
     using System.Reflection;
 
@@ -18,21 +15,17 @@ namespace Piggy
     {
         public Piggy() { }
 
-        public static string copyright = @"
-";
-        public List<string> files = new List<string>();
-        public string outputFile = string.Empty;
-        public string specification = string.Empty;
-        public string[] excludeFunctionsArray = null;
-        public string add_after_using = "";
-        public List<string> compiler_options = new List<string>();
-        public bool ast = false;
-        public List<List<SpecParserParser.TemplateContext>> templates = new List<List<SpecParserParser.TemplateContext>>();
-        ErrorListener<IToken> listener = new ErrorListener<IToken>();
-        IParseTree tree;
-        public List<string> passes = new List<string>();
-        public Dictionary<IParseTree, MethodInfo> code_blocks = new Dictionary<IParseTree, MethodInfo>();
-        public List<string> usings = new List<string>();
+        public static string _copyright = @"";
+        public List<string> _files = new List<string>();
+        public string _specification = string.Empty;
+        public List<string> _clang_options = new List<string>();
+        public bool _display_ast = false;
+        public List<List<SpecParserParser.TemplateContext>> _templates = new List<List<SpecParserParser.TemplateContext>>();
+        IParseTree _ast;
+        public List<string> _passes = new List<string>();
+        public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
+        public List<string> _usings = new List<string>();
+        public SymbolTable _symbol_table;
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
         private static extern void ClangAddOption([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @include);
@@ -43,18 +36,12 @@ namespace Piggy
         [DllImport("ClangCode", EntryPoint = "ClangSerializeAst", CallingConvention = CallingConvention.StdCall)]
         private static unsafe extern IntPtr ClangSerializeAst();
 
-        public static void Main(string[] args)
-        {
-            var p = new Piggy();
-            p.Doit(args);
-        }
-
         public unsafe void Doit(string[] args)
         {
             string temp_fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cpp";
+            ErrorListener<IToken> listener = new ErrorListener<IToken>();
             try
             {
-
                 string full_path = Path.GetDirectoryName(Path.GetFullPath(typeof(Piggy).Assembly.Location))
                                    + Path.DirectorySeparatorChar;
 
@@ -67,35 +54,30 @@ namespace Piggy
 
                 foreach (KeyValuePair<string, string> match in matches)
                 {
-                    if (string.Equals(match.Key, "--o") || string.Equals(match.Key, "--output"))
-                    {
-                        outputFile = match.Value;
-                    }
-
                     if (string.Equals(match.Key, "--s") || string.Equals(match.Key, "--spec"))
                     {
-                        specification = match.Value;
+                        _specification = match.Value;
                     }
 
                     if (string.Equals(match.Key, "--l") || string.Equals(match.Key, "--license"))
                     {
-                        Console.WriteLine(copyright);
+                        Console.WriteLine(_copyright);
                     }
 
-                    if (string.Equals(match.Key, "--ast"))
+                    if (string.Equals(match.Key, "--_display_ast"))
                     {
-                        ast = true;
+                        _display_ast = true;
                     }
                 }
 
                 var errorList = new List<string>();
 
-                if (!specification.Any())
+                if (!_specification.Any())
                     errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
                 else
                 {
                     // Parse specification file.
-                    ICharStream stream = CharStreams.fromPath(specification);
+                    ICharStream stream = CharStreams.fromPath(_specification);
                     ITokenSource lexer = new SpecLexer(stream);
                     ITokenStream tokens = new CommonTokenStream(lexer);
                     //while (true)
@@ -108,24 +90,22 @@ namespace Piggy
                     SpecParserParser parser = new SpecParserParser(tokens);
                     parser.BuildParseTree = true;
                     parser.AddErrorListener(listener);
-                    tree = parser.spec();
+                    _ast = parser.spec();
                     if (listener.had_error)
                     {
-                        System.Console.WriteLine(tree.GetText());
+                        System.Console.WriteLine(_ast.GetText());
                         throw new Exception();
                     }
                     SpecListener printer = new SpecListener(this);
-                    ParseTreeWalker.Default.Walk(printer, tree);
+                    ParseTreeWalker.Default.Walk(printer, _ast);
                 }
 
-                if (!files.Any())
+                if (!_files.Any())
                     errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
-                if (string.IsNullOrWhiteSpace(outputFile))
-                    errorList.Add("Error: No output file location provided. Use --output or --o");
                 if (errorList.Any())
                 {
-                    Console.WriteLine("Usage: Piggy --specification [fileLocation] --output [output.cs] --ast");
-                    Console.WriteLine("Note -- specification and output must not be null; ast is optional.");
+                    Console.WriteLine("Usage: Piggy spec-file-name [--_display_ast]");
+                    Console.WriteLine("Note -- spec-file-name; _display_ast is optional. It can be in any order.");
                     foreach (var error in errorList)
                     {
                         Console.WriteLine(error);
@@ -135,7 +115,7 @@ namespace Piggy
 
                 // Set up file containing #includes of all the input files.
                 StringBuilder str_builder = new StringBuilder();
-                foreach (var file in files)
+                foreach (var file in _files)
                 {
                     str_builder.Append($"#include <{file}>");
                     str_builder.Append(Environment.NewLine);
@@ -147,20 +127,20 @@ namespace Piggy
                 ClangAddFile(temp_fileName);
 
                 // Set up clang options.
-                foreach (var opt in compiler_options) ClangAddOption(opt);
+                foreach (var opt in _clang_options) ClangAddOption(opt);
 
                 // serialize the AST for the desired input header files.
                 IntPtr v = ClangSerializeAst();
 
                 // Get back AST as string.
                 string ast_result = Marshal.PtrToStringAnsi(v);
-                if (ast)
+                if (_display_ast)
                 {
                     ast_result = ast_result.Replace("\n", "\r\n");
                     System.Console.WriteLine(ast_result);
                 }
 
-                // Parse ast using Antlr.
+                // Parse _display_ast using Antlr.
                 ICharStream ast_stream = CharStreams.fromstring(ast_result);
                 ITokenSource ast_lexer = new AstLexer(ast_stream);
                 ITokenStream ast_tokens = new CommonTokenStream(ast_lexer);
@@ -171,7 +151,7 @@ namespace Piggy
                 if (listener.had_error) throw new Exception();
                 System.Console.WriteLine("Parsed successfully.");
 
-		if (ast)
+		if (_display_ast)
 		{
 		    Environment.Exit(0);
 		}
@@ -179,7 +159,7 @@ namespace Piggy
                 //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
-                for (int pass = 0; pass < passes.Count; ++pass)
+                for (int pass = 0; pass < _passes.Count; ++pass)
                 {
                     string result = FindAndOutput(pass, ast_tree);
                     System.Console.WriteLine(result);
@@ -191,10 +171,9 @@ namespace Piggy
             }
         }
 
-
         string FindAndOutput(int pass, IParseTree ast)
         {
-            List<SpecParserParser.TemplateContext> templates = this.templates[pass];
+            List<SpecParserParser.TemplateContext> templates = this._templates[pass];
             TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
             regex.dfs_match();
 #if DEBUGOUTPUT

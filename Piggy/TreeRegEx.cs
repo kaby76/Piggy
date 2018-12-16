@@ -138,7 +138,7 @@ namespace Piggy
         }
 
         /*
-         * Recursively go down ast and search for a match anywhere of the pattern tree.
+         * Recursively go down _display_ast and search for a match anywhere of the pattern tree.
          *
          * Add entry into matches t => p if there is a match and map is true.
          */
@@ -149,7 +149,7 @@ namespace Piggy
             AstParserParser.DeclContext t_decl = t as AstParserParser.DeclContext;
             if (t_decl == null) return false;
 
-            // Go down tree node, looking for match in ast.
+            // Go down tree node, looking for match in _display_ast.
             var stack = new Stack<IParseTree>();
             stack.Push(t_decl);
             while (stack.Count > 0)
@@ -287,7 +287,7 @@ namespace Piggy
                 return true;
             }
             // Match zero or more of elementary. Note, we are matching
-            // a elementary_rexp with a "more" type in the ast.
+            // a elementary_rexp with a "more" type in the _display_ast.
             bool result = match_elementary_rexp(child, t, map);
             if (result && map) matches.MyAdd(t, p);
             return result;
@@ -552,9 +552,9 @@ namespace Piggy
                 var p_child_type = p_child.GetType();
 
                 // Note order of attributes is significant.
-                // Go through ast and look for pattern in the ast. If we
-                // found any match, then record this point in the ast matched.
-                // Continue matching until the end of the ast, which ends in
+                // Go through _display_ast and look for pattern in the _display_ast. If we
+                // found any match, then record this point in the _display_ast matched.
+                // Continue matching until the end of the _display_ast, which ends in
                 // a ")". Note, if the pattern is a "*" or "+" expression,
                 // we keep looking for this pattern. Otherwise, we skip to the
                 // next pattern child.
@@ -573,7 +573,7 @@ namespace Piggy
                         return false;
                     if (match_more(c11, c22, map))
                     {
-                        // Current ast child matches.
+                        // Current _display_ast child matches.
                         matched = true;
                         t_pos = j;
                     }

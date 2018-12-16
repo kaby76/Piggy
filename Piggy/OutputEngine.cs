@@ -56,7 +56,7 @@ namespace Piggy
 
         public void CacheCompiledCodeBlocks()
         {
-            var copy = _piggy.code_blocks.ToList();
+            var copy = _piggy._code_blocks.ToList();
             foreach (var t in copy)
             {
                 var key = t.Key;
@@ -117,7 +117,7 @@ namespace First
                     Assembly assembly = results.CompiledAssembly;
                     Type program = assembly.GetType("First.Program");
                     MethodInfo main = program.GetMethod("Gen");
-                    _piggy.code_blocks[key] = main;
+                    _piggy._code_blocks[key] = main;
                 }
                 finally
                 {
@@ -251,13 +251,13 @@ namespace First
 
                         // 2. It must be derived from a matching parent.
                         //   => Look up the dfs parent list, since this is the
-                        //      combination of the ast and pattern trees.
+                        //      combination of the _display_ast and pattern trees.
                         //      Do not consider this node if the AST forms a
                         //      different group.
 
                         try
                         {
-                            MethodInfo main = _piggy.code_blocks[x];
+                            MethodInfo main = _piggy._code_blocks[x];
                             object[] a = new object[3];
                             a[0] = vars;
                             a[1] = new Tree(re, re._ast, con);

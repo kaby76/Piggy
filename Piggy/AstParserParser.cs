@@ -42,7 +42,7 @@ public partial class AstParserParser : Parser {
 	public const int
 		RULE_ast = 0, RULE_decl = 1, RULE_more = 2, RULE_attr = 3;
 	public static readonly string[] ruleNames = {
-		"ast", "decl", "more", "attr"
+		"_display_ast", "decl", "more", "attr"
 	};
 
 	private static readonly string[] _LiteralNames = {
