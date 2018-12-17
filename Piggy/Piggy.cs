@@ -72,7 +72,6 @@ namespace Piggy
                     {
                         Console.WriteLine(_copyright);
                     }
-
                     if (string.Equals(match.Key, "--ast"))
                     {
                         _display_ast = true;
@@ -83,23 +82,11 @@ namespace Piggy
 
                 if (!_specification.Any())
                     errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
+
                 else
                 {
-                    // Parse specification file.
-                    ICharStream stream = CharStreams.fromPath(_specification);
-                    ITokenSource lexer = new SpecLexer(stream);
-                    ITokenStream tokens = new CommonTokenStream(lexer);
-                    SpecParserParser parser = new SpecParserParser(tokens);
-                    parser.BuildParseTree = true;
-                    parser.AddErrorListener(listener);
-                    var spec_ast = parser.spec();
-                    if (listener.had_error)
-                    {
-                        System.Console.WriteLine(_ast.GetText());
-                        throw new Exception();
-                    }
-                    SpecListener printer = new SpecListener(this);
-                    ParseTreeWalker.Default.Walk(printer, spec_ast);
+                    SpecFile file = new SpecFile(this);
+                    file.ParseSpecFile(_specification);
                 }
 
                 if (!_clang_files.Any())
@@ -142,7 +129,7 @@ namespace Piggy
                     System.Console.WriteLine(ast_result);
                 }
 
-                // Parse _display_ast using Antlr.
+                // Parse ast using Antlr.
                 ICharStream ast_stream = CharStreams.fromstring(ast_result);
                 ITokenSource ast_lexer = new AstLexer(ast_stream);
                 ITokenStream ast_tokens = new CommonTokenStream(ast_lexer);
@@ -203,5 +190,6 @@ namespace Piggy
             AstSymtabBuilderListener listener = new AstSymtabBuilderListener(_ast);
             ParseTreeWalker.Default.Walk(listener, _ast);
         }
+
     }
 }

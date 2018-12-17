@@ -95,6 +95,18 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitHeader([NotNull] SpecParserParser.HeaderContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.include"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterInclude([NotNull] SpecParserParser.IncludeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.include"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitInclude([NotNull] SpecParserParser.IncludeContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.clang_file"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

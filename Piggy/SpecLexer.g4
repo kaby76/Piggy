@@ -11,6 +11,7 @@ CLANG_FILE      :       'clang_file';
 CLANG_OPTION    :       'clang_option';
 EXTENDS         :       'extends';
 HEADER          :       'header';
+INCLUDE         :       'include';
 NAMESPACE       :       'namespace';
 PASS            :       'pass';
 REWRITE         :       '=>';

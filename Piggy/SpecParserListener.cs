@@ -81,6 +81,16 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitHeader([NotNull] SpecParserParser.HeaderContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.include"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterInclude([NotNull] SpecParserParser.IncludeContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.include"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitInclude([NotNull] SpecParserParser.IncludeContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.clang_file"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

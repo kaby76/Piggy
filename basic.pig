@@ -1,5 +1,3 @@
-clang_file 'c:/temp/include/clang-c/Index.h';
-clang_option '-IC:/temp/include';
 
 header {{
     bool first = true;

@@ -8,6 +8,7 @@ items
     : extends
     | namespace
     | header
+    | include
     | clang_file
     | clang_option
     | pass
@@ -16,6 +17,7 @@ items
 extends: EXTENDS ID SEMI ;
 namespace: NAMESPACE ID SEMI ;
 header: HEADER code ;
+include: INCLUDE StringLiteral SEMI ;
 
 /* Specifies an input file for the Clang compiler. Use forward slashes for directory
  * delimiters.
