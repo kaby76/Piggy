@@ -22,9 +22,10 @@ namespace Piggy
         public string _specification = string.Empty;
         public List<string> _clang_options = new List<string>();
         public bool _display_ast = false;
-        public List<List<SpecParserParser.TemplateContext>> _templates = new List<List<SpecParserParser.TemplateContext>>();
-        IParseTree _ast;
+        public Dictionary<string, List<SpecParserParser.TemplateContext>> _templates = new Dictionary<string, List<SpecParserParser.TemplateContext>>();
+        public IParseTree _ast;
         public List<string> _passes = new List<string>();
+        public string _current_pass;
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
         public object _cached_instance = null;
         public SymbolTable _symbol_table;
@@ -162,7 +163,8 @@ namespace Piggy
 
         string FindAndOutput(OutputEngine output, int pass, IParseTree ast)
         {
-            List<SpecParserParser.TemplateContext> templates = this._templates[pass];
+            string pass_name = this._passes[pass];
+            List<SpecParserParser.TemplateContext> templates = this._templates[pass_name];
             TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
             regex.dfs_match();
 #if DEBUGOUTPUT
