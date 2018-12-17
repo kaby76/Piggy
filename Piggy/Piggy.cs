@@ -73,7 +73,7 @@ namespace Piggy
                         Console.WriteLine(_copyright);
                     }
 
-                    if (string.Equals(match.Key, "--_display_ast"))
+                    if (string.Equals(match.Key, "--ast"))
                     {
                         _display_ast = true;
                     }
@@ -92,14 +92,14 @@ namespace Piggy
                     SpecParserParser parser = new SpecParserParser(tokens);
                     parser.BuildParseTree = true;
                     parser.AddErrorListener(listener);
-                    _ast = parser.spec();
+                    var spec_ast = parser.spec();
                     if (listener.had_error)
                     {
                         System.Console.WriteLine(_ast.GetText());
                         throw new Exception();
                     }
                     SpecListener printer = new SpecListener(this);
-                    ParseTreeWalker.Default.Walk(printer, _ast);
+                    ParseTreeWalker.Default.Walk(printer, spec_ast);
                 }
 
                 if (!_clang_files.Any())
@@ -151,9 +151,12 @@ namespace Piggy
                 ast_parser.AddErrorListener(listener);
                 IParseTree ast_tree = ast_parser.ast();
                 if (listener.had_error) throw new Exception();
-                System.Console.WriteLine("Parsed successfully.");
 		        if (_display_ast)
 		            Environment.Exit(0);
+                AstSymtabBuilderListener ast_listener = new AstSymtabBuilderListener(ast_tree);
+                ParseTreeWalker.Default.Walk(ast_listener, ast_tree);
+                _ast = ast_tree;
+
                 //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
@@ -197,7 +200,7 @@ namespace Piggy
         {
             // Create symbol table for AST.
             _symbol_table = new SymbolTable();
-            AstListener listener = new AstListener(_ast);
+            AstSymtabBuilderListener listener = new AstSymtabBuilderListener(_ast);
             ParseTreeWalker.Default.Walk(listener, _ast);
         }
     }

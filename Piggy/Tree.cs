@@ -69,6 +69,24 @@ namespace Piggy
             return "";
         }
 
+        public IParseTree Child(int index)
+        {
+            IParseTree result = null;
+            // Walk forward until next tree node found.
+            int n = _current.ChildCount;
+            for (int i = 0; i < n; ++i)
+            {
+                var t = _current.GetChild(i);
+                AstParserParser.DeclContext decl = t.GetChild(0) as AstParserParser.DeclContext;
+                var is_decl = decl != null;
+                if (!is_decl) continue;
+                if (index > 0) continue;
+                return decl;
+            }
+            return result;
+        }
+
+
         public string ChildrenOutput()
         {
             return "";

@@ -112,7 +112,7 @@ namespace org.antlr.symtab
 
 		public virtual Symbol resolve(string name)
 		{
-			Symbol s = symbols[name];
+		    symbols.TryGetValue(name, out Symbol s);
 			if (s != null)
 			{
 				return s;
