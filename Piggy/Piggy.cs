@@ -32,6 +32,7 @@ namespace Piggy
         public string _extends = "";
         public string _namespace = "";
         public string _header = "";
+        public IParseTree _header_context = null;
         public List<string> _referenced_assemblies = new List<string>();
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
@@ -165,7 +166,7 @@ namespace Piggy
         {
             string pass_name = this._passes[pass];
             List<SpecParserParser.TemplateContext> templates = this._templates[pass_name];
-            TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
+            TreeRegEx regex = new TreeRegEx(this, templates, ast.GetChild(0));
             regex.dfs_match();
 #if DEBUGOUTPUT
             foreach (KeyValuePair<IParseTree, HashSet<IParseTree>> match in regex.matches)

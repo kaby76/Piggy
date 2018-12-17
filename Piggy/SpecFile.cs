@@ -43,6 +43,8 @@ namespace Piggy
 
         public override void ExitCode([NotNull] SpecParserParser.CodeContext context)
         {
+            if (_program._header_context == context)
+                return;
             _program._code_blocks[context] = null;
         }
 
@@ -91,6 +93,12 @@ namespace Piggy
             var c = context.GetChild(1);
             var text = c.GetText();
             _program._namespace = text;
+        }
+
+        public override void EnterHeader(SpecParserParser.HeaderContext context)
+        {
+            var c = context.GetChild(1);
+            _program._header_context = c;
         }
 
         public override void ExitHeader(SpecParserParser.HeaderContext context)

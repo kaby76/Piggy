@@ -2,6 +2,7 @@
 header {{
     bool first = true;
     List<string> signatures = new List<string>();
+    public string limit = ".*\\clang-c\\.*";
 }}
 
 pass GenerateHeader {
@@ -25,7 +26,7 @@ pass GenerateHeader {
 
 pass GenerateEnums {
 
-   ( SrcRange=".*\\clang-c\\.*"
+   ( SrcRange=$"{Templates.limit}"
       (* EnumDecl
          {{
              first = true;
@@ -63,7 +64,7 @@ pass GenerateEnums {
 
 pass CollectReturns {
 
-   ( SrcRange=".*\\clang-c\\.*"
+   ( SrcRange=$"{Templates.limit}"
       (* FunctionDecl Name=*
          {{
             signatures.Add((string)tree.Peek(0).Attr("Type"));
@@ -100,7 +101,7 @@ pass GenerateReturns {
 
 pass Functions {
 
-   ( SrcRange=".*\\clang-c\\.*"
+   ( SrcRange=$"{Templates.limit}"
       (* FunctionDecl Name=*
          {{
             result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,"

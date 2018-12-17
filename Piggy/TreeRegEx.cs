@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using System.Text.RegularExpressions;
@@ -9,8 +10,9 @@ namespace Piggy
 {
     public class TreeRegEx
     {
-        public TreeRegEx(List<SpecParserParser.TemplateContext> t, IParseTree s)
+        public TreeRegEx(Piggy piggy, List<SpecParserParser.TemplateContext> t, IParseTree s)
         {
+            _piggy = piggy;
             _ast = s;
             bool result = false;
             var visited = new HashSet<IParseTree>();
@@ -37,6 +39,8 @@ namespace Piggy
                 }
             }
         }
+
+        public Piggy _piggy;
 
         // Pattern matcher.
         public static string sourceTextForContext(IParseTree context)
@@ -643,16 +647,29 @@ namespace Piggy
             return false;
         }
 
+        string ReplaceMacro(string value)
+        {
+            var o = _piggy._cached_instance;
+            return Regex.Replace(value, @"{(?<exp>[^}]+)}", match =>
+            {
+                ParameterExpression p = Expression.Parameter(o.GetType(), "Templates");
+                string v = match.Groups["exp"].Value;
+                LambdaExpression e = System.Linq.Dynamic.DynamicExpression.ParseLambda(new[] { p }, null, v);
+                object r = e.Compile().DynamicInvoke(o);
+                return (r ?? "").ToString();
+            });
+        }
+
         /*
-         *
-         * pattern grammar--
-         * attr: ID EQ (StringLiteral | STAR);
-         *
-         * tree grammar--
-         * attr : ID EQUALS StringLiteral ;
-         *
-         * Add entry into matches t => p if there is a match and map is true.
-         */
+          *
+          * pattern grammar--
+          * attr: ID EQ (StringLiteral | STAR);
+          *
+          * tree grammar--
+          * attr : ID EQUALS StringLiteral ;
+          *
+          * Add entry into matches t => p if there is a match and map is true.
+          */
         private bool match_attr(IParseTree p, IParseTree t, bool map = false)
         {
             SpecParserParser.AttrContext p_attr = p as SpecParserParser.AttrContext;
@@ -667,13 +684,24 @@ namespace Piggy
             pos++;
             var p_val = p_attr.GetChild(pos);
             var t_val = t_attr.GetChild(pos);
-            if (p_val.GetText() == "*")
+            string pattern = p_val.GetText();
+            if (pattern == "*")
             {
                 if (map) matches.MyAdd(t, p);
                 return true;
             }
-            Regex re = new Regex(p_val.GetText());
-            var matched = re.Match(t_val.GetText());
+            if (pattern.StartsWith("$\""))
+            {
+                pattern = pattern.Substring(2);
+                pattern = pattern.Substring(0, pattern.Length - 1);
+                pattern = ReplaceMacro(pattern);
+                pattern = pattern.Replace("\\", "\\\\");
+            }
+            Regex re = new Regex(pattern);
+            string tvaltext = t_val.GetText();
+            tvaltext = tvaltext.Substring(1);
+            tvaltext = tvaltext.Substring(0, tvaltext.Length - 1);
+            var matched = re.Match(tvaltext);
             var result = matched.Success;
             if (result && map) matches.MyAdd(t, p);
             return result;
