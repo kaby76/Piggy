@@ -5,24 +5,23 @@ options { tokenVocab = SpecLexer; }
 spec : items* EOF ;
 
 items
-    : using
-    | import_file
-    | compiler_option
+    : extends
+	| namespace
+    | clang_file
+    | clang_option
     | template
     | pass
     ;
 
-/* Specifies the full path of an assembly to link into for support in code generation.
- * This will be accessible to the code blocks you use in templates.
- */
-using: USING StringLiteral SEMI ;
+extends: EXTENDS ID SEMI ;
+namespace: NAMESPACE ID SEMI ;
 
 /* Specifies an input file for the Clang compiler. Use forward slashes for directory
  * delimiters.
  * Example:
  *   import_file 'c:/Program Files/NVIDIA GPU Computing Toolkit/cuda/v10.0/include/cuda.h';
  */
-import_file: IMPORT_FILE StringLiteral SEMI ;
+clang_file: CLANG_FILE StringLiteral SEMI ;
 
 /* Specifies an additional Clang compiler option. Use forward slashes for directory
  * delimiters. Use multiple times to specify more than one option.
@@ -30,7 +29,7 @@ import_file: IMPORT_FILE StringLiteral SEMI ;
  *   compiler_options '--target=x86_64';
  *   compiler_options '-Ic:/Program Files/NVIDIA GPU Computing Toolkit/cuda/v10.0/include';
  */
-compiler_option: COMPILER_OPTION StringLiteral SEMI ;
+clang_option: CLANG_OPTION StringLiteral SEMI ;
 
 /* Specifies a pattern matching expression for output.
  *

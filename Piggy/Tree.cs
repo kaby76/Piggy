@@ -8,25 +8,25 @@ namespace Piggy
 
     public class Tree
     {
-        IParseTree ast;
-        IParseTree current;
-        private TreeRegEx re;
+        IParseTree _ast;
+        IParseTree _current;
+        Dictionary<IParseTree, IParseTree> _parent;
 
-        public Tree(TreeRegEx r, IParseTree t, IParseTree cur)
+        public Tree(Dictionary<IParseTree, IParseTree> parent, IParseTree ast, IParseTree current)
         {
-            re = r;
-            ast = t;
-            current = cur;
+            _parent = parent;
+            _ast = ast;
+            _current = current;
         }
 
         public Tree Peek(int level)
         {
-            IParseTree v = current;
+            IParseTree v = _current;
             if (level > 0)
             {
                 while (v != null)
                 {
-                    re.parent.TryGetValue(v, out IParseTree par);
+                    _parent.TryGetValue(v, out IParseTree par);
                     if (par == null)
                     {
                         v = null;
@@ -42,18 +42,19 @@ namespace Piggy
                     v = par;
                 }
             }
-            Tree t = new Tree(re, ast, v);
+            Tree t = new Tree(_parent, _ast, v);
             return t;
         }
 
         public object Attr(string name)
         {
             // Find attribute at this level and return value.
-            int n = current.ChildCount;
+            int n = _current.ChildCount;
             for (int i = 0; i < n; ++i)
             {
-                var t = current.GetChild(i);
-                var is_attr = re.is_ast_attr(t.GetChild(0));
+                var t = _current.GetChild(i);
+                AstParserParser.AttrContext attr = t.GetChild(0) as AstParserParser.AttrContext;
+                var is_attr = attr != null;
                 if (!is_attr) continue;
                 int pos = 0;
                 var t_id = t.GetChild(0).GetChild(pos);

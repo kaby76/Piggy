@@ -15,21 +15,7 @@ namespace Piggy
             bool result = false;
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
-            stack.Push(_ast);
-            while (stack.Count > 0)
-            {
-                var v = stack.Pop();
-                if (visited.Contains(v))
-                    continue;
-                visited.Add(v);
-                for (int i = v.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = v.GetChild(i);
-                    parent[c] = v;
-                    if (!visited.Contains(c))
-                        stack.Push(c);
-                }
-            }
+            parent = Parents.Compute(_ast);
 
             templates = t;
             foreach (var te in templates)

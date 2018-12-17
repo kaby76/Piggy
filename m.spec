@@ -1,6 +1,7 @@
-import_file 'c:/temp/include/clang-c/Index.h';
-compiler_option '-IC:/temp/include';
-using "./Piggy/bin/bin/Debug/net472/Piggy.dll";
+clang_file 'c:/temp/include/clang-c/Index.h';
+clang_option '-IC:/temp/include';
+extends CodeBlockInfo;
+namespace TemplateGenerator;
 
 pass GenerateHeader;
 
@@ -30,15 +31,15 @@ template
    ( SrcRange=".*\\clang-c\\.*"
       (* EnumDecl
          {{
-             vars["first"] = true;
+             first = true;
              result.Append("public enum @" + tree.Peek(0).Attr("Name") + " {" + Environment.NewLine);
          }}
          (%
             ( EnumConstantDecl
                ( IntegerLiteral
                   {{
-                     if ((bool)vars["first"])
-                        vars["first"] = false;
+                     if (first)
+                        first = false;
                      else
                         result.Append(", ");
                      result.Append("@" + tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value") + Environment.NewLine);
@@ -48,8 +49,8 @@ template
             |
             ( EnumConstantDecl
                {{
-                  if ((bool)vars["first"])
-                     vars["first"] = false;
+                  if (first)
+                     first = false;
                   else
                      result.Append(", ");
                   result.Append("@" + tree.Peek(0).Attr("Name") + Environment.NewLine);
@@ -119,15 +120,15 @@ template
             result.Append("public static extern "
                + Piggy.TemplateHelpers.GetFunctionReturn((string)tree.Peek(0).Attr("Type")) + " "
                + tree.Peek(0).Attr("Name") + "(");
-             vars["first"] = true;
+             first = true;
          }}
          ( ParmVarDecl Name=* Type=*
             {{
-               if ((bool)vars["first"])
-                  vars["first"] = false;
+               if (first)
+                  first = false;
                else
                   result.Append(", ");
-               var premod_type = tree.Peek(0).Attr("Type");
+               var premod_type = (string)tree.Peek(0).Attr("Type");
                var postmod_type = Piggy.TemplateHelpers.ModParamType(premod_type);
                result.Append(postmod_type + " " + tree.Peek(0).Attr("Name"));
             }}

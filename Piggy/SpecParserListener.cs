@@ -51,35 +51,45 @@ public interface ISpecParserListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitItems([NotNull] SpecParserParser.ItemsContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.using"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.extends"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterUsing([NotNull] SpecParserParser.UsingContext context);
+	void EnterExtends([NotNull] SpecParserParser.ExtendsContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.using"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.extends"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitUsing([NotNull] SpecParserParser.UsingContext context);
+	void ExitExtends([NotNull] SpecParserParser.ExtendsContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.import_file"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.namespace"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterImport_file([NotNull] SpecParserParser.Import_fileContext context);
+	void EnterNamespace([NotNull] SpecParserParser.NamespaceContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.import_file"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.namespace"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitImport_file([NotNull] SpecParserParser.Import_fileContext context);
+	void ExitNamespace([NotNull] SpecParserParser.NamespaceContext context);
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.compiler_option"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.clang_file"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void EnterCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context);
+	void EnterClang_file([NotNull] SpecParserParser.Clang_fileContext context);
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.compiler_option"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.clang_file"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	void ExitCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context);
+	void ExitClang_file([NotNull] SpecParserParser.Clang_fileContext context);
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.clang_option"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterClang_option([NotNull] SpecParserParser.Clang_optionContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.clang_option"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitClang_option([NotNull] SpecParserParser.Clang_optionContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.template"/>.
 	/// </summary>

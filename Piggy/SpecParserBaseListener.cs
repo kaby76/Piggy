@@ -59,41 +59,53 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitItems([NotNull] SpecParserParser.ItemsContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.using"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.extends"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterUsing([NotNull] SpecParserParser.UsingContext context) { }
+	public virtual void EnterExtends([NotNull] SpecParserParser.ExtendsContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.using"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.extends"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitUsing([NotNull] SpecParserParser.UsingContext context) { }
+	public virtual void ExitExtends([NotNull] SpecParserParser.ExtendsContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.import_file"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.namespace"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterImport_file([NotNull] SpecParserParser.Import_fileContext context) { }
+	public virtual void EnterNamespace([NotNull] SpecParserParser.NamespaceContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.import_file"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.namespace"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitImport_file([NotNull] SpecParserParser.Import_fileContext context) { }
+	public virtual void ExitNamespace([NotNull] SpecParserParser.NamespaceContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="SpecParserParser.compiler_option"/>.
+	/// Enter a parse tree produced by <see cref="SpecParserParser.clang_file"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context) { }
+	public virtual void EnterClang_file([NotNull] SpecParserParser.Clang_fileContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="SpecParserParser.compiler_option"/>.
+	/// Exit a parse tree produced by <see cref="SpecParserParser.clang_file"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context) { }
+	public virtual void ExitClang_file([NotNull] SpecParserParser.Clang_fileContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.clang_option"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterClang_option([NotNull] SpecParserParser.Clang_optionContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.clang_option"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitClang_option([NotNull] SpecParserParser.Clang_optionContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.template"/>.
 	/// <para>The default implementation does nothing.</para>

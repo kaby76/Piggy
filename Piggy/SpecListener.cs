@@ -20,15 +20,15 @@ namespace Piggy
             _program._code_blocks[context] = null;
         }
 
-        public override void ExitImport_file([NotNull] SpecParserParser.Import_fileContext context)
+        public override void ExitClang_file([NotNull] SpecParserParser.Clang_fileContext context)
         {
             var c = context.GetChild(1);
             var text = c.GetText();
             text = text.Replace("'", "");
-            _program._files.Add(text);
+            _program._clang_files.Add(text);
         }
 
-        public override void ExitCompiler_option([NotNull] SpecParserParser.Compiler_optionContext context)
+        public override void ExitClang_option([NotNull] SpecParserParser.Clang_optionContext context)
         {
             var c = context.GetChild(1);
             var text = c.GetText();
@@ -41,10 +41,6 @@ namespace Piggy
             _program._templates[_program._templates.Count - 1].Add(context);
         }
 
-        public override void ExitPass(SpecParserParser.PassContext context)
-        {
-        }
-
         public override void EnterPass(SpecParserParser.PassContext context)
         {
             var c = context.GetChild(1);
@@ -53,11 +49,18 @@ namespace Piggy
             _program._templates.Add(new List<SpecParserParser.TemplateContext>());
         }
 
-        public override void ExitUsing(SpecParserParser.UsingContext context)
+        public override void ExitExtends(SpecParserParser.ExtendsContext context)
         {
             var c = context.GetChild(1);
             var text = c.GetText();
-            _program._usings.Add(text);
+            _program._extends = text;
+        }
+
+        public override void ExitNamespace(SpecParserParser.NamespaceContext context)
+        {
+            var c = context.GetChild(1);
+            var text = c.GetText();
+            _program._namespace = text;
         }
     }
 }

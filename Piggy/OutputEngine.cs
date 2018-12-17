@@ -56,12 +56,13 @@ namespace Piggy
 
         public void CacheCompiledCodeBlocks()
         {
-            var copy = _piggy._code_blocks.ToList();
-            foreach (var t in copy)
-            {
-                var key = t.Key;
-                var text = key.GetText();
-                string code = @"
+            // Create one file containing all code blocks in separate methods,
+            // within one class, inherited from _extends.
+            List<KeyValuePair<IParseTree, MethodInfo>> copy = _piggy._code_blocks.ToList();
+            StringBuilder code = new StringBuilder();
+            code.Append(
+(_piggy._namespace != "" ? ("using " + _piggy._namespace + ";") : "")
++ @"
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -73,62 +74,116 @@ using System.Runtime.InteropServices;
 
 namespace First
 {
-    public class Program
+    public class Templates" + (_piggy._extends != "" ? " : " : "") + _piggy._extends + @"
     {
-        public static void Gen(
+");
+            int counter = 0;
+            foreach (var t in copy)
+            {
+                var key = t.Key;
+                var text = key.GetText();
+                code.Append("public void Gen" + counter + @"(
             Dictionary<string, object> vars,
             Piggy.Tree tree,
             StringBuilder result)
         {
 " + text + @"
         }
+");
+                counter++;
+            }
+
+            code.Append(@"
     }
 }
-";
-                string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cs";
-                try
-                {
-                    System.IO.File.WriteAllText(fileName, code);
-                    CSharpCodeProvider provider = new CSharpCodeProvider();
-                    CompilerParameters parameters = new CompilerParameters();
-                    string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
-                    parameters.ReferencedAssemblies.Add(full_path);
-                    // True - memory generation, false - external file generation
-                    parameters.GenerateInMemory = true;
-                    // True - exe file generation, false - dll file generation
-                    parameters.GenerateExecutable = false;
-                    parameters.CompilerOptions = "/unsafe";
-                    parameters.IncludeDebugInformation = true;
-                    CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[] { fileName });
-                    if (results.Errors.HasErrors)
-                    {
-                        StringBuilder sb = new StringBuilder();
-                        foreach (CompilerError error in results.Errors)
-                        {
-                            sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
-                                error.ErrorText));
-                        }
-                        System.Console.WriteLine("Compilation error for this code:");
-                        System.Console.WriteLine(code);
-                        System.Console.WriteLine(sb.ToString());
-                        throw new InvalidOperationException(sb.ToString());
-                    }
+");
 
-                    Assembly assembly = results.CompiledAssembly;
-                    Type program = assembly.GetType("First.Program");
-                    MethodInfo main = program.GetMethod("Gen");
+            string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cs";
+            try
+            {
+                System.IO.File.WriteAllText(fileName, code.ToString());
+                CSharpCodeProvider provider = new CSharpCodeProvider();
+                CompilerParameters parameters = new CompilerParameters();
+                string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
+                full_path = System.IO.Path.GetDirectoryName(full_path);
+                foreach (string f in System.IO.Directory.GetFiles(full_path))
+                {
+                    if (!f.EndsWith(".dll")) continue;
+                    if (f.Contains("ClangCode")) continue;
+                    parameters.ReferencedAssemblies.Add(f);
+                }
+
+                //foreach (var r in _piggy._referenced_assemblies)
+                //{
+                //    var aaa = System.Reflection.Assembly.LoadFile(r);
+                //    aaa.GetTypes();
+                //}
+                //foreach (var r in _piggy._referenced_assemblies)
+                //    parameters.ReferencedAssemblies.Add(r);
+                // True - memory generation, false - external file generation
+                parameters.GenerateInMemory = true;
+                parameters.GenerateExecutable = false;
+                //parameters.OutputAssembly = System.IO.Path.GetTempPath() + "MyAsm.dll";
+                parameters.IncludeDebugInformation = true;
+                CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[]
+                {
+                    fileName
+                    , @"C:\Users\Kenne\Documents\TemplateGenerator\TemplateGenerator\Class1.cs"
+                });
+                if (results.Errors.HasErrors)
+                {
+                    StringBuilder sb = new StringBuilder();
+                    foreach (CompilerError error in results.Errors)
+                    {
+                        sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
+                            error.ErrorText));
+                    }
+                    System.Console.WriteLine("Compilation error for this code:");
+                    System.Console.WriteLine(code.ToString());
+                    System.Console.WriteLine(sb.ToString());
+                    throw new InvalidOperationException(sb.ToString());
+                }
+                Assembly assembly = results.CompiledAssembly;
+                //Assembly asm = Assembly.LoadFrom(parameters.OutputAssembly);
+                //try
+                //{
+                //    // load the assembly or type
+                //    asm.GetTypes();
+                //}
+                //catch (Exception ex)
+                //{
+                //    if (ex is System.Reflection.ReflectionTypeLoadException)
+                //    {
+                //        var typeLoadException = ex as ReflectionTypeLoadException;
+                //        var loaderExceptions = typeLoadException.LoaderExceptions;
+                //    }
+                //}
+
+                Type program = assembly.GetType("First.Templates");
+                counter = 0;
+                _piggy._code_blocks = new Dictionary<IParseTree, MethodInfo>();
+                foreach (var t in copy)
+                {
+                    var key = t.Key;
+                    var text = key.GetText();
+                    MethodInfo main = program.GetMethod("Gen" + counter++);
                     _piggy._code_blocks[key] = main;
                 }
-                finally
-                {
-                    //System.IO.File.Delete(fileName);
-                }
+            }
+            finally
+            {
+                //System.IO.File.Delete(fileName);
             }
         }
 
         public string Generate(TreeRegEx re)
         {
             CacheCompiledCodeBlocks();
+            object o = null;
+            if (_piggy._code_blocks.Any())
+            {
+                o = Activator.CreateInstance(_piggy._code_blocks.First().Value.DeclaringType);
+            }
 
             StringBuilder builder = new StringBuilder();
             var visited = new HashSet<IParseTree>();
@@ -260,9 +315,9 @@ namespace First
                             MethodInfo main = _piggy._code_blocks[x];
                             object[] a = new object[3];
                             a[0] = vars;
-                            a[1] = new Tree(re, re._ast, con);
+                            a[1] = new Tree(re.parent, re._ast, con);
                             a[2] = builder;
-                            var res = main.Invoke(null, a);
+                            var res = main.Invoke(o, a);
                         }
                         finally
                         {

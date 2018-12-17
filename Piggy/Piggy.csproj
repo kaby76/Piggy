@@ -33,6 +33,7 @@
       <Name>ClangCode</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\Symtab\Symtab.csproj" />
   </ItemGroup>
 
   <!-- libclang name, unlikely to need overriding -->

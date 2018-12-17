@@ -1,3 +1,5 @@
+using org.antlr.symtab;
+
 namespace Piggy
 {
     using System.IO;
@@ -16,7 +18,7 @@ namespace Piggy
         public Piggy() { }
 
         public static string _copyright = @"";
-        public List<string> _files = new List<string>();
+        public List<string> _clang_files = new List<string>();
         public string _specification = string.Empty;
         public List<string> _clang_options = new List<string>();
         public bool _display_ast = false;
@@ -24,8 +26,10 @@ namespace Piggy
         IParseTree _ast;
         public List<string> _passes = new List<string>();
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
-        public List<string> _usings = new List<string>();
         public SymbolTable _symbol_table;
+        public string _extends = "";
+        public string _namespace = "";
+        public List<string> _referenced_assemblies = new List<string>();
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
         private static extern void ClangAddOption([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @include);
@@ -58,7 +62,10 @@ namespace Piggy
                     {
                         _specification = match.Value;
                     }
-
+                    if (string.Equals(match.Key, "--r"))
+                    {
+                        _referenced_assemblies.Add(match.Value);
+                    }
                     if (string.Equals(match.Key, "--l") || string.Equals(match.Key, "--license"))
                     {
                         Console.WriteLine(_copyright);
@@ -80,13 +87,6 @@ namespace Piggy
                     ICharStream stream = CharStreams.fromPath(_specification);
                     ITokenSource lexer = new SpecLexer(stream);
                     ITokenStream tokens = new CommonTokenStream(lexer);
-                    //while (true)
-                    //{
-                    //    IToken token = tokens.TokenSource.NextToken();
-                    //    System.Console.WriteLine(token);
-                    //    if (token.Type == SpecParserParser.Eof)
-                    //        break;
-                    //}
                     SpecParserParser parser = new SpecParserParser(tokens);
                     parser.BuildParseTree = true;
                     parser.AddErrorListener(listener);
@@ -100,7 +100,7 @@ namespace Piggy
                     ParseTreeWalker.Default.Walk(printer, _ast);
                 }
 
-                if (!_files.Any())
+                if (!_clang_files.Any())
                     errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
                 if (errorList.Any())
                 {
@@ -115,7 +115,7 @@ namespace Piggy
 
                 // Set up file containing #includes of all the input files.
                 StringBuilder str_builder = new StringBuilder();
-                foreach (var file in _files)
+                foreach (var file in _clang_files)
                 {
                     str_builder.Append($"#include <{file}>");
                     str_builder.Append(Environment.NewLine);
@@ -150,12 +150,8 @@ namespace Piggy
                 IParseTree ast_tree = ast_parser.ast();
                 if (listener.had_error) throw new Exception();
                 System.Console.WriteLine("Parsed successfully.");
-
-		if (_display_ast)
-		{
-		    Environment.Exit(0);
-		}
-
+		        if (_display_ast)
+		            Environment.Exit(0);
                 //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
@@ -193,6 +189,14 @@ namespace Piggy
             OutputEngine output = new OutputEngine(this);
             string @out = output.Generate(regex);
             return @out;
+        }
+
+        void SetUpSymbolTable()
+        {
+            // Create symbol table for AST.
+            _symbol_table = new SymbolTable();
+            AstListener listener = new AstListener(_ast);
+            ParseTreeWalker.Default.Walk(listener, _ast);
         }
     }
 }
