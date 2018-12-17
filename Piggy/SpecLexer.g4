@@ -13,7 +13,6 @@ EXTENDS         :       'extends';
 HEADER          :       'header';
 NAMESPACE       :       'namespace';
 PASS            :       'pass';
-TEMPLATE        :       'template';
 REWRITE         :       '=>';
 EQ              :       '=';
 SEMI            :       ';';
@@ -26,13 +25,15 @@ OPEN_RE         :       '(%';
 CLOSE_RE        :       '%)';
 OPEN_PAREN      :       '(';
 CLOSE_PAREN     :       ')';
+LCURLY          : '{';
+RCURLY          : '}';
 OPEN_KLEENE_STAR_PAREN  :       '(*';
 CLOSE_KLEENE_STAR_PAREN :       '*)';
 OPEN_BRACKET_NOT:       '[^';
 OPEN_BRACKET    :       '[';
 CLOSE_BRACKET   :       ']';
 MINUS           :       '-';
-LCURLY          :       '{{' -> pushMode(CODE_0);
+LDCURLY          :       '{{' -> pushMode(CODE_0);
 LANG : '[[' -> pushMode(TEXT_0);
 StringLiteral   :
     '\'' ( Escape | ~('\'' | '\n' | '\r') )* '\''
@@ -44,8 +45,8 @@ fragment Escape : '\'' '\'';
 WS:    [ \t\r\n] -> skip;
 
 mode CODE_0;
-CODE_0_LCURLY: '{{' -> type(OTHER);
-RCURLY: '}}' -> popMode;
+CODE_0_LDCURLY: '{{' -> type(OTHER);
+RDCURLY: '}}' -> popMode;
 OTHER: '}' ~'}' | ~'}' ;
 
 mode TEXT_0;

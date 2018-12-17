@@ -10,7 +10,6 @@ items
     | header
     | clang_file
     | clang_option
-    | template
     | pass
     ;
 
@@ -43,7 +42,7 @@ clang_option: CLANG_OPTION StringLiteral SEMI ;
  */
 
 // Note: the regular expression grammar is based on that of Cameron.
-template: TEMPLATE rexp SEMI ;
+template: rexp ;
 rexp : simple_rexp (OR simple_rexp)* ;
 simple_rexp : basic_rexp+ ;
 basic_rexp : star_rexp | plus_rexp | elementary_rexp ;
@@ -56,31 +55,31 @@ simple_basic: OPEN_PAREN id_or_star_or_empty more* CLOSE_PAREN ;
 kleene_star_basic: OPEN_KLEENE_STAR_PAREN id_or_star_or_empty more* CLOSE_KLEENE_STAR_PAREN ;
 id_or_star_or_empty: ID | STAR | /* epsilon */ ;
 more : rexp | text | code | attr ;
-code: LCURLY OTHER* RCURLY ;
+code: LDCURLY OTHER* RDCURLY ;
 text: LANG OTHER_ANG* RANG ;
 attr: ID EQ (StringLiteral | STAR);
 /*
 // CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
 // BNF Grammar of Regular Expressions
 // http://www.cs.sfu.ca/~cameron/Teaching/384/99-3/regexp-plg.html
-<RE>	::=	<union> | <simple-RE>
-<union>	::=	<RE> "|" <simple-RE>
-<simple-RE>	::=	<concatenation> | <basic-RE>
-<concatenation>	::=	<simple-RE> <basic-RE>
-<basic-RE>	::=	<star> | <plus> | <elementary-RE>
-<star>	::=	<elementary-RE> "*"
-<plus>	::=	<elementary-RE> "+"
-<elementary-RE>	::=	<group> | <any> | <eos> | <char> | <set>
-<group>	::=	"(" <RE> ")"
-<any>	::=	"."
-<eos>	::=	"$"
-<char>	::=	any non metacharacter | "\" metacharacter
-<set>	::=	<positive-set> | <negative-set>
-<positive-set>	::=	"[" <set-items> "]"
-<negative-set>	::=	"[^" <set-items> "]"
-<set-items>	::=	<set-item> | <set-item> <set-items>
-<set-items>	::=	<range> | <char>
-<range>	::=	<char> "-" <char>
+<RE>    ::=     <union> | <simple-RE>
+<union> ::=     <RE> "|" <simple-RE>
+<simple-RE>     ::=     <concatenation> | <basic-RE>
+<concatenation> ::=     <simple-RE> <basic-RE>
+<basic-RE>      ::=     <star> | <plus> | <elementary-RE>
+<star>  ::=     <elementary-RE> "*"
+<plus>  ::=     <elementary-RE> "+"
+<elementary-RE> ::=     <group> | <any> | <eos> | <char> | <set>
+<group> ::=     "(" <RE> ")"
+<any>   ::=     "."
+<eos>   ::=     "$"
+<char>  ::=     any non metacharacter | "\" metacharacter
+<set>   ::=     <positive-set> | <negative-set>
+<positive-set>  ::=     "[" <set-items> "]"
+<negative-set>  ::=     "[^" <set-items> "]"
+<set-items>     ::=     <set-item> | <set-item> <set-items>
+<set-items>     ::=     <range> | <char>
+<range> ::=     <char> "-" <char>
  */
 
 /* Specifies the pass for pattern matching. Templates are associated with a
@@ -90,4 +89,4 @@ attr: ID EQ (StringLiteral | STAR);
  * Example:
  *   pass Enums;
  */
-pass: PASS ID SEMI ;
+pass: PASS ID LCURLY template* RCURLY ;

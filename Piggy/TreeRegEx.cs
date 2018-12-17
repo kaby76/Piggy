@@ -164,7 +164,7 @@ namespace Piggy
         {
             SpecParserParser.TemplateContext template = p as SpecParserParser.TemplateContext;
             if (template == null) return false;
-            var re = p.GetChild(1);
+            var re = p.GetChild(0);
             if (re == null) return false;
             bool result = match_rexp(re, t, map);
             if (result && map) matches.MyAdd(t, p);
