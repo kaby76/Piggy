@@ -76,7 +76,7 @@ namespace First
 {
     public class Templates" + (_piggy._extends != "" ? " : " : "") + _piggy._extends + @"
     {
-");
+" + _piggy._header);
             int counter = 0;
             foreach (var t in copy)
             {

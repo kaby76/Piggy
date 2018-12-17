@@ -62,5 +62,14 @@ namespace Piggy
             var text = c.GetText();
             _program._namespace = text;
         }
+
+        public override void ExitHeader(SpecParserParser.HeaderContext context)
+        {
+            var c = context.GetChild(1);
+            var text = c.GetText();
+            text = text.Substring(2);
+            text = text.Substring(0, text.Length - 2);
+            _program._header = text;
+        }
     }
 }

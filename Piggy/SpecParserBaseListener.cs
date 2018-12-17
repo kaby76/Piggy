@@ -83,6 +83,18 @@ public partial class SpecParserBaseListener : ISpecParserListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitNamespace([NotNull] SpecParserParser.NamespaceContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="SpecParserParser.header"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterHeader([NotNull] SpecParserParser.HeaderContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="SpecParserParser.header"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitHeader([NotNull] SpecParserParser.HeaderContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="SpecParserParser.clang_file"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

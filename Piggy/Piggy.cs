@@ -29,6 +29,7 @@ namespace Piggy
         public SymbolTable _symbol_table;
         public string _extends = "";
         public string _namespace = "";
+        public string _header = "";
         public List<string> _referenced_assemblies = new List<string>();
 
         [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]

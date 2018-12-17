@@ -6,7 +6,8 @@ spec : items* EOF ;
 
 items
     : extends
-	| namespace
+    | namespace
+    | header
     | clang_file
     | clang_option
     | template
@@ -15,6 +16,7 @@ items
 
 extends: EXTENDS ID SEMI ;
 namespace: NAMESPACE ID SEMI ;
+header: HEADER code ;
 
 /* Specifies an input file for the Clang compiler. Use forward slashes for directory
  * delimiters.
