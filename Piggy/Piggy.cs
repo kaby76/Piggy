@@ -26,6 +26,7 @@ namespace Piggy
         IParseTree _ast;
         public List<string> _passes = new List<string>();
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
+        public object _cached_instance = null;
         public SymbolTable _symbol_table;
         public string _extends = "";
         public string _namespace = "";
@@ -156,9 +157,10 @@ namespace Piggy
                 //System.Console.WriteLine("AST parsed");
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
+                var output_engine = new OutputEngine(this);
                 for (int pass = 0; pass < _passes.Count; ++pass)
                 {
-                    string result = FindAndOutput(pass, ast_tree);
+                    string result = FindAndOutput(output_engine, pass, ast_tree);
                     System.Console.WriteLine(result);
                 }
             }
@@ -168,7 +170,7 @@ namespace Piggy
             }
         }
 
-        string FindAndOutput(int pass, IParseTree ast)
+        string FindAndOutput(OutputEngine output, int pass, IParseTree ast)
         {
             List<SpecParserParser.TemplateContext> templates = this._templates[pass];
             TreeRegEx regex = new TreeRegEx(templates, ast.GetChild(0));
@@ -187,7 +189,6 @@ namespace Piggy
             }
             System.Console.WriteLine("==========================");
 #endif
-            OutputEngine output = new OutputEngine(this);
             string @out = output.Generate(regex);
             return @out;
         }

@@ -15,7 +15,6 @@ namespace Piggy
     public class OutputEngine
     {
         private Piggy _piggy;
-        static Dictionary<string, object> vars = new Dictionary<string, object>();
 
         public OutputEngine(Piggy piggy)
         {
@@ -54,8 +53,11 @@ namespace Piggy
                 ;
         }
 
+        private bool done = false;
         public void CacheCompiledCodeBlocks()
         {
+            if (done) return;
+            done = true;
             // Create one file containing all code blocks in separate methods,
             // within one class, inherited from _extends.
             List<KeyValuePair<IParseTree, MethodInfo>> copy = _piggy._code_blocks.ToList();
@@ -83,7 +85,6 @@ namespace First
                 var key = t.Key;
                 var text = key.GetText();
                 code.Append("public void Gen" + counter + @"(
-            Dictionary<string, object> vars,
             Piggy.Tree tree,
             StringBuilder result)
         {
@@ -128,7 +129,6 @@ namespace First
                 CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[]
                 {
                     fileName
-                    , @"C:\Users\Kenne\Documents\TemplateGenerator\TemplateGenerator\Class1.cs"
                 });
                 if (results.Errors.HasErrors)
                 {
@@ -169,6 +169,11 @@ namespace First
                     MethodInfo main = program.GetMethod("Gen" + counter++);
                     _piggy._code_blocks[key] = main;
                 }
+
+                if (_piggy._code_blocks.Any())
+                {
+                    _piggy._cached_instance = Activator.CreateInstance(_piggy._code_blocks.First().Value.DeclaringType);
+                }
             }
             finally
             {
@@ -179,11 +184,6 @@ namespace First
         public string Generate(TreeRegEx re)
         {
             CacheCompiledCodeBlocks();
-            object o = null;
-            if (_piggy._code_blocks.Any())
-            {
-                o = Activator.CreateInstance(_piggy._code_blocks.First().Value.DeclaringType);
-            }
 
             StringBuilder builder = new StringBuilder();
             var visited = new HashSet<IParseTree>();
@@ -313,11 +313,8 @@ namespace First
                         try
                         {
                             MethodInfo main = _piggy._code_blocks[x];
-                            object[] a = new object[3];
-                            a[0] = vars;
-                            a[1] = new Tree(re.parent, re._ast, con);
-                            a[2] = builder;
-                            var res = main.Invoke(o, a);
+                            object[] a = new object[]{ new Tree(re.parent, re._ast, con), builder };
+                            var res = main.Invoke(_piggy._cached_instance, a);
                         }
                         finally
                         {

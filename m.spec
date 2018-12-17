@@ -1,7 +1,10 @@
 clang_file 'c:/temp/include/clang-c/Index.h';
 clang_option '-IC:/temp/include';
 
-header {{ bool first; }}
+header {{
+    bool first = true;
+    List<string> signatures = new List<string>();
+}}
 
 pass GenerateHeader;
 
@@ -70,11 +73,7 @@ template
    ( SrcRange=".*\\clang-c\\.*"
       (* FunctionDecl Name=*
          {{
-            object v;
-            vars.TryGetValue("signatures", out v);
-            if (v == null) { v = (object) new List<string>(); vars["signatures"] = v; }
-            var list = (List<string>) v;
-            list.Add((string)tree.Peek(0).Attr("Type"));
+            signatures.Add((string)tree.Peek(0).Attr("Type"));
          }}
       *)
    )
@@ -85,8 +84,7 @@ pass GenerateReturns;
 template
    ( TranslationUnitDecl
       {{
-         var list = (List<string>)vars["signatures"];
-         foreach (var l in list)
+         foreach (var l in signatures)
          {
             var m = Piggy.TemplateHelpers.GetFunctionReturn(l);
             var b = Piggy.TemplateHelpers.BaseType(m);
