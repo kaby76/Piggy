@@ -3,14 +3,16 @@
 _NB Status: Piggy is currently being developed and not available yet._
 
 Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This free and open source software
-is a pinvoke generator from C++ headers. It is an extremely powerful source-to-source
-transformational system that goes well beyond any another pinvoke generator!!
+is a pinvoke generator from C++ headers. It is a powerful source-to-source
+transformational system that goes well beyond any other pinvoke generator!!
 It uses the same basic algorithm of DFS traversal of the
-AST commonly used in all pinvoke generators, such as in ClangSharp and CppSharp,
-but abstracts the visitor code into _templates_. A template is a combination of a tree
-regular expression, intersperced with code and text blocks. The pattern matching also
-incorporates Regex matching of AST values, and dynamic string interpolation. Thus, Piggy corrects the issue
-of inflexibility you see with other pinvoke generators.
+AST commonly used in ClangSharp and CppSharp,
+but abstracts the visitor code into _templates_. A _template_ is a combination of a tree
+regular expression, C# code and plain text blocks. The pattern matcher 
+operates on Clang AST. After matching, the generator perform a tree walk to execute the
+code blocks in the template. Pattern matching of trees follows the syntax more or less
+of [TreeRegEx](https://treeregexlib.github.io/), with extensions for node attributes,
+and dynamic string interpolation for matching.
 
 As with ClangSharp and CppSharp, Piggy inputs C files, parsed
 by Clang to get an [abstract syntax tree (AST)](http://clang.llvm.org/docs/IntroductionToTheClangAST.html).
