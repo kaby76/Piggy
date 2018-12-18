@@ -41,6 +41,12 @@ Piggy uses a specification file. This file specifies what options to use
 for Clang and C# code generation. The grammar and parser for the specification file is for Antlr, a
 high quality parser generator.
 
+For an example of the Piggy specification file, see the Enums example in the root directory. There are two files,
+m.pig and basic.pig. The m.pig file sets up the Clang input: C files and compiler options. Then, it includes
+the main specification file basic.pig. In that file, multiple passes are specified in order to generate enums and 
+function pinvoke declarations. The example demonstrates some very important featuers: Kleene star tree expressions,
+dynamic string interpolation for selecting only "clang-c" directories.
+
 ### Spec file grammar
 
 For the latest Antlr grammar files describing the input into Piggy, see
