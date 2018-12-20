@@ -79,4 +79,25 @@ msbuild LLVM.sln /p:Configuration=Debug /p:Platform=x64
 Once you have built LLVM and Clang, you can build Piggy. Make sure to map e:/ to the
 location of clang-llvm/.
 
+## Relation to template engines
+
+Piggy is similar to other engines, like CppSharp and ClangSharp,
+where it uses hardwired tree walking code to output pinvoke declarations.
+Like JSP (1), which turned the concept of a servlet inside-out into a template
+which we now call HTML (2), Piggy turns the tree walking matcher "inside-out" into
+a tree matching template.
+
+Like JSP, Piggy does not separate "model/view" as discussed
+by Parr (2). So, the logic of the translation to pinvoke declarations is
+interspersed with the model, which is the AST.
+In the future, a tree matching template could be formalized
+in order to further the concept of a tree matching template.
+
+## References
+
+(1) JavaServer Pages Technology. https://www.oracle.com/technetwork/java/jsp-138432.html. Accessed Dec 20, 2018.
+
+(2) Parr, Terence John. "Enforcing strict model-view separation in template engines." Proceedings of the 13th international conference on World Wide Web. ACM, 2004.
+
+
 
