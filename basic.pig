@@ -2,7 +2,7 @@
 header {{
     bool first = true;
     List<string> signatures = new List<string>();
-    public string limit = ".*\\clang-c\\.*";
+    public string limit = "";
 }}
 
 pass GenerateHeader {

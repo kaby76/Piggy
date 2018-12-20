@@ -107,7 +107,7 @@ namespace Piggy
             var text = c.GetText();
             text = text.Substring(2);
             text = text.Substring(0, text.Length - 2);
-            _program._header = text;
+            _program._header.Add(text);
         }
 
         public override void EnterInclude(SpecParserParser.IncludeContext context)

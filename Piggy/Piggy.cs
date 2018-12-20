@@ -31,7 +31,7 @@ namespace Piggy
         public SymbolTable _symbol_table;
         public string _extends = "";
         public string _namespace = "";
-        public string _header = "";
+        public List<string> _header = new List<string>();
         public IParseTree _header_context = null;
         public List<string> _referenced_assemblies = new List<string>();
 

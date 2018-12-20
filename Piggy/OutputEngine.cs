@@ -63,8 +63,8 @@ namespace Piggy
             List<KeyValuePair<IParseTree, MethodInfo>> copy = _piggy._code_blocks.ToList();
             StringBuilder code = new StringBuilder();
             code.Append(
-(_piggy._namespace != "" ? ("using " + _piggy._namespace + ";") : "")
-+ @"
+                (_piggy._namespace != "" ? ("using " + _piggy._namespace + ";") : "")
+                + @"
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -78,7 +78,8 @@ namespace First
 {
     public class Templates" + (_piggy._extends != "" ? " : " : "") + _piggy._extends + @"
     {
-" + _piggy._header);
+");
+            foreach (var h in _piggy._header) code.Append(h);
             int counter = 0;
             foreach (var t in copy)
             {
