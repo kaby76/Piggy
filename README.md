@@ -89,9 +89,10 @@ a tree matching template.
 
 Like JSP, Piggy does not separate "model/view" as discussed
 by Parr (2). So, the logic of the translation to pinvoke declarations is
-interspersed with the model, which is the AST.
+interspersed with the model--the AST pattern.
 In the future, a tree matching template could be formalized
-in order to further the concept of a tree matching template.
+in order to refine the concept of a tree matching template. It's probably
+been done before, but I haven't had time to fully research the idea.
 
 ## References
 
