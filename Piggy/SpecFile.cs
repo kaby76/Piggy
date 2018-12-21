@@ -81,20 +81,6 @@ namespace Piggy
             }
         }
 
-        public override void ExitExtends(SpecParserParser.ExtendsContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program._extends = text;
-        }
-
-        public override void ExitNamespace(SpecParserParser.NamespaceContext context)
-        {
-            var c = context.GetChild(1);
-            var text = c.GetText();
-            _program._namespace = text;
-        }
-
         public override void EnterHeader(SpecParserParser.HeaderContext context)
         {
             var c = context.GetChild(1);
@@ -110,7 +96,7 @@ namespace Piggy
             _program._header.Add(text);
         }
 
-        public override void EnterInclude(SpecParserParser.IncludeContext context)
+        public override void EnterUsing(SpecParserParser.UsingContext context)
         {
             // When including another spec file, build a tree from the spec file
             // and insert it here.

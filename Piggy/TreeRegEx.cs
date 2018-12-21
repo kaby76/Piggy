@@ -119,9 +119,9 @@ namespace Piggy
                         //System.Console.WriteLine("Trying match ");
                         //System.Console.WriteLine("Template " + sourceTextForContext(t));
                         //System.Console.WriteLine("Tree " + sourceTextForContext(v));
-                        bool matched = match_template(t, v);
+                        bool matched = match_pattern(t, v);
                         if (matched)
-                            match_template(t, v, true);
+                            match_pattern(t, v, true);
                     }
                 }
             }
@@ -164,9 +164,9 @@ namespace Piggy
          * Match template: TEMPLATE rexp SEMI ;
          * Add entry into matches t => p if there is a match and map is true.
          */
-        private bool match_template(IParseTree p, IParseTree t, bool map = false)
+        private bool match_pattern(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.TemplateContext template = p as SpecParserParser.TemplateContext;
+            SpecParserParser.PatternContext template = p as SpecParserParser.PatternContext;
             if (template == null) return false;
             var re = p.GetChild(0);
             if (re == null) return false;

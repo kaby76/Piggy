@@ -5,19 +5,25 @@ options { tokenVocab = SpecLexer; }
 spec : items* EOF ;
 
 items
-    : extends
-    | namespace
-    | header
-    | include
+    : template
+    | using
     | clang_file
     | clang_option
-    | pass
     ;
 
-extends: EXTENDS ID SEMI ;
-namespace: NAMESPACE ID SEMI ;
-header: HEADER code ;
-include: INCLUDE StringLiteral SEMI ;
+template: TEMPLATE ID extends LCURLY header pass* RCURLY ;
+
+extends
+    : COLON ID
+	|
+	;
+
+header
+    : ID code
+    |
+    ;
+
+using: USING StringLiteral SEMI ;
 
 /* Specifies an input file for the Clang compiler. Use forward slashes for directory
  * delimiters.
@@ -44,7 +50,7 @@ clang_option: CLANG_OPTION StringLiteral SEMI ;
  */
 
 // Note: the regular expression grammar is based on that of Cameron.
-template: rexp ;
+pattern: rexp ;
 rexp : simple_rexp (OR simple_rexp)* ;
 simple_rexp : basic_rexp+ ;
 basic_rexp : star_rexp | plus_rexp | elementary_rexp ;
@@ -91,4 +97,4 @@ attr: ID EQ (StringLiteral | STAR);
  * Example:
  *   pass Enums;
  */
-pass: PASS ID LCURLY template* RCURLY ;
+pass: PASS ID LCURLY pattern* RCURLY ;

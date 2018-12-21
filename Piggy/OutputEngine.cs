@@ -76,7 +76,7 @@ using System.Runtime.InteropServices;
 
 namespace First
 {
-    public class Templates" + (_piggy._extends != "" ? " : " : "") + _piggy._extends + @"
+    public class Templates : TemplatesBase
     {
 ");
             foreach (var h in _piggy._header) code.Append(h);
