@@ -6,6 +6,7 @@ DELIMITED_DOC_COMMENT:   '/**' .*? '*/'           -> channel(COMMENTS_CHANNEL);
 SINGLE_LINE_COMMENT:     '//'  InputCharacter*    -> channel(COMMENTS_CHANNEL);
 DELIMITED_COMMENT:       '/*'  .*? '*/'           -> channel(COMMENTS_CHANNEL);
 
+APPLICATION     :       'application';
 CODE            :       'code';
 CLANG_FILE      :       'clang_file';
 CLANG_OPTION    :       'clang_option';
@@ -13,8 +14,11 @@ TEMPLATE        :       'template';
 USING           :       'using';
 NAMESPACE       :       'namespace';
 PASS            :       'pass';
+HEADER			:		'header';
+INIT			:		'init';
 REWRITE         :       '=>';
 EQ              :       '=';
+COMMA			:		',';
 COLON           :       ':';
 SEMI            :       ';';
 OR              :       '|';
@@ -39,7 +43,7 @@ LANG : '[[' -> pushMode(TEXT_0);
 StringLiteral   :
     ('\'' | '$\'') ( Escape | ~('\'' | '\n' | '\r') )* '\''
     | ('"' | '$"') ( Escape | ~('"' | '\n' | '\r') )* '"';
-ID              :       [a-zA-Z_1234567890.]+ ;
+ID              :       [a-zA-Z_1234567890]+ ;
 
 fragment InputCharacter:       ~[\r\n\u0085\u2028\u2029];
 fragment Escape : '\'' '\'';

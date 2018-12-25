@@ -1,7 +1,7 @@
 
 template Enums
 {
-	Enums {{
+	header {{
 	    bool first = true;
 	    List<string> signatures = new List<string>();
 		public string limit = "";
@@ -28,7 +28,7 @@ template Enums
 
 	pass GenerateEnums {
 
-	   ( SrcRange=$"{Templates.limit}"
+	   ( SrcRange=$"{Enums.limit}"
 		  (* EnumDecl
 			 {{
 				 first = true;
@@ -66,7 +66,7 @@ template Enums
 
 	pass CollectReturns {
 
-	   ( SrcRange=$"{Templates.limit}"
+	   ( SrcRange=$"{Enums.limit}"
 		  (* FunctionDecl Name=*
 			 {{
 				signatures.Add((string)tree.Peek(0).Attr("Type"));
@@ -103,7 +103,7 @@ template Enums
 
 	pass Functions {
 
-	   ( SrcRange=$"{Templates.limit}"
+	   ( SrcRange=$"{Enums.limit}"
 		  (* FunctionDecl Name=*
 			 {{
 				result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,"

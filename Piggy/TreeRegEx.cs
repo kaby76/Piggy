@@ -10,38 +10,52 @@ namespace Piggy
 {
     public class TreeRegEx
     {
-        public TreeRegEx(Piggy piggy, List<SpecParserParser.TemplateContext> t, IParseTree s)
+        public Piggy _piggy;
+        public IParseTree _ast;
+        public List<Pass> _passes;
+        public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
+        public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
+        public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
+        public List<IParseTree> pre_order = new List<IParseTree>();
+        public List<IParseTree> post_order = new List<IParseTree>();
+        public Dictionary<IParseTree, IParseTree> parent = new Dictionary<IParseTree, IParseTree>();
+        public object _instance;
+        public Type _current_type;
+
+        public TreeRegEx(Piggy piggy, List<Pass> passes_with_common_name, object instance)
         {
             _piggy = piggy;
-            _ast = s;
+            _ast = _piggy._ast.GetChild(0);
+            _passes = passes_with_common_name;
+            _instance = instance;
+
             bool result = false;
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
             parent = Parents.Compute(_ast);
-
-            templates = t;
-            foreach (var te in templates)
+            foreach (var pass in _passes)
             {
-                stack.Push(te);
-                while (stack.Count > 0)
+                foreach (var pattern in pass.Patterns)
                 {
-                    var v = stack.Pop();
-                    if (visited.Contains(v))
-                        continue;
-                    visited.Add(v);
-                    for (int i = v.ChildCount - 1; i >= 0; --i)
+                    stack.Push(pattern.AstNode);
+                    while (stack.Count > 0)
                     {
-                        var c = v.GetChild(i);
-                        parent[c] = v;
-                        if (!visited.Contains(c))
-                            stack.Push(c);
+                        var v = stack.Pop();
+                        if (visited.Contains(v))
+                            continue;
+                        visited.Add(v);
+                        for (int i = v.ChildCount - 1; i >= 0; --i)
+                        {
+                            var c = v.GetChild(i);
+                            parent[c] = v;
+                            if (!visited.Contains(c))
+                                stack.Push(c);
+                        }
                     }
                 }
             }
         }
-
-        public Piggy _piggy;
-
+       
         // Pattern matcher.
         public static string sourceTextForContext(IParseTree context)
         {
@@ -64,15 +78,6 @@ namespace Piggy
                 startIndex = stopIndex;
             return cs.GetText(new Antlr4.Runtime.Misc.Interval(startIndex, stopIndex));
         }
-
-        public IParseTree _ast;
-        public List<SpecParserParser.TemplateContext> templates;
-        public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
-        public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
-        public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
-        public List<IParseTree> pre_order = new List<IParseTree>();
-        public List<IParseTree> post_order = new List<IParseTree>();
-        public Dictionary<IParseTree, IParseTree> parent = new Dictionary<IParseTree, IParseTree>();
 
         public void dfs_match()
         {
@@ -111,17 +116,23 @@ namespace Piggy
 
             foreach (var v in pre_order)
             {
-                foreach (SpecParserParser.TemplateContext t in templates)
+                foreach (var pass in this._passes)
                 {
-                    // Try matching at vertex, if the node hasn't been already matched.
-                    if (!matches.ContainsKey(t))
+                    List<Pattern> patterns = pass.Patterns;
+                    foreach (var pattern in patterns)
                     {
-                        //System.Console.WriteLine("Trying match ");
-                        //System.Console.WriteLine("Template " + sourceTextForContext(t));
-                        //System.Console.WriteLine("Tree " + sourceTextForContext(v));
-                        bool matched = match_pattern(t, v);
-                        if (matched)
-                            match_pattern(t, v, true);
+                        SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
+                        _current_type = pattern.Owner.Owner.Type;
+                        // Try matching at vertex, if the node hasn't been already matched.
+                        if (!matches.ContainsKey(t))
+                        {
+                            //System.Console.WriteLine("Trying match ");
+                            //System.Console.WriteLine("Template " + sourceTextForContext(t));
+                            //System.Console.WriteLine("Tree " + sourceTextForContext(v));
+                            bool matched = match_pattern(t, v);
+                            if (matched)
+                                match_pattern(t, v, true);
+                        }
                     }
                 }
             }
@@ -649,10 +660,12 @@ namespace Piggy
 
         string ReplaceMacro(string value)
         {
-            var o = _piggy._cached_instance;
+            Type current_type = _current_type;
+            object o = this._instance;
             return Regex.Replace(value, @"{(?<exp>[^}]+)}", match =>
             {
-                ParameterExpression p = Expression.Parameter(o.GetType(), "Templates");
+                ParameterExpression p = Expression.Parameter(
+                    current_type, current_type.Name);
                 string v = match.Groups["exp"].Value;
                 LambdaExpression e = System.Linq.Dynamic.DynamicExpression.ParseLambda(new[] { p }, null, v);
                 object r = e.Compile().DynamicInvoke(o);

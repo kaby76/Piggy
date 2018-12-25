@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Antlr4.Runtime.Tree;
 using Microsoft.CSharp;
 
@@ -34,37 +35,42 @@ namespace Piggy
             return false
                    || x as SpecParserParser.AttrContext != null
                    || x as SpecParserParser.BasicContext != null
-                   || x as SpecParserParser.Id_or_star_or_emptyContext != null
                    || x as SpecParserParser.Basic_rexpContext != null
+                   || x as SpecParserParser.ClangContext != null
+                   || x as SpecParserParser.Clang_fileContext != null
+                   || x as SpecParserParser.Clang_optionContext != null
                    || x as SpecParserParser.CodeContext != null
                    || x as SpecParserParser.Elementary_rexpContext != null
+                   || x as SpecParserParser.ExtendsContext != null
                    || x as SpecParserParser.Group_rexpContext != null
-                   || x as SpecParserParser.ItemsContext != null
+                   || x as SpecParserParser.HeaderContext != null
+                   || x as SpecParserParser.Id_or_star_or_emptyContext != null
+                   || x as SpecParserParser.Kleene_star_basicContext != null
                    || x as SpecParserParser.MoreContext != null
+                   || x as SpecParserParser.PassContext != null
+                   || x as SpecParserParser.PatternContext != null
                    || x as SpecParserParser.Plus_rexpContext != null
                    || x as SpecParserParser.RexpContext != null
                    || x as SpecParserParser.Simple_rexpContext != null
                    || x as SpecParserParser.Simple_basicContext != null
-                   || x as SpecParserParser.Kleene_star_basicContext != null
                    || x as SpecParserParser.SpecContext != null
                    || x as SpecParserParser.Star_rexpContext != null
                    || x as SpecParserParser.TemplateContext != null
                    || x as SpecParserParser.TextContext != null
+                   || x as SpecParserParser.UsingContext != null
                 ;
         }
 
-        private bool done = false;
-        public void CacheCompiledCodeBlocks()
+        public void CompileTemplates()
         {
-            if (done) return;
-            done = true;
-            // Create one file containing all code blocks in separate methods,
-            // within one class, inherited from _extends.
-            List<KeyValuePair<IParseTree, MethodInfo>> copy = _piggy._code_blocks.ToList();
+            // Create one file containing all types and decls:
+            // 1) Create a class for each "template", subclassing based on extension if given
+            // in the spec.
+            // 2) All code block are place in separate methods, within the enclosing class/template.
+            // 3) Make sure to set up the constructor for the class if one.
+            string @namespace = "CompiledTemplates";
             StringBuilder code = new StringBuilder();
-            code.Append(
-                (_piggy._namespace != "" ? ("using " + _piggy._namespace + ";") : "")
-                + @"
+            code.Append(@"
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -74,29 +80,64 @@ using System.IO;
 using Piggy;
 using System.Runtime.InteropServices;
 
-namespace First
+namespace " + @namespace + @"
 {
-    public class Templates : TemplatesBase
-    {
 ");
-            foreach (var h in _piggy._header) code.Append(h);
-            int counter = 0;
-            foreach (var t in copy)
+
+            Dictionary<IParseTree, string> gen_named_code_blocks = new Dictionary<IParseTree, string>();
+            foreach (var template in _piggy._templates)
             {
-                var key = t.Key;
-                var text = key.GetText();
-                code.Append("public void Gen" + counter + @"(
+                List<KeyValuePair<IParseTree, MethodInfo>> copy = _piggy._code_blocks.ToList();
+                code.Append(@"
+    public class " + template.TemplateName + " : " + (template.Extends != null ? template.Extends : "Template") + @"
+{
+");
+                // Emit the header code of this template.
+                foreach (var c in template.Headers)
+                    code.Append(c);
+
+                // Emit the initializer code of this template.
+                // Here, we are using the class constructor.
+                code.AppendLine(@"public " + template.TemplateName + "(){");
+                foreach (var c in template.Initializations)
+                    code.Append(c);
+                code.AppendLine("}");
+
+                Dictionary<IParseTree, string> collected_code = new Dictionary<IParseTree, string>();
+                foreach (var p in template.Passes)
+                {
+                    foreach (Pattern pt in p.Patterns)
+                    {
+                        Dictionary<IParseTree, string> c = pt.CollectCode();
+                        foreach (var x in c) collected_code.Add(x.Key, x.Value);
+                    }
+                }
+
+                // So, for every damn code block, output a "Gen#()" method.
+                // And, make sure to associate the name of the method with the tree node
+                // so we can do fast look ups.
+                int counter = 0;
+                foreach (var t in collected_code)
+                {
+                    var key = t.Key;
+                    var text = t.Value;
+                    var method_name = "Gen" + counter++;
+                    gen_named_code_blocks[key] = method_name;
+                    code.Append("public void " + method_name + @"(
             Piggy.Tree tree,
             StringBuilder result)
         {
 " + text + @"
         }
 ");
-                counter++;
+                }
+
+                code.Append(@"
+    }
+");
             }
 
             code.Append(@"
-    }
 }
 ");
 
@@ -114,18 +155,8 @@ namespace First
                     if (f.Contains("ClangCode")) continue;
                     parameters.ReferencedAssemblies.Add(f);
                 }
-
-                //foreach (var r in _piggy._referenced_assemblies)
-                //{
-                //    var aaa = System.Reflection.Assembly.LoadFile(r);
-                //    aaa.GetTypes();
-                //}
-                //foreach (var r in _piggy._referenced_assemblies)
-                //    parameters.ReferencedAssemblies.Add(r);
-                // True - memory generation, false - external file generation
                 parameters.GenerateInMemory = true;
                 parameters.GenerateExecutable = false;
-                //parameters.OutputAssembly = System.IO.Path.GetTempPath() + "MyAsm.dll";
                 parameters.IncludeDebugInformation = true;
                 CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[]
                 {
@@ -144,36 +175,29 @@ namespace First
                     System.Console.WriteLine(sb.ToString());
                     throw new InvalidOperationException(sb.ToString());
                 }
-                Assembly assembly = results.CompiledAssembly;
-                //Assembly asm = Assembly.LoadFrom(parameters.OutputAssembly);
-                //try
-                //{
-                //    // load the assembly or type
-                //    asm.GetTypes();
-                //}
-                //catch (Exception ex)
-                //{
-                //    if (ex is System.Reflection.ReflectionTypeLoadException)
-                //    {
-                //        var typeLoadException = ex as ReflectionTypeLoadException;
-                //        var loaderExceptions = typeLoadException.LoaderExceptions;
-                //    }
-                //}
 
-                Type program = assembly.GetType("First.Templates");
-                counter = 0;
                 _piggy._code_blocks = new Dictionary<IParseTree, MethodInfo>();
-                foreach (var t in copy)
+                Assembly assembly = results.CompiledAssembly;
+                foreach (Template template in _piggy._templates)
                 {
-                    var key = t.Key;
-                    var text = key.GetText();
-                    MethodInfo main = program.GetMethod("Gen" + counter++);
-                    _piggy._code_blocks[key] = main;
-                }
-
-                if (_piggy._code_blocks.Any())
-                {
-                    _piggy._cached_instance = Activator.CreateInstance(_piggy._code_blocks.First().Value.DeclaringType);
+                    var class_name = @namespace + "." + template.TemplateName;
+                    Type template_type = assembly.GetType(class_name);
+                    template.Type = template_type;
+                    foreach (Pass pass in template.Passes)
+                    {
+                        foreach (Pattern pattern in pass.Patterns)
+                        {
+                            Dictionary<IParseTree, string> x = pattern.CollectCode();
+                            foreach (KeyValuePair<IParseTree, string> kvp in x)
+                            {
+                                IParseTree key = kvp.Key;
+                                string name = gen_named_code_blocks[key];
+                                MethodInfo method_info = template_type.GetMethod(name);
+                                if (method_info == null) throw new Exception("Can't find method_info for " + class_name + "." + name);
+                                _piggy._code_blocks[key] = method_info;
+                            }
+                        }
+                    }
                 }
             }
             finally
@@ -182,11 +206,10 @@ namespace First
             }
         }
 
-        public string Generate(TreeRegEx re)
-        {
-            CacheCompiledCodeBlocks();
+        static Dictionary<Type, object> _instances = new Dictionary<Type, object>();
 
-            StringBuilder builder = new StringBuilder();
+        public void Generate(StringBuilder builder, TreeRegEx re)
+        {
             var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
             StackQueue<List<IParseTree>> dfs_parent_chain = new StackQueue<List<IParseTree>>();
@@ -211,7 +234,6 @@ namespace First
                     int ci = 0;
                     for (int ai = 0; ai < x.ChildCount; ++ai)
                     {
-                        // Get child x[ai];
                         var c = x.GetChild(ai);
                         re.matches.TryGetValue(c, out HashSet<IParseTree> vc);
                         IParseTree pc = vc?.FirstOrDefault();
@@ -314,8 +336,10 @@ namespace First
                         try
                         {
                             MethodInfo main = _piggy._code_blocks[x];
+                            Type type = re._current_type;
+                            object instance = re._instance;
                             object[] a = new object[]{ new Tree(re.parent, re._ast, con), builder };
-                            var res = main.Invoke(_piggy._cached_instance, a);
+                            var res = main.Invoke(instance, a);
                         }
                         finally
                         {
@@ -381,8 +405,77 @@ namespace First
                 else
                     throw new Exception();
             }
+        }
 
-            return builder.ToString();
+        private List<Pass> GetAllPassesNamed(Template template, string pass_name)
+        {
+            List<Pass> collection = new List<Pass>();
+            var possible = template.Passes.Find(p => p.Name == pass_name);
+            if (possible != null) collection.Add(possible);
+            if (template.Extends != null)
+            {
+                var extension = template.Extends;
+                var extension_template = _piggy._templates.Find(t => t.TemplateName == extension);
+                if (extension_template == null) throw new Exception("Cannot find template " + extension);
+                var more = GetAllPassesNamed(extension_template, pass_name);
+                collection.AddRange(more);
+            }
+            return collection;
+        }
+
+        public string Run()
+        {
+            StringBuilder combined_result = new StringBuilder();
+            CompileTemplates();
+            // Create types for passes referenced.
+            foreach (var full_pass_name in _piggy._application.OrderedPasses)
+            {
+                var pass_name_regex = new Regex("^(?<template_name>[^.]+)[.](?<pass_name>.*)$");
+                var match = pass_name_regex.Match(full_pass_name);
+                if (!match.Success) throw new Exception("template.pass " + full_pass_name + " does not exist.");
+                var template_name = match.Groups["template_name"].Value;
+                var pass_name = match.Groups["pass_name"].Value;
+                var template = _piggy._templates.Find(t => t.TemplateName == template_name);
+                var type = template.Type;
+                _instances.TryGetValue(type, out object i);
+                if (i == null)
+                {
+                    _instances[type] = Activator.CreateInstance(type);
+                }
+            }
+            var app = _piggy._application;
+            StringBuilder result = new StringBuilder();
+            foreach (var full_pass_name in app.OrderedPasses)
+            {
+                // Separate the pass name into "template name" "." "pass name"
+                var pass_name_regex = new Regex("^(?<template_name>[^.]+)[.](?<pass_name>.*)$");
+                var match = pass_name_regex.Match(full_pass_name);
+                if (!match.Success) throw new Exception("template.pass " + full_pass_name + " does not exist.");
+                var template_name = match.Groups["template_name"].Value;
+                var pass_name = match.Groups["pass_name"].Value;
+                var template = _piggy._templates.Find(t => t.TemplateName == template_name);
+                List<Pass> passes = GetAllPassesNamed(template, pass_name);
+                TreeRegEx regex = new TreeRegEx(_piggy, passes, _instances[template.Type]);
+                regex.dfs_match();
+
+#if DEBUGOUTPUT
+                foreach (KeyValuePair<IParseTree, HashSet<IParseTree>> match in regex.matches)
+                {
+                    System.Console.WriteLine("==========================");
+                    System.Console.WriteLine("Tree type " + match.Key.GetType());
+                    System.Console.WriteLine("Tree " + TreeRegEx.sourceTextForContext(match.Key));
+                    foreach (var m in match.Value)
+                    {
+                        System.Console.WriteLine("Pattern type " + m.GetType());
+                        System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(m));
+                    }
+                }
+                System.Console.WriteLine("==========================");
+#endif
+                Generate(result, regex);
+                System.Console.WriteLine(result);
+            }
+            return combined_result.ToString();
         }
     }
 }

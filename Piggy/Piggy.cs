@@ -1,3 +1,4 @@
+using System.Runtime.Remoting.Messaging;
 using org.antlr.symtab;
 
 namespace Piggy
@@ -22,15 +23,14 @@ namespace Piggy
         public string _specification = string.Empty;
         public List<string> _clang_options = new List<string>();
         public bool _display_ast = false;
-        public Dictionary<string, List<SpecParserParser.TemplateContext>> _templates = new Dictionary<string, List<SpecParserParser.TemplateContext>>();
+        public Dictionary<string, List<SpecParserParser.TemplateContext>> _patterns = new Dictionary<string, List<SpecParserParser.TemplateContext>>();
+        public List<Template> _templates = new List<Template>();
+        public Application _application = new Application();
         public IParseTree _ast;
         public List<string> _passes = new List<string>();
-        public string _current_pass;
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
-        public object _cached_instance = null;
         public SymbolTable _symbol_table;
         public string _extends = "";
-        public string _namespace = "";
         public List<string> _header = new List<string>();
         public IParseTree _header_context = null;
         public List<string> _referenced_assemblies = new List<string>();
@@ -87,7 +87,7 @@ namespace Piggy
 
                 else
                 {
-                    SpecFile file = new SpecFile(this);
+                    SpecFileAndListener file = new SpecFileAndListener(this);
                     file.ParseSpecFile(_specification);
                 }
 
@@ -150,40 +150,12 @@ namespace Piggy
                 // Find and apply ordered regular expression templates until done.
                 // Templates contain code, which has to be compiled and run.
                 var output_engine = new OutputEngine(this);
-                for (int pass = 0; pass < _passes.Count; ++pass)
-                {
-                    string result = FindAndOutput(output_engine, pass, ast_tree);
-                    System.Console.WriteLine(result);
-                }
+                System.Console.WriteLine(output_engine.Run());
             }
             finally
             {
                 File.Delete(temp_fileName);
             }
-        }
-
-        string FindAndOutput(OutputEngine output, int pass, IParseTree ast)
-        {
-            string pass_name = this._passes[pass];
-            List<SpecParserParser.TemplateContext> templates = this._templates[pass_name];
-            TreeRegEx regex = new TreeRegEx(this, templates, ast.GetChild(0));
-            regex.dfs_match();
-#if DEBUGOUTPUT
-            foreach (KeyValuePair<IParseTree, HashSet<IParseTree>> match in regex.matches)
-            {
-                System.Console.WriteLine("==========================");
-                System.Console.WriteLine("Tree type " + match.Key.GetType());
-                System.Console.WriteLine("Tree " + TreeRegEx.sourceTextForContext(match.Key));
-                foreach (var m in match.Value)
-                {
-                    System.Console.WriteLine("Pattern type " + m.GetType());
-                    System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(m));
-                }
-            }
-            System.Console.WriteLine("==========================");
-#endif
-            string @out = output.Generate(regex);
-            return @out;
         }
 
         void SetUpSymbolTable()
