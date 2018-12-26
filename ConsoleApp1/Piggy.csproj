@@ -12,11 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClangCode\ClangCode.vcxproj">
-      <Name>ClangCode</Name>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\Piggy\Piggy.csproj" />
+    <ProjectReference Include="..\Piggy\PiggyGenerator.csproj" />
   </ItemGroup>
 
   <!-- libclang name, unlikely to need overriding -->

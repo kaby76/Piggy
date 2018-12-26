@@ -34,16 +34,7 @@ namespace Piggy
         public IParseTree _header_context = null;
         public List<string> _referenced_assemblies = new List<string>();
 
-        [DllImport("ClangCode", EntryPoint = "ClangAddOption", CallingConvention = CallingConvention.StdCall)]
-        private static extern void ClangAddOption([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @include);
-
-        [DllImport("ClangCode", EntryPoint = "ClangAddFile", CallingConvention = CallingConvention.StdCall)]
-        private static extern void ClangAddFile([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StringMarshaler))] string @file);
-
-        [DllImport("ClangCode", EntryPoint = "ClangSerializeAst", CallingConvention = CallingConvention.StdCall)]
-        private static unsafe extern IntPtr ClangSerializeAst();
-
-        public unsafe void Doit(string[] args)
+        public void Doit(string[] args)
         {
             string temp_fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cpp";
             ErrorListener<IToken> listener = new ErrorListener<IToken>();
@@ -73,10 +64,6 @@ namespace Piggy
                     {
                         Console.WriteLine(_copyright);
                     }
-                    if (string.Equals(match.Key, "--ast"))
-                    {
-                        _display_ast = true;
-                    }
                 }
 
                 var errorList = new List<string>();
@@ -90,12 +77,11 @@ namespace Piggy
                     file.ParseSpecFile(_specification);
                 }
 
-                if (!_clang_files.Any())
-                    errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
                 if (errorList.Any())
                 {
-                    Console.WriteLine("Usage: Piggy spec-file-name [--_display_ast]");
-                    Console.WriteLine("Note -- spec-file-name; _display_ast is optional. It can be in any order.");
+                    Console.WriteLine("Usage: Piggy spec-file-name");
+                    Console.WriteLine("spec-file-name is the path to the .pig spec file.");
+                    Console.WriteLine("Piggy reads stdin for the serialized ast. Use ClangSerializer to generate an AST.");
                     foreach (var error in errorList)
                     {
                         Console.WriteLine(error);
@@ -103,35 +89,17 @@ namespace Piggy
                     throw new Exception();
                 }
 
-                // Set up file containing #includes of all the input files.
-                StringBuilder str_builder = new StringBuilder();
-                foreach (var file in _clang_files)
-                {
-                    str_builder.Append($"#include <{file}>");
-                    str_builder.Append(Environment.NewLine);
-                }
-
-                File.WriteAllText(temp_fileName, str_builder.ToString());
-
-                // Set up Clang front-end compilations in native code project "ClangCode".
-                ClangAddFile(temp_fileName);
-
-                // Set up clang options.
-                foreach (var opt in _clang_options) ClangAddOption(opt);
-
-                // serialize the AST for the desired input header files.
-                IntPtr v = ClangSerializeAst();
-
                 // Get back AST as string.
-                string ast_result = Marshal.PtrToStringAnsi(v);
-                if (_display_ast)
+                List<string> s = new List<string>();
+                string input;
+                while ((input = Console.ReadLine()) != null && input != "")
                 {
-                    ast_result = ast_result.Replace("\n", "\r\n");
-                    System.Console.WriteLine(ast_result);
+                    s.Add(input);
                 }
+                string ast_string = string.Join(" ", s);
 
                 // Parse ast using Antlr.
-                ICharStream ast_stream = CharStreams.fromstring(ast_result);
+                ICharStream ast_stream = CharStreams.fromstring(ast_string);
                 ITokenSource ast_lexer = new AstLexer(ast_stream);
                 ITokenStream ast_tokens = new CommonTokenStream(ast_lexer);
                 AstParserParser ast_parser = new AstParserParser(ast_tokens);
@@ -139,8 +107,6 @@ namespace Piggy
                 ast_parser.AddErrorListener(listener);
                 IParseTree ast_tree = ast_parser.ast();
                 if (listener.had_error) throw new Exception();
-                if (_display_ast)
-                    Environment.Exit(0);
                 AstSymtabBuilderListener ast_listener = new AstSymtabBuilderListener(ast_tree);
                 ParseTreeWalker.Default.Walk(ast_listener, ast_tree);
                 _ast = ast_tree;

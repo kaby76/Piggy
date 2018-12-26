@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ClangSerializer": {
+      "commandName": "Project",
+      "commandLineArgs": "-c \"IC:/temp/include/\" -f \"c:/temp/include/clang-c/Index.h\""
+    }
+  }
+}

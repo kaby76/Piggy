@@ -3,7 +3,6 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ApplicationIcon />
     <StartupObject />
   </PropertyGroup>
 
@@ -50,23 +49,5 @@
     <LLVMIncludePath Condition="'$(OS)' == 'Windows_NT'">C:\Program Files\LLVM\include</LLVMIncludePath>
     <LLVMIncludePath Condition="'$(OS)' != 'Windows_NT'">/usr/lib/llvm-6.0/include</LLVMIncludePath>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-  </PropertyGroup>
-
-  <Target Name="GenerateClangSharp">
-    <Exec Command="dotnet run --m clang --p clang_ --namespace ClangSharp --output ../ClangSharp/Generated.cs --libraryPath $(LibClangName) --include $(LLVMIncludePath) --file $(LLVMIncludePath)/clang-c/Index.h --file $(LLVMIncludePath)/clang-c/CXString.h --file $(LLVMIncludePath)/clang-c/Documentation.h --file $(LLVMIncludePath)/clang-c/CXErrorCode.h --file $(LLVMIncludePath)/clang-c/BuildSystem.h --file $(LLVMIncludePath)/clang-c/CXCompilationDatabase.h --excludeFunctions clang_index_getClientEntity,clang_index_setClientEntity,clang_createTranslationUnitFromSourceFile,clang_parseTranslationUnit,clang_parseTranslationUnit2,clang_parseTranslationUnit2FullArgv,clang_reparseTranslationUnit,clang_codeCompleteAt,clang_indexSourceFile,clang_indexSourceFileFullArgv" />
-  </Target>
-
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.dll" DestinationFolder="$(OutDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.pdb" DestinationFolder="$(OutDir)" />
-  </Target>
-  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.dll" DestinationFolder="$(PublishDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.pdb" DestinationFolder="$(PublishDir)" />
-  </Target>
 
 </Project>

@@ -1,13 +1,13 @@
-namespace Piggy
+namespace ClangSerializer
 {
     using System;
     using System.IO;
     using System.Runtime.InteropServices;
     using System.Text;
 
-    public class StringMarshaler : ICustomMarshaler
+    public class StringMarshaller : ICustomMarshaler
     {
-        private static readonly StringMarshaler staticInstance = new StringMarshaler();
+        private static readonly StringMarshaller staticInstance = new StringMarshaller();
 
         public static ICustomMarshaler GetInstance(string cookie)
         {
