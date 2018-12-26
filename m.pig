@@ -9,10 +9,10 @@ template ClangEnums : Enums
 }
 
 application
-ClangEnums.GenerateHeader
-ClangEnums.GenerateEnums
-ClangEnums.CollectReturns
-ClangEnums.GenerateReturns
-ClangEnums.Functions
-ClangEnums.GenerateEnd
-;
+	ClangEnums.GenerateHeader
+	ClangEnums.GenerateEnums
+	ClangEnums.CollectReturns
+	ClangEnums.GenerateReturns
+	ClangEnums.Functions
+	ClangEnums.GenerateEnd
+	;

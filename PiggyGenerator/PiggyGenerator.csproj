@@ -25,6 +25,7 @@
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
     <PackageReference Include="Antlr4BuildTasks" Version="1.0.4" />
+    <PackageReference Include="CommandLineParser" Version="2.3.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="System.Linq.Dynamic" Version="1.0.7" />

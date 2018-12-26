@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace ClangSerializer
+﻿namespace ClangSerializer
 {
     using System.Collections.Generic;
     using System.IO;
@@ -8,6 +6,7 @@ namespace ClangSerializer
     using CommandLine;
     using System;
     using System.Runtime.InteropServices;
+    using System.Linq;
 
     class Program
     {
@@ -27,7 +26,6 @@ namespace ClangSerializer
 
             [Option('f', "clang-file", Required = false, HelpText = "Clang input file.")]
             public IEnumerable<string> ClangFiles { get; set; }
-
         }
 
         static void Main(string[] args)

@@ -1,3 +1,6 @@
+using CommandLine;
+using Microsoft.CodeAnalysis;
+
 namespace PiggyGenerator
 {
     using System.IO;
@@ -34,6 +37,15 @@ namespace PiggyGenerator
         public IParseTree _header_context = null;
         public List<string> _referenced_assemblies = new List<string>();
 
+        class Options
+        {
+            [Option('a', "clang-ast-file", Required = false, HelpText = "Clang ast input file.")]
+            public string ClangFile { get; set; }
+
+            [Option('s', "piggy-spec-file", Required = true, HelpText = "Piggy spec input file.")]
+            public string PiggyFile { get; set; }
+        }
+
         public void Doit(string[] args)
         {
             string temp_fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cpp";
@@ -42,61 +54,42 @@ namespace PiggyGenerator
             {
                 string full_path = Path.GetDirectoryName(Path.GetFullPath(typeof(Piggy).Assembly.Location))
                                    + Path.DirectorySeparatorChar;
+                string ast_file = null;
+                string spec_file = null;
+                CommandLine.Parser.Default.ParseArguments<Options>(args)
+                    .WithParsed<Options>(o =>
+                    {
+                        ast_file = o.ClangFile;
+                        spec_file = o.PiggyFile;
+                    })
+                    .WithNotParsed(a =>
+                    {
+                        System.Console.WriteLine(a);
+                    });
 
-                Regex re = new Regex(@"(?<switch>-{1,2}\S*)(?:[=:]?|\s+)(?<value>[^-\s].*?)?(?=\s+[-]|$)");
-                List<KeyValuePair<string, string>> matches =
-                    (from match in re.Matches(string.Join(" ", args)).Cast<Match>()
-                        select new KeyValuePair<string, string>(match.Groups["switch"].Value,
-                            match.Groups["value"].Value))
-                    .ToList();
-
-                foreach (KeyValuePair<string, string> match in matches)
-                {
-                    if (string.Equals(match.Key, "--s") || string.Equals(match.Key, "--spec"))
-                    {
-                        _specification = match.Value;
-                    }
-                    if (string.Equals(match.Key, "--r"))
-                    {
-                        _referenced_assemblies.Add(match.Value);
-                    }
-                    if (string.Equals(match.Key, "--l") || string.Equals(match.Key, "--license"))
-                    {
-                        Console.WriteLine(_copyright);
-                    }
-                }
+                _specification = spec_file;
 
                 var errorList = new List<string>();
 
-                if (!_specification.Any())
-                    errorList.Add("Error: No input C/C++ files provided. Use --file or --f");
-
-                else
-                {
-                    SpecFileAndListener file = new SpecFileAndListener(this);
-                    file.ParseSpecFile(_specification);
-                }
-
-                if (errorList.Any())
-                {
-                    Console.WriteLine("Usage: Piggy spec-file-name");
-                    Console.WriteLine("spec-file-name is the path to the .pig spec file.");
-                    Console.WriteLine("Piggy reads stdin for the serialized ast. Use ClangSerializer to generate an AST.");
-                    foreach (var error in errorList)
-                    {
-                        Console.WriteLine(error);
-                    }
-                    throw new Exception();
-                }
+                SpecFileAndListener file = new SpecFileAndListener(this);
+                file.ParseSpecFile(_specification);
 
                 // Get back AST as string.
-                List<string> s = new List<string>();
-                string input;
-                while ((input = Console.ReadLine()) != null && input != "")
+                string ast_string = null;
+                if (ast_file == null || ast_file == "")
                 {
-                    s.Add(input);
+                    List<string> s = new List<string>();
+                    string input;
+                    while ((input = Console.ReadLine()) != null && input != "")
+                    {
+                        s.Add(input);
+                    }
+                    ast_string = string.Join(" ", s);
                 }
-                string ast_string = string.Join(" ", s);
+                else
+                {
+                    ast_string = File.ReadAllText(ast_file);
+                }
 
                 // Parse ast using Antlr.
                 ICharStream ast_stream = CharStreams.fromstring(ast_string);

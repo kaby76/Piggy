@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "< \"$(ProjectDir)Index.h.ast\"",
+      "commandLineArgs": "-s m.pig -a Index.h.ast",
       "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3"
     }
   }
