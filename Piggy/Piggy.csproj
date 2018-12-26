@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PiggyGenerator\PiggyGenerator.csproj" />
+    <ProjectReference Include="..\PiggyRuntime\PiggyRuntime.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.dll" DestinationFolder="$(OutDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.pdb" DestinationFolder="$(OutDir)" />
+  </Target>
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.dll" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.pdb" DestinationFolder="$(PublishDir)" />
+  </Target>
+
+</Project>

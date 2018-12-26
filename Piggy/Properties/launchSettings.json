@@ -1,10 +1,9 @@
 {
   "profiles": {
-    "Piggy": {
+    "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "--s m.spec  --output t1.cs  --ast",
-      "workingDirectory": "C:\\temp",
-      "nativeDebugging": true
+      "commandLineArgs": "< \"$(ProjectDir)Index.h.ast\"",
+      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3"
     }
   }
 }

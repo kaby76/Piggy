@@ -1,4 +1,4 @@
-﻿namespace Piggy
+﻿namespace PiggyGenerator
 {
     using System.IO;
     using Antlr4.Runtime;

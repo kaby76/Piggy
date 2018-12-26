@@ -1,6 +1,6 @@
 ﻿
 // #define DEBUGOUTPUT
-namespace Piggy
+namespace PiggyGenerator
 {
 
     using System;
