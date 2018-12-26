@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
+    using System.Collections.Generic;
 
 	/// <summary>
-	/// For C types like "void (*)(int)", we need that to be a pointer to a function
-	///  taking a single integer argument returning void.
-	/// </summary>
-	public class FunctionType : Type
+    /// For C types like "void (*)(int)", we need that to be a pointer to a function
+    ///  taking a single integer argument returning void.
+    /// </summary>
+    public class FunctionType : Type
 	{
 		protected internal readonly Type returnType;
 		protected internal readonly IList<Type> argumentTypes;

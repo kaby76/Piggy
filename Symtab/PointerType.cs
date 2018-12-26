@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
 
 	/// <summary>

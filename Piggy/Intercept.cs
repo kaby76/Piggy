@@ -1,10 +1,9 @@
-﻿using System;
-using Antlr4.Runtime.Tree;
-using System.Collections.Generic;
-using System.Net;
-
-namespace Piggy
+﻿namespace Piggy
 {
+    using System;
+    using Antlr4.Runtime.Tree;
+    using System.Collections.Generic;
+
     public class Intercept<K, V> : MultiMap<K, V>
     {
         public void MyAdd(K k, V v)

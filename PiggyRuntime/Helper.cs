@@ -1,7 +1,8 @@
-﻿
-namespace PiggyRuntime
+﻿namespace PiggyRuntime
 {
+    using System;
     using System.Linq;
+    using System.Text;
     using System.Text.RegularExpressions;
 
     public class TemplateHelpers
@@ -47,6 +48,14 @@ namespace PiggyRuntime
             if (c == "bool") return false;
             if (c == "char") return false;
             return true;
+        }
+    }
+
+    public static class StringBuilderHelper
+    {
+        public static void AppendLine(this StringBuilder sb, string str)
+        {
+            sb.Append(str + Environment.NewLine);
         }
     }
 }

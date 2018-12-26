@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+
     public class LinkedHashSet<T> : ISet<T>
     {
 

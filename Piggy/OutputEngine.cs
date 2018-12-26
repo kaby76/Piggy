@@ -1,27 +1,25 @@
 ﻿
 // #define DEBUGOUTPUT
-
-using System;
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using Antlr4.Runtime.Tree;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Formatting;
-using Microsoft.CodeAnalysis.Emit;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Options;
-using Microsoft.CodeAnalysis.Text;
-using Microsoft.CSharp;
-using PiggyRuntime;
-
 namespace Piggy
 {
+
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using Antlr4.Runtime.Tree;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.CSharp.Formatting;
+    using Microsoft.CodeAnalysis.Emit;
+    using Microsoft.CodeAnalysis.Formatting;
+    using Microsoft.CodeAnalysis.Options;
+    using Microsoft.CodeAnalysis.Text;
+    using PiggyRuntime;
+
     public class OutputEngine
     {
         private Piggy _piggy;

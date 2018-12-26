@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
-
+    using System;
+    using System.Collections.Generic;
 
     internal class LinkedHashMap<T, U>
     {

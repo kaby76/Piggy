@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Piggy
+﻿namespace Piggy
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Represents a collection of keys and values.
     /// Multiple values can have the same key.

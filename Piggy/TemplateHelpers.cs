@@ -1,21 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Antlr4.Runtime.Tree;
-using PiggyRuntime;
-
-namespace Piggy
+﻿namespace Piggy
 {
-    public static class StringBuilderPlus
-    {
-        public static void AppendLine(this StringBuilder sb, string str)
-        {
-            sb.Append(str + Environment.NewLine);
-        }
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Tree;
+    using PiggyRuntime;
 
+    public static class CodeHelper
+    {
         public static Dictionary<IParseTree, string> CollectCode(this Pattern pattern)
         {
             Dictionary<IParseTree, string> result = new Dictionary<IParseTree, string>();
@@ -43,6 +33,5 @@ namespace Piggy
             }
             return result;
         }
-
     }
 }

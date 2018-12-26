@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Tree;
-using PiggyRuntime;
-
-namespace Piggy
+﻿namespace Piggy
 {
+    using System;
+    using Antlr4.Runtime;
+    using Antlr4.Runtime.Misc;
+    using Antlr4.Runtime.Tree;
+    using PiggyRuntime;
+
     public class SpecFileAndListener : SpecParserBaseListener
     {
         Piggy _program;

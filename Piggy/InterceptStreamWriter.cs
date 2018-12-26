@@ -1,7 +1,7 @@
-﻿using System.IO;
-
-namespace Piggy
+﻿namespace Piggy
 {
+    using System.IO;
+
     internal class InterceptStreamWriter : StreamWriter
     {
         public InterceptStreamWriter(string file_name) : base(file_name) { }

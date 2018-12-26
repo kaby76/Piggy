@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
-
+    using System.Collections.Generic;
     using Antlr4.Runtime;
-    using Antlr4.Runtime.Tree;
-
 
     /// <summary>
     /// A symbol representing a collection of data like a struct or class.

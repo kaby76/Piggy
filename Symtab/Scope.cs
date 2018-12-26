@@ -1,28 +1,26 @@
-﻿using System.Collections.Generic;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
+    using System.Collections.Generic;
 
-
-	/// <summary>
-	/// A scope is a dictionary of symbols that are grouped together by some
-	///  lexical construct in the input language. Examples include structs,
-	///  functions, {...} code blocks, argument lists, etc...
-	/// 
-	///  Scopes all have an enclosing scope that encloses them lexically.
-	///  In other words, am I wrapped in a class? a function? a {...} code block?
-	/// 
-	///  This is distinguished from the parent scope. The parent scope is usually
-	///  the enclosing scope, but in the case of inheritance, it is the superclass
-	///  rather than the enclosing scope. Otherwise, the global scope would be
-	///  considered the parent scope of a class. When resolving symbols, we look
-	///  up the parent scope chain not the enclosing scope chain.
-	/// 
-	///  For convenience of code using this library, I have added a bunch of
-	///  methods one can use to get lots of useful information from a scope, but
-	///  they don't necessarily define what a scope is.
-	/// </summary>
-	public interface Scope
+    /// <summary>
+    /// A scope is a dictionary of symbols that are grouped together by some
+    ///  lexical construct in the input language. Examples include structs,
+    ///  functions, {...} code blocks, argument lists, etc...
+    /// 
+    ///  Scopes all have an enclosing scope that encloses them lexically.
+    ///  In other words, am I wrapped in a class? a function? a {...} code block?
+    /// 
+    ///  This is distinguished from the parent scope. The parent scope is usually
+    ///  the enclosing scope, but in the case of inheritance, it is the superclass
+    ///  rather than the enclosing scope. Otherwise, the global scope would be
+    ///  considered the parent scope of a class. When resolving symbols, we look
+    ///  up the parent scope chain not the enclosing scope chain.
+    /// 
+    ///  For convenience of code using this library, I have added a bunch of
+    ///  methods one can use to get lots of useful information from a scope, but
+    ///  they don't necessarily define what a scope is.
+    /// </summary>
+    public interface Scope
 	{
 		/// <summary>
 		/// Often scopes have names like function or class names. For

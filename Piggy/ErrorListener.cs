@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
-
-namespace Piggy
+﻿namespace Piggy
 {
+    using System.IO;
+    using Antlr4.Runtime;
+
     public class ErrorListener<S>  : Antlr4.Runtime.ConsoleErrorListener<S>
     {
         public bool had_error = false;

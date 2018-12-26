@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
+    using System.Collections.Generic;
 
-
-	/// <summary>
-	/// An abstract base class that houses common functionality for scopes. </summary>
-	public abstract class BaseScope : Scope
+    /// <summary>
+    /// An abstract base class that houses common functionality for scopes. </summary>
+    public abstract class BaseScope : Scope
 	{
 		public abstract string Name {get;}
 		protected internal Scope enclosingScope; // null if this scope is the root of the scope tree

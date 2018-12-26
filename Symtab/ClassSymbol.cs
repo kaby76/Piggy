@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
+    using System.Collections.Generic;
 
-
-	/// <summary>
-	/// A symbol representing the class. It is a kind of data aggregate
-	///  that has much in common with a struct.
-	/// </summary>
-	public class ClassSymbol : DataAggregateSymbol
+    /// <summary>
+    /// A symbol representing the class. It is a kind of data aggregate
+    ///  that has much in common with a struct.
+    /// </summary>
+    public class ClassSymbol : DataAggregateSymbol
 	{
 		protected internal string superClassName; // null if this is Object
 		protected internal int nextFreeMethodSlot = 0; // next slot to allocate

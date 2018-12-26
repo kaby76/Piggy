@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
+    using System.Collections.Generic;
+    using System.Linq;
 
-
-	/// <summary>
-	/// An abstract base class that houses common functionality for
-	///  symbols like classes and functions that are both symbols and scopes.
-	///  There is some common cut and paste functionality with <seealso cref="BaseSymbol"/>
-	///  because of a lack of multiple inheritance in Java but it is minimal.
-	/// </summary>
-	public abstract class SymbolWithScope : BaseScope, Symbol, Scope
+    /// <summary>
+    /// An abstract base class that houses common functionality for
+    ///  symbols like classes and functions that are both symbols and scopes.
+    ///  There is some common cut and paste functionality with <seealso cref="BaseSymbol"/>
+    ///  because of a lack of multiple inheritance in Java but it is minimal.
+    /// </summary>
+    public abstract class SymbolWithScope : BaseScope, Symbol, Scope
 	{
 		protected internal readonly string name; // All symbols at least have a name
 		protected internal int index; // insertion order from 0; compilers often need this

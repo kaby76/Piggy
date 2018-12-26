@@ -1,10 +1,6 @@
-﻿using System;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
-
     using Antlr4.Runtime;
-    using Antlr4.Runtime.Tree;
 
     /// <summary>
     /// This symbol represents a function ala C, not a method ala Java.

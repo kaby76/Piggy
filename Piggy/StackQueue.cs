@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Piggy
+﻿namespace Piggy
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// StackQueue - a data structure that has both Stack and Queue interfaces.
     /// </summary>

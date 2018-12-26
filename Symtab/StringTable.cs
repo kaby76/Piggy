@@ -1,21 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace org.antlr.symtab
+﻿namespace org.antlr.symtab
 {
+    using System.Collections.Generic;
+    using System.Linq;
 
-
-	/// <summary>
-	/// A unique set of strings mapped to a monotonically increasing index.
-	///  These indexes often useful to bytecode interpreters that have instructions
-	///  referring to strings by unique integer. Indexing is from 0.
-	/// 
-	///  We can also get them back out in original order.
-	/// 
-	///  Yes, I know that this is similar to <seealso cref="string#intern()"/> but in this
-	///  case, I need the index out not just to make these strings unique.
-	/// </summary>
-	public class StringTable
+    /// <summary>
+    /// A unique set of strings mapped to a monotonically increasing index.
+    ///  These indexes often useful to bytecode interpreters that have instructions
+    ///  referring to strings by unique integer. Indexing is from 0.
+    /// 
+    ///  We can also get them back out in original order.
+    /// 
+    ///  Yes, I know that this is similar to <seealso cref="string#intern()"/> but in this
+    ///  case, I need the index out not just to make these strings unique.
+    /// </summary>
+    public class StringTable
 	{
 		internal LinkedHashMap<string, int?> table = new LinkedHashMap<string, int?>();
 		protected internal int index = -1; // index we have just written

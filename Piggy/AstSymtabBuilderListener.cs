@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime.Tree;
-using org.antlr.symtab;
-using PiggyRuntime;
-using Type = System.Type;
-
-namespace Piggy
+﻿namespace Piggy
 {
+    using System.Collections.Generic;
+    using Antlr4.Runtime.Tree;
+    using org.antlr.symtab;
+    using PiggyRuntime;
+
     public class AstSymtabBuilderListener : AstParserBaseListener
     {
         private IParseTree _ast;
