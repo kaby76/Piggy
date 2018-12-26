@@ -139,8 +139,8 @@ namespace Piggy
                 ast_parser.AddErrorListener(listener);
                 IParseTree ast_tree = ast_parser.ast();
                 if (listener.had_error) throw new Exception();
-		        if (_display_ast)
-		            Environment.Exit(0);
+                if (_display_ast)
+                    Environment.Exit(0);
                 AstSymtabBuilderListener ast_listener = new AstSymtabBuilderListener(ast_tree);
                 ParseTreeWalker.Default.Walk(ast_listener, ast_tree);
                 _ast = ast_tree;

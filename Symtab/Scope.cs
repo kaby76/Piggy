@@ -21,108 +21,108 @@
     ///  they don't necessarily define what a scope is.
     /// </summary>
     public interface Scope
-	{
-		/// <summary>
-		/// Often scopes have names like function or class names. For
-		///  unnamed scopes like code blocks, you can just return "local" or something.
-		/// </summary>
-		string Name {get;}
+    {
+        /// <summary>
+        /// Often scopes have names like function or class names. For
+        ///  unnamed scopes like code blocks, you can just return "local" or something.
+        /// </summary>
+        string Name {get;}
 
-		/// <summary>
-		/// Scope in which this scope defined. null if no enclosing scope </summary>
-		Scope EnclosingScope {get;set;}
+        /// <summary>
+        /// Scope in which this scope defined. null if no enclosing scope </summary>
+        Scope EnclosingScope {get;set;}
 
 
-		/// <summary>
-		/// Define a symbol in this scope, throw IllegalArgumentException
-		///  if sym already defined in this scope. This alters sym:
-		/// 
-		///  1. Set insertion order number of sym
-		///  2. Set sym's scope to be the scope.
-		/// 
-		///  The order in which symbols are defined must be preserved so that
-		///  <seealso cref="#getSymbols()"/> returns the list in definition order.
-		/// </summary>
+        /// <summary>
+        /// Define a symbol in this scope, throw IllegalArgumentException
+        ///  if sym already defined in this scope. This alters sym:
+        /// 
+        ///  1. Set insertion order number of sym
+        ///  2. Set sym's scope to be the scope.
+        /// 
+        ///  The order in which symbols are defined must be preserved so that
+        ///  <seealso cref="#getSymbols()"/> returns the list in definition order.
+        /// </summary>
 //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
 //ORIGINAL LINE: void define(Symbol sym) throws IllegalArgumentException;
-		void define(Symbol sym);
+        void define(Symbol sym);
 
-		/// <summary>
-		/// Look up name in this scope or recursively in parent scope if not here </summary>
-		Symbol resolve(string name);
+        /// <summary>
+        /// Look up name in this scope or recursively in parent scope if not here </summary>
+        Symbol resolve(string name);
 
-		/// <summary>
-		/// Get symbol if name defined within this specific scope </summary>
-		Symbol getSymbol(string name);
+        /// <summary>
+        /// Get symbol if name defined within this specific scope </summary>
+        Symbol getSymbol(string name);
 
-		/// <summary>
-		/// Add a nested local scope to this scope; it's like define() but
-		///  for non SymbolWithScope objects. E.g., a FunctionSymbol will
-		///  add a LocalScope for its block via this method.
-		/// </summary>
-		///  <exception cref="IllegalArgumentException"> if you pass in a SymbolWithScope. </exception>
+        /// <summary>
+        /// Add a nested local scope to this scope; it's like define() but
+        ///  for non SymbolWithScope objects. E.g., a FunctionSymbol will
+        ///  add a LocalScope for its block via this method.
+        /// </summary>
+        ///  <exception cref="IllegalArgumentException"> if you pass in a SymbolWithScope. </exception>
 //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
 //ORIGINAL LINE: void nest(Scope scope) throws IllegalArgumentException;
-		void nest(Scope scope);
+        void nest(Scope scope);
 
-		/// <summary>
-		/// Return a list of scopes nested within this scope. It has both
-		///  ScopedSymbols and scopes without symbols, such as LocalScopes.
-		///  This returns a superset or same set as <seealso cref="#getNestedScopedSymbols"/>.
-		///  ScopedSymbols come first then all non-ScopedSymbols Scope objects.
-		///  Insertion order is used within each sublist.
-		/// </summary>
-		IList<Scope> NestedScopes {get;}
+        /// <summary>
+        /// Return a list of scopes nested within this scope. It has both
+        ///  ScopedSymbols and scopes without symbols, such as LocalScopes.
+        ///  This returns a superset or same set as <seealso cref="#getNestedScopedSymbols"/>.
+        ///  ScopedSymbols come first then all non-ScopedSymbols Scope objects.
+        ///  Insertion order is used within each sublist.
+        /// </summary>
+        IList<Scope> NestedScopes {get;}
 
-		// ------------ Convenience methods --------------------------------
+        // ------------ Convenience methods --------------------------------
 
-		/// <summary>
-		/// Return (inclusive) list of all scopes on path to root scope.
-		///  The first element is the current scope and the last is the root scope.
-		/// </summary>
-		IList<Scope> EnclosingPathToRoot {get;}
+        /// <summary>
+        /// Return (inclusive) list of all scopes on path to root scope.
+        ///  The first element is the current scope and the last is the root scope.
+        /// </summary>
+        IList<Scope> EnclosingPathToRoot {get;}
 
-		/// <summary>
-		/// Return all immediately enclosed scoped symbols in insertion order.
-		///  E.g., a class would return all nested classes and any
-		///  methods. There does not have to be an explicit pointer to
-		///  the nested scopes. This method generally searches the list
-		///  of symbols looking for symbols that implement Scope. Gets
-		///  only those scopes that are in the symbols list of "this"
-		///  scope. E.g., does not get local scopes within a function.
-		///  This returns a subset or same set as <seealso cref="#getNestedScopes"/>.
-		/// </summary>
-		IList<Scope> NestedScopedSymbols {get;}
+        /// <summary>
+        /// Return all immediately enclosed scoped symbols in insertion order.
+        ///  E.g., a class would return all nested classes and any
+        ///  methods. There does not have to be an explicit pointer to
+        ///  the nested scopes. This method generally searches the list
+        ///  of symbols looking for symbols that implement Scope. Gets
+        ///  only those scopes that are in the symbols list of "this"
+        ///  scope. E.g., does not get local scopes within a function.
+        ///  This returns a subset or same set as <seealso cref="#getNestedScopes"/>.
+        /// </summary>
+        IList<Scope> NestedScopedSymbols {get;}
 
-		/// <summary>
-		/// Return the symbols defined within this scope. The order of insertion
-		///  into the scope is the order returned in this list.
-		/// </summary>
+        /// <summary>
+        /// Return the symbols defined within this scope. The order of insertion
+        ///  into the scope is the order returned in this list.
+        /// </summary>
 //JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in .NET:
 //ORIGINAL LINE: java.util.List<? extends Symbol> getSymbols();
-		IList<Symbol> Symbols {get;}
+        IList<Symbol> Symbols {get;}
 
-		/// <summary>
-		/// Return all symbols found in all nested scopes. The order
-		///  of insertion into the scope is the order returned in this
-		///  list for each scope.  The scopes are traversed in the
-		///  order in which they are encountered in the input.
-		/// </summary>
+        /// <summary>
+        /// Return all symbols found in all nested scopes. The order
+        ///  of insertion into the scope is the order returned in this
+        ///  list for each scope.  The scopes are traversed in the
+        ///  order in which they are encountered in the input.
+        /// </summary>
 //JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in .NET:
 //ORIGINAL LINE: java.util.List<? extends Symbol> getAllSymbols();
-		IList<Symbol> AllSymbols {get;}
+        IList<Symbol> AllSymbols {get;}
 
-		/// <summary>
-		/// Return the set of names associated with all symbols in the scope. </summary>
-		ISet<string> SymbolNames {get;}
+        /// <summary>
+        /// Return the set of names associated with all symbols in the scope. </summary>
+        ISet<string> SymbolNames {get;}
 
-		/// <summary>
-		/// Number of symbols in this specific scope </summary>
-		int NumberOfSymbols {get;}
+        /// <summary>
+        /// Number of symbols in this specific scope </summary>
+        int NumberOfSymbols {get;}
 
-		/// <summary>
-		/// Return scopes from to current with separator in between </summary>
-		string toQualifierString(string separator);
-	}
+        /// <summary>
+        /// Return scopes from to current with separator in between </summary>
+        string toQualifierString(string separator);
+    }
 
 }
