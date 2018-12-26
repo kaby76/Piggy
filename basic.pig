@@ -86,9 +86,9 @@ template Enums
 				if (!b) continue;
 				result.AppendLine(
 				   @"
-				   public partial struct " + l + @"
+				   public partial struct " + m + @"
 				   {
-					  public " + l + @"(IntPtr pointer)
+					  public " + m + @"(IntPtr pointer)
 					  {
 						 this.Pointer = pointer;
 					  }

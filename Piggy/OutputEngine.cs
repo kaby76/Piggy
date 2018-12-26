@@ -148,135 +148,136 @@ namespace " + @namespace + @"
 }
 ");
 
-            string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cs";
             try
             {
-                var workspace = new AdhocWorkspace();
-                string projectName = "HelloWorldProject222";
-                ProjectId projectId = ProjectId.CreateNewId();
-                VersionStamp versionStamp = VersionStamp.Create();
-                ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName, LanguageNames.CSharp);
-                SourceText sourceText = SourceText.From(code.ToString());
-                Project newProject = workspace.AddProject(helloWorldProject);
-                Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
-                OptionSet options = workspace.Options;
-                options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
-                options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
-                SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
-                SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
-                StringBuilder sbb = new StringBuilder();
-                using (StringWriter writer = new StringWriter(sbb))
+                // After generating the code, let's write reformat it.
+                string formatted_source_code;
+                string formatted_source_code_path = @"c:\temp\" + Path.GetRandomFileName();
+                formatted_source_code_path = Path.ChangeExtension(formatted_source_code_path, "cs");
                 {
-                    formattedNode.WriteTo(writer);
-                    System.Console.WriteLine(writer.ToString());
-                }
-                string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
-                full_path = System.IO.Path.GetDirectoryName(full_path);
-                string assemblyName = Path.GetRandomFileName();
-
-                List<MetadataReference> all_references = new List<MetadataReference>();
-                all_references.Add(MetadataReference.CreateFromFile(typeof(System.Object).Assembly.Location));
-                all_references.Add(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
-                all_references.Add(MetadataReference.CreateFromFile(typeof(PiggyRuntime.Template).Assembly.Location));
-                {
-                    Assembly a = typeof(PiggyRuntime.Template).Assembly;
-                    AssemblyName[] r =  a.GetReferencedAssemblies();
-                    AssemblyName q = r[0];
-                    var jj = Assembly.Load(q);
-                    all_references.Add(MetadataReference.CreateFromFile(jj.Location));
-                    AssemblyName q2 = r[1];
-                    var jj2 = Assembly.Load(q2);
-                    all_references.Add(MetadataReference.CreateFromFile(jj2.Location));
-                }
-
-                CSharpCompilation compilation = CSharpCompilation.Create(
-                    assemblyName,
-                    syntaxTrees: new[] { syntaxRoot.SyntaxTree },
-                    references: all_references.ToArray(),
-                    options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-                Assembly assembly = null;
-                using (var ms = new MemoryStream())
-                {
-                    EmitResult result = compilation.Emit(ms);
-
-                    if (!result.Success)
+                    var workspace = new AdhocWorkspace();
+                    string projectName = "FormatTemplates";
+                    ProjectId projectId = ProjectId.CreateNewId();
+                    VersionStamp versionStamp = VersionStamp.Create();
+                    ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName,
+                        projectName, LanguageNames.CSharp);
+                    SourceText sourceText = SourceText.From(code.ToString());
+                    Project newProject = workspace.AddProject(helloWorldProject);
+                    Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
+                    OptionSet options = workspace.Options;
+                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
+                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
+                    SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+                    SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
+                    StringBuilder sbb = new StringBuilder();
+                    using (StringWriter writer = new StringWriter(sbb))
                     {
-                        IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
-                            diagnostic.IsWarningAsError ||
-                            diagnostic.Severity == DiagnosticSeverity.Error);
+                        formattedNode.WriteTo(writer);
+                        formatted_source_code = writer.ToString();
+                        System.IO.File.WriteAllText(formatted_source_code_path, formatted_source_code);
+                    }
+                }
 
-                        foreach (Diagnostic diagnostic in failures)
+                // With template classes generated, let's compile them.
+                {
+                    var workspace = new AdhocWorkspace();
+                    string projectName = "CompileTemplates";
+                    ProjectId projectId = ProjectId.CreateNewId();
+                    VersionStamp versionStamp = VersionStamp.Create();
+                    ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName,
+                        projectName, LanguageNames.CSharp);
+                    SourceText sourceText = SourceText.From(formatted_source_code, Encoding.UTF8);
+                    Project newProject = workspace.AddProject(helloWorldProject);
+                    Document newDocument = workspace.AddDocument(newProject.Id, formatted_source_code_path, sourceText);
+                    OptionSet options = workspace.Options;
+                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
+                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
+                    SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+
+                    string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
+                    full_path = System.IO.Path.GetDirectoryName(full_path);
+
+                    string assemblyName = Path.GetRandomFileName();
+                    string symbolsName = Path.ChangeExtension(assemblyName, "pdb");
+
+                    List<MetadataReference> all_references = new List<MetadataReference>();
+                    all_references.Add(MetadataReference.CreateFromFile(typeof(System.Object).Assembly.Location));
+                    all_references.Add(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
+                    all_references.Add(
+                        MetadataReference.CreateFromFile(typeof(PiggyRuntime.Template).Assembly.Location));
+                    {
+                        Assembly a = typeof(PiggyRuntime.Template).Assembly;
+                        AssemblyName[] r = a.GetReferencedAssemblies();
+                        AssemblyName q = r[0];
+                        var jj = Assembly.Load(q);
+                        all_references.Add(MetadataReference.CreateFromFile(jj.Location));
+                        AssemblyName q2 = r[1];
+                        var jj2 = Assembly.Load(q2);
+                        all_references.Add(MetadataReference.CreateFromFile(jj2.Location));
+                    }
+
+                    CSharpCompilation compilation = CSharpCompilation.Create(
+                        assemblyName,
+                        syntaxTrees: new[] {syntaxRoot.SyntaxTree},
+                        references: all_references.ToArray(),
+                        options: new CSharpCompilationOptions(
+                                OutputKind.DynamicallyLinkedLibrary)
+                            .WithOptimizationLevel(OptimizationLevel.Debug)
+                    );
+                    Assembly assembly = null;
+                    using (var assemblyStream = new MemoryStream())
+                    using (var symbolsStream = new MemoryStream())
+                    {
+                        var emit_options = new EmitOptions(
+                            debugInformationFormat: DebugInformationFormat.PortablePdb
+                            //pdbFilePath: symbolsName
+                        );
+
+                        EmitResult result = compilation.Emit(
+                            peStream: assemblyStream,
+                            pdbStream: symbolsStream,
+                            options: emit_options);
+
+                        if (!result.Success)
                         {
-                            Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                            IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
+                                diagnostic.IsWarningAsError ||
+                                diagnostic.Severity == DiagnosticSeverity.Error);
+
+                            foreach (Diagnostic diagnostic in failures)
+                            {
+                                Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                            }
+                        }
+                        else
+                        {
+                            assemblyStream.Seek(0, SeekOrigin.Begin);
+                            symbolsStream.Seek(0, SeekOrigin.Begin);
+                            assembly = Assembly.Load(assemblyStream.ToArray(), symbolsStream.ToArray());
                         }
                     }
-                    else
+
+                    _piggy._code_blocks = new Dictionary<IParseTree, MethodInfo>();
+                    //Assembly assembly = results.CompiledAssembly;
+                    foreach (Template template in _piggy._templates)
                     {
-                        ms.Seek(0, SeekOrigin.Begin);
-                        assembly = Assembly.Load(ms.ToArray());
-                    }
-                }
-
-
-                //System.IO.File.WriteAllText(fileName, code.ToString());
-                //CSharpCodeProvider provider = new CSharpCodeProvider();
-                //CompilerParameters parameters = new CompilerParameters();
-                //string[] files = new string[]
-                //{
-                //    "PiggyRuntime.dll"
-                //};
-
-                //foreach (string f in files)
-                //{
-                //    var f2 = full_path + "\\" + f;
-                //    parameters.ReferencedAssemblies.Add(f2);
-                //}
-                ////foreach (string f in System.IO.Directory.GetFiles(full_path))
-                ////{
-                ////    if (!f.EndsWith(".dll")) continue;
-                ////    if (f.Contains("ClangCode")) continue;
-                ////    parameters.ReferencedAssemblies.Add(f);
-                ////}
-                //parameters.GenerateInMemory = true;
-                //parameters.GenerateExecutable = false;
-                //parameters.IncludeDebugInformation = true;
-                //CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[]
-                //{
-                //    fileName
-                //});
-                //if (results.Errors.HasErrors)
-                //{
-                //    StringBuilder sb = new StringBuilder();
-                //    foreach (CompilerError error in results.Errors)
-                //    {
-                //        sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
-                //            error.ErrorText));
-                //    }
-                //    System.Console.WriteLine("Compilation error for this code:");
-                //    System.Console.WriteLine(code.ToString());
-                //    System.Console.WriteLine(sb.ToString());
-                //    throw new InvalidOperationException(sb.ToString());
-                //}
-
-                _piggy._code_blocks = new Dictionary<IParseTree, MethodInfo>();
-                //Assembly assembly = results.CompiledAssembly;
-                foreach (Template template in _piggy._templates)
-                {
-                    var class_name = @namespace + "." + template.TemplateName;
-                    Type template_type = assembly.GetType(class_name);
-                    template.Type = template_type;
-                    foreach (Pass pass in template.Passes)
-                    {
-                        foreach (Pattern pattern in pass.Patterns)
+                        var class_name = @namespace + "." + template.TemplateName;
+                        Type template_type = assembly.GetType(class_name);
+                        template.Type = template_type;
+                        foreach (Pass pass in template.Passes)
                         {
-                            Dictionary<IParseTree, string> x = pattern.CollectCode();
-                            foreach (KeyValuePair<IParseTree, string> kvp in x)
+                            foreach (Pattern pattern in pass.Patterns)
                             {
-                                IParseTree key = kvp.Key;
-                                string name = gen_named_code_blocks[key];
-                                MethodInfo method_info = template_type.GetMethod(name);
-                                if (method_info == null) throw new Exception("Can't find method_info for " + class_name + "." + name);
-                                _piggy._code_blocks[key] = method_info;
+                                Dictionary<IParseTree, string> x = pattern.CollectCode();
+                                foreach (KeyValuePair<IParseTree, string> kvp in x)
+                                {
+                                    IParseTree key = kvp.Key;
+                                    string name = gen_named_code_blocks[key];
+                                    MethodInfo method_info = template_type.GetMethod(name);
+                                    if (method_info == null)
+                                        throw new Exception("Can't find method_info for " + class_name + "." + name);
+                                    _piggy._code_blocks[key] = method_info;
+                                }
                             }
                         }
                     }
@@ -421,6 +422,11 @@ namespace " + @namespace + @"
                             Type type = re._current_type;
                             object instance = re._instance;
                             object[] a = new object[]{ new Tree(re.parent, re._ast, con), builder };
+                            if (x.GetText().Contains("int, int"))
+                            {
+                                int xxxxx = 1;
+                            }
+
                             var res = main.Invoke(instance, a);
                         }
                         finally
@@ -557,18 +563,43 @@ namespace " + @namespace + @"
             }
 
             //////
+            string re2 = Regex.Replace(combined_result.ToString(),
+                @"\r([^\n])", @"\r\n$1");
+            System.IO.File.WriteAllText(@"C:\temp\t2.txt", re2);
+            var re3 = Regex.Replace(re2,
+                @"([^\r])\n", @"$1\r\n");
+            System.IO.File.WriteAllText(@"C:\temp\t3.txt", re3);
+
+            var re9 = new Regex(@"^\s+");
+            var matches = re9.Matches(re3);
+            foreach (Match m in matches)
+            {
+                var m2 = m.Groups;
+            }
+
+            string sa = re3;
+            for (;;)
+            {
+                var re4 = Regex.Replace(sa, @"[\t]+", " ");
+                re3 = Regex.Replace(re4, "\r\n ", "\r\n");
+                re4 = Regex.Replace(re3, @"^\s+", "");
+                if (sa == re4) break;
+                sa = re4;
+            }
+            System.IO.File.WriteAllText(@"C:\temp\t4.txt", sa);
+
             var workspace = new AdhocWorkspace();
             string projectName = "HelloWorldProject";
             ProjectId projectId = ProjectId.CreateNewId();
             VersionStamp versionStamp = VersionStamp.Create();
             ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName, LanguageNames.CSharp);
-            SourceText sourceText = SourceText.From(combined_result.ToString());
+            SourceText sourceText = SourceText.From(sa);
             Project newProject = workspace.AddProject(helloWorldProject);
             Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
             OptionSet options = workspace.Options;
             options = options
                     .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
-                    .WithChangedOption(CSharpFormattingOptions.IndentBraces, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentBraces, false)
                     .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
                     .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
                     .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
@@ -582,7 +613,8 @@ namespace " + @namespace + @"
             using (StringWriter writer = new StringWriter(sb))
             {
                 formattedNode.WriteTo(writer);
-                return writer.ToString();
+                var r = writer.ToString();
+                return r;
             }
 
 
