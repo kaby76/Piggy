@@ -1,4 +1,4 @@
-﻿namespace Piggy
+﻿namespace PiggyRuntime
 {
     using System;
     using System.Collections.Generic;

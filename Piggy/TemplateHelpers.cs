@@ -4,67 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Antlr4.Runtime.Tree;
+using PiggyRuntime;
 
 namespace Piggy
 {
-    public class TemplateHelpers
-    {
-        private Piggy _piggy;
-
-        public TemplateHelpers(Piggy piggy)
-        {
-            _piggy = piggy;
-        }
-
-        public static string GetFunctionReturn(string clang_reported_type)
-        {
-            // Clang ASTs have weird function values for Type. Extract out the
-            // return type here.
-            Regex regex = new Regex("(?<ret>[^(]*)[(].*[)].*");
-            Match matches = regex.Match(clang_reported_type);
-            string res = matches.Groups["ret"].Value;
-            return res;
-        }
-
-        public static string ModParamType(string type)
-        {
-            // Convert C++ types to C#.
-            var c = type.Trim();
-            if (c == "int") return "int";
-            if (c == "uint") return "uint";
-            if (c == "short") return "short";
-            if (c == "ushort") return "ushort";
-            if (c == "long long") return "long";
-            if (c == "unsigned long long") return "ulong";
-            if (c == "float") return "float";
-            if (c == "double") return "double";
-            if (c == "bool") return "bool";
-            if (c == "char") return "int";
-            return type;
-        }
-
-        public static bool BaseType(string type)
-        {
-            type = type.Trim();
-            var b = type.Split(' ').ToList();
-            if (b.Count > 1) return false;
-            var c = b[0];
-            if (c == "int") return false;
-            if (c == "long") return false;
-            if (c == "short") return false;
-            if (c == "float") return false;
-            if (c == "double") return false;
-            if (c == "bool") return false;
-            if (c == "char") return false;
-            return true;
-        }
-    }
-
     public static class StringBuilderPlus
     {
         public static void AppendLine(this StringBuilder sb, string str)
         {
             sb.Append(str + Environment.NewLine);
         }
+
+        public static Dictionary<IParseTree, string> CollectCode(this Pattern pattern)
+        {
+            Dictionary<IParseTree, string> result = new Dictionary<IParseTree, string>();
+            var visited = new HashSet<IParseTree>();
+            var stack = new Stack<IParseTree>();
+            stack.Push(pattern.AstNode);
+            while (stack.Count > 0)
+            {
+                var v = stack.Pop();
+                if (visited.Contains(v))
+                    continue;
+                visited.Add(v);
+                if (v as SpecParserParser.CodeContext != null)
+                {
+                    var code = v.GetText();
+                    result.Add(v, code);
+                    continue;
+                }
+                for (int i = v.ChildCount - 1; i >= 0; --i)
+                {
+                    var c = v.GetChild(i);
+                    if (!visited.Contains(c))
+                        stack.Push(c);
+                }
+            }
+            return result;
+        }
+
     }
 }

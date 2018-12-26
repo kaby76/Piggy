@@ -4,12 +4,21 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Antlr4.Runtime.Tree;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Text;
 using Microsoft.CSharp;
+using PiggyRuntime;
 
 namespace Piggy
 {
@@ -77,7 +86,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Piggy;
+using PiggyRuntime;
 using System.Runtime.InteropServices;
 
 namespace " + @namespace + @"
@@ -124,7 +133,7 @@ namespace " + @namespace + @"
                     var method_name = "Gen" + counter++;
                     gen_named_code_blocks[key] = method_name;
                     code.Append("public void " + method_name + @"(
-            Piggy.Tree tree,
+            PiggyRuntime.Tree tree,
             StringBuilder result)
         {
 " + text + @"
@@ -144,40 +153,115 @@ namespace " + @namespace + @"
             string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cs";
             try
             {
-                System.IO.File.WriteAllText(fileName, code.ToString());
-                CSharpCodeProvider provider = new CSharpCodeProvider();
-                CompilerParameters parameters = new CompilerParameters();
+                var workspace = new AdhocWorkspace();
+                string projectName = "HelloWorldProject222";
+                ProjectId projectId = ProjectId.CreateNewId();
+                VersionStamp versionStamp = VersionStamp.Create();
+                ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName, LanguageNames.CSharp);
+                SourceText sourceText = SourceText.From(code.ToString());
+                Project newProject = workspace.AddProject(helloWorldProject);
+                Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
+                OptionSet options = workspace.Options;
+                options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
+                options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
+                SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+                SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
+                StringBuilder sbb = new StringBuilder();
+                using (StringWriter writer = new StringWriter(sbb))
+                {
+                    formattedNode.WriteTo(writer);
+                    System.Console.WriteLine(writer.ToString());
+                }
                 string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
                 full_path = System.IO.Path.GetDirectoryName(full_path);
-                foreach (string f in System.IO.Directory.GetFiles(full_path))
+                string assemblyName = Path.GetRandomFileName();
+
+                List<MetadataReference> all_references = new List<MetadataReference>();
+                all_references.Add(MetadataReference.CreateFromFile(typeof(System.Object).Assembly.Location));
+                all_references.Add(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
+                all_references.Add(MetadataReference.CreateFromFile(typeof(PiggyRuntime.Template).Assembly.Location));
                 {
-                    if (!f.EndsWith(".dll")) continue;
-                    if (f.Contains("ClangCode")) continue;
-                    parameters.ReferencedAssemblies.Add(f);
-                }
-                parameters.GenerateInMemory = true;
-                parameters.GenerateExecutable = false;
-                parameters.IncludeDebugInformation = true;
-                CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[]
-                {
-                    fileName
-                });
-                if (results.Errors.HasErrors)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    foreach (CompilerError error in results.Errors)
-                    {
-                        sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
-                            error.ErrorText));
-                    }
-                    System.Console.WriteLine("Compilation error for this code:");
-                    System.Console.WriteLine(code.ToString());
-                    System.Console.WriteLine(sb.ToString());
-                    throw new InvalidOperationException(sb.ToString());
+                    Assembly a = typeof(PiggyRuntime.Template).Assembly;
+                    AssemblyName[] r =  a.GetReferencedAssemblies();
+                    AssemblyName q = r[0];
+                    var jj = Assembly.Load(q);
+                    all_references.Add(MetadataReference.CreateFromFile(jj.Location));
+                    AssemblyName q2 = r[1];
+                    var jj2 = Assembly.Load(q2);
+                    all_references.Add(MetadataReference.CreateFromFile(jj2.Location));
                 }
 
+                CSharpCompilation compilation = CSharpCompilation.Create(
+                    assemblyName,
+                    syntaxTrees: new[] { syntaxRoot.SyntaxTree },
+                    references: all_references.ToArray(),
+                    options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                Assembly assembly = null;
+                using (var ms = new MemoryStream())
+                {
+                    EmitResult result = compilation.Emit(ms);
+
+                    if (!result.Success)
+                    {
+                        IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
+                            diagnostic.IsWarningAsError ||
+                            diagnostic.Severity == DiagnosticSeverity.Error);
+
+                        foreach (Diagnostic diagnostic in failures)
+                        {
+                            Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                        }
+                    }
+                    else
+                    {
+                        ms.Seek(0, SeekOrigin.Begin);
+                        assembly = Assembly.Load(ms.ToArray());
+                    }
+                }
+
+
+                //System.IO.File.WriteAllText(fileName, code.ToString());
+                //CSharpCodeProvider provider = new CSharpCodeProvider();
+                //CompilerParameters parameters = new CompilerParameters();
+                //string[] files = new string[]
+                //{
+                //    "PiggyRuntime.dll"
+                //};
+
+                //foreach (string f in files)
+                //{
+                //    var f2 = full_path + "\\" + f;
+                //    parameters.ReferencedAssemblies.Add(f2);
+                //}
+                ////foreach (string f in System.IO.Directory.GetFiles(full_path))
+                ////{
+                ////    if (!f.EndsWith(".dll")) continue;
+                ////    if (f.Contains("ClangCode")) continue;
+                ////    parameters.ReferencedAssemblies.Add(f);
+                ////}
+                //parameters.GenerateInMemory = true;
+                //parameters.GenerateExecutable = false;
+                //parameters.IncludeDebugInformation = true;
+                //CompilerResults results = provider.CompileAssemblyFromFile(parameters, new[]
+                //{
+                //    fileName
+                //});
+                //if (results.Errors.HasErrors)
+                //{
+                //    StringBuilder sb = new StringBuilder();
+                //    foreach (CompilerError error in results.Errors)
+                //    {
+                //        sb.AppendLine(String.Format("Error ({0}): {1}", error.ErrorNumber,
+                //            error.ErrorText));
+                //    }
+                //    System.Console.WriteLine("Compilation error for this code:");
+                //    System.Console.WriteLine(code.ToString());
+                //    System.Console.WriteLine(sb.ToString());
+                //    throw new InvalidOperationException(sb.ToString());
+                //}
+
                 _piggy._code_blocks = new Dictionary<IParseTree, MethodInfo>();
-                Assembly assembly = results.CompiledAssembly;
+                //Assembly assembly = results.CompiledAssembly;
                 foreach (Template template in _piggy._templates)
                 {
                     var class_name = @namespace + "." + template.TemplateName;
@@ -444,7 +528,6 @@ namespace " + @namespace + @"
                 }
             }
             var app = _piggy._application;
-            StringBuilder result = new StringBuilder();
             foreach (var full_pass_name in app.OrderedPasses)
             {
                 // Separate the pass name into "template name" "." "pass name"
@@ -472,10 +555,40 @@ namespace " + @namespace + @"
                 }
                 System.Console.WriteLine("==========================");
 #endif
-                Generate(result, regex);
-                System.Console.WriteLine(result);
+                Generate(combined_result, regex);
             }
-            return combined_result.ToString();
+
+            //////
+            var workspace = new AdhocWorkspace();
+            string projectName = "HelloWorldProject";
+            ProjectId projectId = ProjectId.CreateNewId();
+            VersionStamp versionStamp = VersionStamp.Create();
+            ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName, LanguageNames.CSharp);
+            SourceText sourceText = SourceText.From(combined_result.ToString());
+            Project newProject = workspace.AddProject(helloWorldProject);
+            Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
+            OptionSet options = workspace.Options;
+            options = options
+                    .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentBraces, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
+                    .WithChangedOption(CSharpFormattingOptions.NewLineForElse, true)
+                    .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, true)
+                    .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, true)
+                ;
+            var syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+            SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
+            StringBuilder sb = new StringBuilder();
+            using (StringWriter writer = new StringWriter(sb))
+            {
+                formattedNode.WriteTo(writer);
+                return writer.ToString();
+            }
+
+
+          //  return combined_result.ToString();
         }
     }
 }
