@@ -100,12 +100,12 @@ location of clang-llvm/.
 ## Relation to template engines
 
 Piggy is similar to other engines, like CppSharp and ClangSharp,
-where it uses hardwired tree walking code to output pinvoke declarations.
+but whereas those engines use hardwired tree walking code to output pinvoke declarations,
+Piggy uses templates.
 Like JSP (1), which turned the concept of a servlet inside-out into a template
-which we now call HTML (2), Piggy turns the tree walking matcher "inside-out" into
-a tree matching template.
+which we now call HTML (2), Piggy turns the tree walking matcher "inside-out" with .
 
-Like JSP, Piggy does not separate "model/view" as discussed
+Piggy does not separate "model/view" as discussed
 by Parr (2). So, the logic of the translation to pinvoke declarations is
 interspersed with the model--the AST pattern.
 In the future, a tree matching template could be formalized
