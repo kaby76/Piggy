@@ -551,6 +551,10 @@ void MyASTDumper::dumpLocation(SourceLocation Loc) {
 
 	// The general format we print out is filename:line:col, but we drop pieces
 	// that haven't changed since the last loc printed.
+
+	// BULLSHIT! DO NOT DROP "PIECES". BULLSHIT DESIGN! NO REFERENTIAL TRANSPARENCY!
+	// HAVE TO CONSTANTLY LOOK UP THE TREE TO SEE WHERE THE FUCK THIS NODE COMES FROM!
+	// BULLSHIT!
 	PresumedLoc PLoc = SM->getPresumedLoc(SpellingLoc);
 
 	if (PLoc.isInvalid()) {
@@ -564,13 +568,13 @@ void MyASTDumper::dumpLocation(SourceLocation Loc) {
 	if (strcmp(p.string().c_str(), LastLocFilename) != 0) {
 		*OS << p.string().c_str() << ':' << PLoc.getLine()
 			<< ':' << PLoc.getColumn();
-		LastLocFilename = _strdup(p.string().c_str());
-		LastLocLine = PLoc.getLine();
+		//LastLocFilename = _strdup(p.string().c_str());
+		//LastLocLine = PLoc.getLine();
 	}
 	else if (PLoc.getLine() != LastLocLine) {
 		*OS << "line" << ':' << PLoc.getLine()
 			<< ':' << PLoc.getColumn();
-		LastLocLine = PLoc.getLine();
+		//LastLocLine = PLoc.getLine();
 	}
 	else {
 		*OS << "col" << ':' << PLoc.getColumn();
