@@ -6,7 +6,7 @@ Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This free and open source so
 is a pinvoke generator from C++ headers. It is a powerful source-to-source
 transformational system that goes well beyond any other existing pinvoke generator.
 It uses the same basic algorithm of DFS traversal of the
-AST commonly used, e.e., as in ClangSharp and CppSharp, but turns the visitor code of those
+AST commonly used, e.g., as in ClangSharp and CppSharp, but turns the visitor code of those
 programs "inside-out" using _templates_.
 
 In Piggy, a _template_ is a combination of a tree
