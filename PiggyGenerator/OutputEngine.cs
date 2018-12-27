@@ -84,35 +84,6 @@ namespace PiggyGenerator
                 if (visited.Contains(t)) continue;
                 visited.Add(t);
                 all_references.Add(MetadataReference.CreateFromFile(t.Location));
-
-                if (t.Location.Contains("netstandard.dll"))
-                {
-                    string mscorlib = @"C:\Windows\Microsoft.NET\assembly\GAC_64\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll";
-                    var jj = Assembly.LoadFrom(mscorlib);
-                    all_references.Add(MetadataReference.CreateFromFile(mscorlib));
-                }
-
-                // Note, if Piggy is built as Net Core app, then when it is run,
-                // then just adding netstandard.dll does not work--it does for Net Framework!
-                // Getting the references of netstandard yield nothing, so I thought
-                // to maybe add these explicitly. But it doesn't work!
-
-                //if (t.Location.Contains("netstandard.dll"))
-                //{
-                //    string path = Path.GetDirectoryName(t.Location)
-                //                  + Path.DirectorySeparatorChar
-                //                  + "System.Runtime.dll";
-                //    var jj = Assembly.LoadFrom(path);
-                //    stack.Push(jj);
-                //    all_references.Add(MetadataReference.CreateFromFile(path));
-                //    path = Path.GetDirectoryName(t.Location)
-                //                   + Path.DirectorySeparatorChar
-                //                   + "System.Private.CoreLib.dll";
-                //    jj = Assembly.LoadFrom(path);
-                //    stack.Push(jj);
-                //    all_references.Add(MetadataReference.CreateFromFile(path));
-                //}
-
                 foreach (var r in a.GetReferencedAssemblies())
                 {
                     AssemblyName q = r;
@@ -259,6 +230,7 @@ namespace " + @namespace + @"
                     //all_references.Add(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
                     //all_references.Add(MetadataReference.CreateFromFile(typeof(PiggyRuntime.Template).Assembly.Location));
                     FixUpMetadataReferences(all_references, typeof(PiggyRuntime.Template));
+                    FixUpMetadataReferences(all_references, typeof(object));
                     //FixUpMetadataReferences(all_references, typeof(OutputEngine));
 
                     CSharpCompilation compilation = CSharpCompilation.Create(
