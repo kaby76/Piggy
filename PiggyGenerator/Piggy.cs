@@ -1,17 +1,10 @@
-using CommandLine;
-using Microsoft.CodeAnalysis;
-
 namespace PiggyGenerator
 {
     using System.IO;
-    using System.Runtime.InteropServices;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.RegularExpressions;
     using Antlr4.Runtime;
     using Antlr4.Runtime.Tree;
-    using System.Text;
     using System.Reflection;
     using org.antlr.symtab;
     using PiggyRuntime;
@@ -37,16 +30,7 @@ namespace PiggyGenerator
         public IParseTree _header_context = null;
         public List<string> _referenced_assemblies = new List<string>();
 
-        class Options
-        {
-            [Option('a', "clang-ast-file", Required = false, HelpText = "Clang ast input file.")]
-            public string ClangFile { get; set; }
-
-            [Option('s', "piggy-spec-file", Required = true, HelpText = "Piggy spec input file.")]
-            public string PiggyFile { get; set; }
-        }
-
-        public void Doit(string[] args)
+        public void Doit(string ast_file, string spec_file)
         {
             string temp_fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cpp";
             ErrorListener<IToken> listener = new ErrorListener<IToken>();
@@ -54,18 +38,6 @@ namespace PiggyGenerator
             {
                 string full_path = Path.GetDirectoryName(Path.GetFullPath(typeof(Piggy).Assembly.Location))
                                    + Path.DirectorySeparatorChar;
-                string ast_file = null;
-                string spec_file = null;
-                CommandLine.Parser.Default.ParseArguments<Options>(args)
-                    .WithParsed<Options>(o =>
-                    {
-                        ast_file = o.ClangFile;
-                        spec_file = o.PiggyFile;
-                    })
-                    .WithNotParsed(a =>
-                    {
-                        System.Console.WriteLine(a);
-                    });
 
                 _specification = spec_file;
 
