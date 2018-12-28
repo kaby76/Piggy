@@ -32,7 +32,6 @@ namespace ClangSerializer
 
         static void Main(string[] args)
         {
-            StringBuilder str_builder = new StringBuilder();
             List<string> options = new List<string>();
             List<string> arguments = new List<string>();
 
@@ -46,9 +45,6 @@ namespace ClangSerializer
                 {
                     System.Console.WriteLine(a);
                 });
-
-            var temp_file_name = Path.GetRandomFileName();
-            File.WriteAllText(temp_file_name, str_builder.ToString());
 
             // Set up Clang front-end compilations in native code project "ClangCode".
             foreach (var opt in arguments) ClangAddFile(opt);
