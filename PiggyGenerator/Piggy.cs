@@ -53,11 +53,11 @@ namespace PiggyGenerator
                 {
                     List<string> s = new List<string>();
                     string input;
-                    while ((input = Console.ReadLine()) != null && input != "")
+                    while ((input = Console.ReadLine()) != null)
                     {
                         s.Add(input);
                     }
-                    ast_string = string.Join(" ", s);
+                    ast_string = string.Join("\r\n", s);
                 }
                 else
                 {
