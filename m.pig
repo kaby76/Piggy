@@ -13,6 +13,6 @@ application
 	ClangEnums.GenerateEnums
 	ClangEnums.CollectStructs
 	ClangEnums.GenerateStructs
-	ClangEnums.Functions
+//	ClangEnums.Functions
 	ClangEnums.GenerateEnd
 	;

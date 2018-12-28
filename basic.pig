@@ -44,8 +44,8 @@ template Enums
                             if (first)
                                 first = false;
                             else
-                                result.Append(", ");
-                            result.Append("@" + tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value") + Environment.NewLine);
+                                result.Append("," + Environment.NewLine);
+                            result.Append("@" + tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value"));
                         }}
                     )
                 )
@@ -55,8 +55,8 @@ template Enums
                         if (first)
                             first = false;
                         else
-                            result.Append(", ");
-                        result.Append("@" + tree.Attr("Name") + Environment.NewLine);
+                            result.Append("," + Environment.NewLine);
+                        result.Append("@" + tree.Attr("Name"));
                     }}
                 )
             %)*
