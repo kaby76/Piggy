@@ -46,7 +46,7 @@ namespace PiggyRuntime
             return t;
         }
 
-        public object Attr(string name)
+        public string Attr(string name)
         {
             // Find attribute at this level and return value.
             int n = _current.ChildCount;

@@ -2,9 +2,10 @@
 template Enums
 {
     header {{
-        bool first = true;
-        List<string> signatures = new List<string>();
-        public string limit = "";
+        protected bool first = true;
+        protected List<string> signatures = new List<string>();
+        protected string limit = "";
+        protected int counter;
     }}
 
     pass GenerateHeader {
@@ -28,7 +29,12 @@ template Enums
         ( EnumDecl SrcRange=$"{Enums.limit}"
             {{
                 first = true;
-                result.Append("public enum @" + tree.Peek(0).Attr("Name") + " {" + Environment.NewLine);
+                string name = tree.Attr("Name");
+                if (name == "")
+                {
+                    name = "GeneratedName" + counter++;
+                }
+                result.Append("public enum @" + name + " {" + Environment.NewLine);
             }}
             (%
                 ( EnumConstantDecl
@@ -61,7 +67,7 @@ template Enums
     pass CollectReturns {
         ( FunctionDecl SrcRange=$"{Enums.limit}" Name=*
             {{
-                signatures.Add((string)tree.Peek(0).Attr("Type"));
+                signatures.Add(tree.Peek(0).Attr("Type"));
             }}
         )
     }
@@ -93,10 +99,10 @@ template Enums
         ( FunctionDecl SrcRange=$"{Enums.limit}" Name=*
             {{
                 result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,"
-                   + " EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);
+                   + " EntryPoint=\"" + tree.Attr("Name") + "\")]" + Environment.NewLine);
                 result.Append("public static extern "
-                   + PiggyRuntime.TemplateHelpers.GetFunctionReturn((string)tree.Peek(0).Attr("Type")) + " "
-                   + tree.Peek(0).Attr("Name") + "(");
+                   + PiggyRuntime.TemplateHelpers.GetFunctionReturn(tree.Attr("Type")) + " "
+                   + tree.Attr("Name") + "(");
                   first = true;
             }}
             ( ParmVarDecl Name=* Type=*
@@ -105,9 +111,9 @@ template Enums
                         first = false;
                     else
                         result.Append(", ");
-                    var premod_type = (string)tree.Peek(0).Attr("Type");
+                    var premod_type = tree.Attr("Type");
                     var postmod_type = PiggyRuntime.TemplateHelpers.ModParamType(premod_type);
-                    result.Append(postmod_type + " " + tree.Peek(0).Attr("Name"));
+                    result.Append(postmod_type + " " + tree.Attr("Name"));
                 }}
             )*
             [[);

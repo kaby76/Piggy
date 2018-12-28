@@ -51,7 +51,7 @@
                     var scope = _stack.Peek();
                     var c = t.Child(0);
                     this._types.TryGetValue(c, out org.antlr.symtab.Type cty);
-                    string td_name = (string) t.Attr("Name");
+                    string td_name = t.Attr("Name");
                     if (scope.resolve(td_name) != null) break;
                     var typedef = new TypeAlias(td_name, cty);
                     scope.define(typedef);
@@ -61,7 +61,7 @@
                 {
                     var t = new Tree(_parent, _ast, context);
                     var scope = _stack.Peek();
-                    var enum_name = (string)t.Attr("Name");
+                    var enum_name = t.Attr("Name");
                     if (enum_name == "") break;
                     var typedef = new TypeAlias(enum_name, null);
                     scope.define(typedef);
