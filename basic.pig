@@ -59,7 +59,7 @@ template Enums
     }
 
     pass CollectReturns {
-        ( FunctionDecl Name=*  SrcRange=$"{Enums.limit}"
+        ( FunctionDecl SrcRange=$"{Enums.limit}" Name=*
             {{
                 signatures.Add((string)tree.Peek(0).Attr("Type"));
             }}
@@ -90,7 +90,7 @@ template Enums
     }
 
     pass Functions {
-        ( FunctionDecl Name=* SrcRange=$"{Enums.limit}"
+        ( FunctionDecl SrcRange=$"{Enums.limit}" Name=*
             {{
                 result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,"
                    + " EntryPoint=\"" + tree.Peek(0).Attr("Name") + "\")]" + Environment.NewLine);

@@ -668,7 +668,7 @@
                 ParameterExpression p = Expression.Parameter(
                     current_type, current_type.Name);
                 string v = match.Groups["exp"].Value;
-                LambdaExpression e = System.Linq.Dynamic.DynamicExpression.ParseLambda(new[] { p }, null, v);
+                LambdaExpression e = System.Linq.Dynamic.Core.DynamicExpressionParser.ParseLambda(new[] { p }, null, v);
                 object r = e.Compile().DynamicInvoke(o);
                 return (r ?? "").ToString();
             });

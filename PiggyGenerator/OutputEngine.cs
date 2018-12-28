@@ -72,6 +72,48 @@ namespace PiggyGenerator
                 ;
         }
 
+        private bool IsThisAppNetCore()
+        {
+            var trustedAssembliesPaths = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
+            return trustedAssembliesPaths != null;
+        }
+
+        public void ReferencedFrameworkAssemblies(List<MetadataReference> all_references)
+        {
+            List<string> result = new List<string>();
+            if (IsThisAppNetCore())
+            {
+                var trustedAssembliesPaths = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
+                var s = trustedAssembliesPaths as string;
+                var l = s.Split(Path.PathSeparator);
+                result = l.ToList();
+                result = result.Where(x => !x.Contains("System.Private.CoreLib")).ToList();
+            }
+            else
+            {
+                //string mscorlib = "";
+                //if (IntPtr.Size == 4)
+                //{
+                //    // 32-bit
+                //    mscorlib = @"C:\Windows\Microsoft.NET\assembly\GAC_32\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll";
+                //}
+                //else if (IntPtr.Size == 8)
+                //{
+                //    // 64-bit
+                //    mscorlib = @"C:\Windows\Microsoft.NET\assembly\GAC_64\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll";
+                //}
+                //else
+                //    throw new Exception();
+                //result.Add(mscorlib);
+            }
+
+            foreach (var r in result)
+            {
+                var jj = Assembly.LoadFrom(r);
+                all_references.Add(MetadataReference.CreateFromFile(jj.Location));
+            }
+        }
+
         private void FixUpMetadataReferences(List<MetadataReference> all_references, Type type)
         {
             var stack = new Stack<Assembly>();
@@ -83,6 +125,18 @@ namespace PiggyGenerator
                 var t = stack.Pop();
                 if (visited.Contains(t)) continue;
                 visited.Add(t);
+                if (t.Location.Contains("netstandard.dll"))
+                {
+                    ReferencedFrameworkAssemblies(all_references);
+                }
+
+                // Very important note:
+                // typeof(object).GetTypeInfo().Assembly This series of evaluations is
+                // grabbing the implementation assemblies for the various types. Hence your
+                // code is passing a set of implementation assemblies to the compiler,
+                // not reference assemblies.This isn't a supported scenario for the DLLs,
+                // particularly for System.Object.
+
                 all_references.Add(MetadataReference.CreateFromFile(t.Location));
                 foreach (var r in a.GetReferencedAssemblies())
                 {
@@ -92,7 +146,6 @@ namespace PiggyGenerator
                 }
             }
         }
-
         public void CompileTemplates()
         {
             // Create one file containing all types and decls:
@@ -265,6 +318,7 @@ namespace " + @namespace + @"
                             {
                                 Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
                             }
+                            throw new Exception();
                         }
                         else
                         {
