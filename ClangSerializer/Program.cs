@@ -1,4 +1,6 @@
-﻿namespace ClangSerializer
+﻿using System.Text.RegularExpressions;
+
+namespace ClangSerializer
 {
     using System.Collections.Generic;
     using System.IO;
@@ -58,8 +60,11 @@
             IntPtr v = ClangSerializeAst();
 
             string ast_result = Marshal.PtrToStringAnsi(v);
-            ast_result = ast_result.Replace("\n", "\r\n");
-            System.Console.WriteLine(ast_result);
+
+            string re2 = Regex.Replace(ast_result.ToString(), "\r([^\n])", "\r\n$1");
+            string re3 = Regex.Replace(re2,"([^\r])\n", "$1\r\n");
+
+            System.Console.WriteLine(re3);
         }
     }
 }
