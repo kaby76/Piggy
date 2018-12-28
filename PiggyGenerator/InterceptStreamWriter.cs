@@ -8,8 +8,6 @@
 
         public override void Write(string value)
         {
-            if (value.Contains("public partial struct _"))
-            { }
             base.Write(value);
         }
 

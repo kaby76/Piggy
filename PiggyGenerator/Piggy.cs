@@ -29,10 +29,11 @@ namespace PiggyGenerator
         public List<string> _header = new List<string>();
         public IParseTree _header_context = null;
         public List<string> _referenced_assemblies = new List<string>();
+        public bool _keep_file;
 
-        public void Doit(string ast_file, string spec_file)
+        public void Doit(string ast_file, string spec_file, bool keep_file)
         {
-            string temp_fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString() + ".cpp";
+            _keep_file = keep_file;
             ErrorListener<IToken> listener = new ErrorListener<IToken>();
             try
             {
@@ -84,7 +85,6 @@ namespace PiggyGenerator
             }
             finally
             {
-                File.Delete(temp_fileName);
             }
         }
 

@@ -6,6 +6,7 @@ template Enums
         protected List<string> signatures = new List<string>();
         protected string limit = "";
         protected int counter;
+		protected HashSet<string> done = new HashSet<string>();
     }}
 
     pass GenerateHeader {
@@ -55,7 +56,7 @@ template Enums
                             first = false;
                         else
                             result.Append(", ");
-                        result.Append("@" + tree.Peek(0).Attr("Name") + Environment.NewLine);
+                        result.Append("@" + tree.Attr("Name") + Environment.NewLine);
                     }}
                 )
             %)*
@@ -64,22 +65,26 @@ template Enums
         )
     }
 
-    pass CollectReturns {
+    pass CollectStructs {
         ( FunctionDecl SrcRange=$"{Enums.limit}" Name=*
             {{
-                signatures.Add(tree.Peek(0).Attr("Type"));
+                signatures.Add(tree.Attr("Type"));
             }}
         )
     }
 
-    pass GenerateReturns {
+    pass GenerateStructs {
         ( TranslationUnitDecl
             {{
                 foreach (var l in signatures)
                 {
                     var m = PiggyRuntime.TemplateHelpers.GetFunctionReturn(l);
+					m = m.Trim();
                     var b = PiggyRuntime.TemplateHelpers.BaseType(m);
                     if (!b) continue;
+					if (m == "void") continue;
+					if (done.Contains(m)) continue;
+					done.Add(m);
                     result.AppendLine(
                         @"public partial struct " + m + @"
                         {

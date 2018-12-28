@@ -89,24 +89,6 @@ namespace PiggyGenerator
                 result = l.ToList();
                 result = result.Where(x => !x.Contains("System.Private.CoreLib")).ToList();
             }
-            else
-            {
-                //string mscorlib = "";
-                //if (IntPtr.Size == 4)
-                //{
-                //    // 32-bit
-                //    mscorlib = @"C:\Windows\Microsoft.NET\assembly\GAC_32\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll";
-                //}
-                //else if (IntPtr.Size == 8)
-                //{
-                //    // 64-bit
-                //    mscorlib = @"C:\Windows\Microsoft.NET\assembly\GAC_64\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll";
-                //}
-                //else
-                //    throw new Exception();
-                //result.Add(mscorlib);
-            }
-
             foreach (var r in result)
             {
                 var jj = Assembly.LoadFrom(r);
@@ -129,14 +111,6 @@ namespace PiggyGenerator
                 {
                     ReferencedFrameworkAssemblies(all_references);
                 }
-
-                // Very important note:
-                // typeof(object).GetTypeInfo().Assembly This series of evaluations is
-                // grabbing the implementation assemblies for the various types. Hence your
-                // code is passing a set of implementation assemblies to the compiler,
-                // not reference assemblies.This isn't a supported scenario for the DLLs,
-                // particularly for System.Object.
-
                 all_references.Add(MetadataReference.CreateFromFile(t.Location));
                 foreach (var r in a.GetReferencedAssemblies())
                 {
@@ -146,6 +120,7 @@ namespace PiggyGenerator
                 }
             }
         }
+
         public void CompileTemplates()
         {
             // Create one file containing all types and decls:
@@ -230,8 +205,7 @@ namespace " + @namespace + @"
             {
                 // After generating the code, let's write reformat it.
                 string formatted_source_code;
-                string formatted_source_code_path = @"c:\temp\" + Path.GetRandomFileName();
-                formatted_source_code_path = Path.ChangeExtension(formatted_source_code_path, "cs");
+                string formatted_source_code_path = @"c:\temp\generated_templates.cs";
                 {
                     var workspace = new AdhocWorkspace();
                     string projectName = "FormatTemplates";
@@ -258,54 +232,60 @@ namespace " + @namespace + @"
 
                 // With template classes generated, let's compile them.
                 {
-                    var workspace = new AdhocWorkspace();
-                    string projectName = "CompileTemplates";
-                    ProjectId projectId = ProjectId.CreateNewId();
-                    VersionStamp versionStamp = VersionStamp.Create();
-                    ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName,
-                        projectName, LanguageNames.CSharp);
-                    SourceText sourceText = SourceText.From(formatted_source_code, Encoding.UTF8);
-                    Project newProject = workspace.AddProject(helloWorldProject);
-                    Document newDocument = workspace.AddDocument(newProject.Id, formatted_source_code_path, sourceText);
-                    OptionSet options = workspace.Options;
-                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
-                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
-                    SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
-
-                    string full_path = System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location);
-                    full_path = System.IO.Path.GetDirectoryName(full_path);
-
                     string assemblyName = Path.GetRandomFileName();
                     string symbolsName = Path.ChangeExtension(assemblyName, "pdb");
 
+                    SourceText sourceText = SourceText.From(formatted_source_code, Encoding.UTF8);
+                    SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(
+                        sourceText,
+                        new CSharpParseOptions(),
+                        path: formatted_source_code_path);
+                    var syntaxRootNode = syntaxTree.GetRoot() as CSharpSyntaxNode;
+                    var encoded = CSharpSyntaxTree.Create(syntaxRootNode,
+                        null, formatted_source_code_path, Encoding.UTF8);
+
+                    //AdhocWorkspace workspace = new Microsoft.CodeAnalysis.AdhocWorkspace();
+                    //string projectName = "CompileTemplates";
+                    //ProjectId projectId = ProjectId.CreateNewId();
+                    //VersionStamp versionStamp = VersionStamp.Create();
+                    //ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName,
+                    //    projectName, LanguageNames.CSharp);
+                    //Project newProject = workspace.AddProject(helloWorldProject);
+                    //Document newDocument = workspace.AddDocument(newProject.Id, formatted_source_code_path, sourceText);
+                    //SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+                    //var encoded = syntaxRoot.SyntaxTree;
+
                     List<MetadataReference> all_references = new List<MetadataReference>();
-                    //all_references.Add(MetadataReference.CreateFromFile(typeof(System.Object).Assembly.Location));
-                    //all_references.Add(MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location));
-                    //all_references.Add(MetadataReference.CreateFromFile(typeof(PiggyRuntime.Template).Assembly.Location));
                     FixUpMetadataReferences(all_references, typeof(PiggyRuntime.Template));
                     FixUpMetadataReferences(all_references, typeof(object));
-                    //FixUpMetadataReferences(all_references, typeof(OutputEngine));
 
                     CSharpCompilation compilation = CSharpCompilation.Create(
                         assemblyName,
-                        syntaxTrees: new[] {syntaxRoot.SyntaxTree},
+                        syntaxTrees: new[] {encoded},
                         references: all_references.ToArray(),
                         options: new CSharpCompilationOptions(
-                                OutputKind.DynamicallyLinkedLibrary)
+                            OutputKind.DynamicallyLinkedLibrary)
                             .WithOptimizationLevel(OptimizationLevel.Debug)
+                            .WithPlatform(Platform.AnyCpu)
                     );
                     Assembly assembly = null;
                     using (var assemblyStream = new MemoryStream())
                     using (var symbolsStream = new MemoryStream())
                     {
                         var emit_options = new EmitOptions(
-                            debugInformationFormat: DebugInformationFormat.PortablePdb
-                            //pdbFilePath: symbolsName
+                            debugInformationFormat: DebugInformationFormat.PortablePdb,
+                            pdbFilePath: symbolsName
                         );
+
+                        var embeddedTexts = new List<EmbeddedText>
+                        {
+                            EmbeddedText.FromSource(formatted_source_code_path, sourceText),
+                        };
 
                         EmitResult result = compilation.Emit(
                             peStream: assemblyStream,
                             pdbStream: symbolsStream,
+                            embeddedTexts: embeddedTexts,
                             options: emit_options);
 
                         if (!result.Success)
@@ -362,7 +342,7 @@ namespace " + @namespace + @"
 
         static Dictionary<Type, object> _instances = new Dictionary<Type, object>();
 
-        public void Generate(StringBuilder builder, TreeRegEx re)
+        public void PatternMatchingEngine(StringBuilder builder, TreeRegEx re)
         {
             var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
@@ -493,11 +473,6 @@ namespace " + @namespace + @"
                             Type type = re._current_type;
                             object instance = re._instance;
                             object[] a = new object[]{ new Tree(re.parent, re._ast, con), builder };
-                            if (x.GetText().Contains("int, int"))
-                            {
-                                int xxxxx = 1;
-                            }
-
                             var res = main.Invoke(instance, a);
                         }
                         finally
@@ -630,34 +605,33 @@ namespace " + @namespace + @"
                 }
                 System.Console.WriteLine("==========================");
 #endif
-                Generate(combined_result, regex);
+                PatternMatchingEngine(combined_result, regex);
             }
 
             //////
-            string re2 = Regex.Replace(combined_result.ToString(),
-                @"\r([^\n])", @"\r\n$1");
-            System.IO.File.WriteAllText(@"C:\temp\t2.txt", re2);
-            var re3 = Regex.Replace(re2,
-                @"([^\r])\n", @"$1\r\n");
-            System.IO.File.WriteAllText(@"C:\temp\t3.txt", re3);
-
-            var re9 = new Regex(@"^\s+");
-            var matches = re9.Matches(re3);
-            foreach (Match m in matches)
-            {
-                var m2 = m.Groups;
-            }
-
-            string sa = re3;
-            for (;;)
-            {
-                var re4 = Regex.Replace(sa, @"[\t]+", " ");
-                re3 = Regex.Replace(re4, "\r\n ", "\r\n");
-                re4 = Regex.Replace(re3, @"^\s+", "");
-                if (sa == re4) break;
-                sa = re4;
-            }
-            System.IO.File.WriteAllText(@"C:\temp\t4.txt", sa);
+            //string re2 = Regex.Replace(combined_result.ToString(),
+            //    @"\r([^\n])", @"\r\n$1");
+            //System.IO.File.WriteAllText(@"C:\temp\t2.txt", re2);
+            //var re3 = Regex.Replace(re2,
+            //    @"([^\r])\n", @"$1\r\n");
+            //System.IO.File.WriteAllText(@"C:\temp\t3.txt", re3);
+            //var re9 = new Regex(@"^\s+");
+            //var matches = re9.Matches(re3);
+            //foreach (Match m in matches)
+            //{
+            //    var m2 = m.Groups;
+            //}
+            //string sa = re3;
+            //for (;;)
+            //{
+            //    var re4 = Regex.Replace(sa, @"[\t]+", " ");
+            //    re3 = Regex.Replace(re4, "\r\n ", "\r\n");
+            //    re4 = Regex.Replace(re3, @"^\s+", "");
+            //    if (sa == re4) break;
+            //    sa = re4;
+            //}
+            //System.IO.File.WriteAllText(@"C:\temp\t4.txt", sa);
+            string sa = combined_result.ToString();
 
             var workspace = new AdhocWorkspace();
             string projectName = "HelloWorldProject";
@@ -687,9 +661,6 @@ namespace " + @namespace + @"
                 var r = writer.ToString();
                 return r;
             }
-
-
-          //  return combined_result.ToString();
         }
     }
 }
