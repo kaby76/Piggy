@@ -170,7 +170,7 @@ namespace {
 		void dumpType(QualType T);
 		void dumpTypeAsChild(QualType T);
 		void dumpTypeAsChild(const Type *T);
-		void dumpBareDeclRef(const Decl *Node);
+		void dumpBareDeclRef(const Decl *Node, bool as_id = true);
 		void dumpDeclRef(const Decl *Node, const char *Label = nullptr);
 		void dumpName(const NamedDecl *D);
 		bool hasNodes(const DeclContext *DC);
@@ -334,8 +334,10 @@ namespace {
 				*OS << " undeduced";
 		}
 		void VisitTemplateSpecializationType(const TemplateSpecializationType *T) {
+			*OS << " GoesOnAndOn=\"";
 			if (T->isTypeAlias()) *OS << " alias";
 			*OS << " "; T->getTemplateName().dump(*OS);
+			*OS << "\"";
 			for (auto &Arg : *T)
 				dumpTemplateArgument(Arg);
 			if (T->isTypeAlias())
@@ -629,8 +631,8 @@ void MyASTDumper::dumpTypeAsChild(QualType T) {
 		*OS << " ";
 		*OS << "BareType=\"";
 		dumpBareType(T, false);
-		*OS << "\"";
 		*OS << " " << T.split().Quals.getAsString();
+		*OS << "\"";
 		dumpTypeAsChild(T.split().Ty);
 	});
 }
@@ -683,15 +685,20 @@ void MyASTDumper::dumpTypeAsChild(const Type *T) {
 	});
 }
 
-void MyASTDumper::dumpBareDeclRef(const Decl *D) {
-	if (!D) {
-		*OS << "NullNode";
-		return;
-	}
+void MyASTDumper::dumpBareDeclRef(const Decl *D, bool as_id) {
+	
+	char* name;
+	if (!D)
+		name = (char*)"NullNode";
+	else
+		name = (char*)D->getDeclKindName();
 
-	{
-		*OS << D->getDeclKindName();
-	}
+	if (as_id)
+		*OS << name;
+	else
+		*OS << " KindName=\"" << name << "\"";
+	if (!D) return;
+
 	dumpPointer(D);
 
 	if (const NamedDecl *ND = dyn_cast<NamedDecl>(D)) {
@@ -701,7 +708,7 @@ void MyASTDumper::dumpBareDeclRef(const Decl *D) {
 		{
 			int x = 111;
 		}
-		*OS << "Name=\"" << ND->getDeclName() << '\"';
+		*OS << " Name=\"" << ND->getDeclName() << '\"';
 	}
 
 	if (const ValueDecl *VD = dyn_cast<ValueDecl>(D))
@@ -715,7 +722,7 @@ void MyASTDumper::dumpDeclRef(const Decl *D, const char *Label) {
 	dumpChild([=] {
 		if (Label)
 			*OS << Label << ' ';
-		dumpBareDeclRef(D);
+		dumpBareDeclRef(D, Label == 0);
 	});
 }
 
@@ -726,7 +733,7 @@ void MyASTDumper::dumpName(const NamedDecl *ND) {
 		{
 			int x = 111;
 		}
-		*OS << ' ' << "Name=\"" << ND->getNameAsString() << "\"";
+		*OS << " Name=\"" << ND->getNameAsString() << "\"";
 	}
 }
 
@@ -900,7 +907,7 @@ void MyASTDumper::dumpCXXCtorInitializer(const CXXCtorInitializer *Init) {
 		*OS << "CXXCtorInitializer";
 		if (Init->isAnyMemberInitializer()) {
 			*OS << ' ';
-			dumpBareDeclRef(Init->getAnyMember());
+			dumpBareDeclRef(Init->getAnyMember(), false);
 		}
 		else if (Init->isBaseInitializer()) {
 			dumpType(QualType(Init->getBaseClass(), 0));
@@ -1298,7 +1305,7 @@ void MyASTDumper::VisitImportDecl(const ImportDecl *D) {
 }
 
 void MyASTDumper::VisitPragmaCommentDecl(const PragmaCommentDecl *D) {
-	*OS << ' ';
+	*OS << " Kind=\"";
 	switch (D->getCommentKind()) {
 	case PCK_Unknown:  llvm_unreachable("unexpected pragma comment kind");
 	case PCK_Compiler: *OS << "compiler"; break;
@@ -1307,14 +1314,15 @@ void MyASTDumper::VisitPragmaCommentDecl(const PragmaCommentDecl *D) {
 	case PCK_Linker:   *OS << "linker"; break;
 	case PCK_User:     *OS << "user"; break;
 	}
+	*OS << "\"";
 	StringRef Arg = D->getArg();
 	if (!Arg.empty())
-		*OS << " \"" << Arg << "\"";
+		*OS << " Arg=\"" << Arg << "\"";
 }
 
 void MyASTDumper::VisitPragmaDetectMismatchDecl(
 	const PragmaDetectMismatchDecl *D) {
-	*OS << " \"" << D->getName() << "\" \"" << D->getValue() << "\"";
+	*OS << " Name=\"" << D->getName() << "\" Value=\"" << D->getValue() << "\"";
 }
 
 void MyASTDumper::VisitCapturedDecl(const CapturedDecl *D) {
@@ -1528,13 +1536,25 @@ void MyASTDumper::VisitCXXRecordDecl(const CXXRecordDecl *D) {
 
 	for (const auto &I : D->bases()) {
 		dumpChild([=] {
-			*OS << " Data=\"";
+			*OS << " InheritsFrom ";
+			*OS << " Type=\"";
+		
+			std::string str;
+			llvm::raw_string_ostream f(str);
+			auto save = OS;
+			OS = &f;
+
 			if (I.isVirtual())
 				*OS << "virtual ";
 			dumpAccessSpecifier(I.getAccessSpecifier());
 			dumpType(I.getType());
 			if (I.isPackExpansion())
 				*OS << "...";
+
+			f.flush();
+			str = provide_escapes(str);
+			OS = save;
+
 			*OS << "\"";
 		});
 	}
@@ -1690,31 +1710,40 @@ void MyASTDumper::VisitTemplateTemplateParmDecl(
 }
 
 void MyASTDumper::VisitUsingDecl(const UsingDecl *D) {
-	*OS << ' ';
 	if (D->getQualifier())
+	{
+		*OS << " Qualifier=\"";
 		D->getQualifier()->print(*OS, D->getASTContext().getPrintingPolicy());
-	*OS << D->getNameAsString();
+		*OS << "\"";
+	}
+	*OS << " Name=\"" << D->getNameAsString() << "\"";
 }
 
 void MyASTDumper::VisitUnresolvedUsingTypenameDecl(
 	const UnresolvedUsingTypenameDecl *D) {
-	*OS << ' ';
 	if (D->getQualifier())
+	{
+		*OS << " Qualifier=\"";
 		D->getQualifier()->print(*OS, D->getASTContext().getPrintingPolicy());
-	*OS << D->getNameAsString();
+		*OS << "\"";
+	}
+	*OS << " Name=\"" << D->getNameAsString() << "\"";
 }
 
 void MyASTDumper::VisitUnresolvedUsingValueDecl(const UnresolvedUsingValueDecl *D) {
-	*OS << ' ';
 	if (D->getQualifier())
+	{
+		*OS << " Qualifier=\"";
 		D->getQualifier()->print(*OS, D->getASTContext().getPrintingPolicy());
-	*OS << D->getNameAsString();
+		*OS << "\"";
+	}
+	*OS << " Name=\"" << D->getNameAsString() << "\"";
 	dumpType(D->getType());
 }
 
 void MyASTDumper::VisitUsingShadowDecl(const UsingShadowDecl *D) {
 	*OS << ' ';
-	dumpBareDeclRef(D->getTargetDecl());
+	dumpBareDeclRef(D->getTargetDecl(), false);
 	if (auto *TD = dyn_cast<TypeDecl>(D->getUnderlyingDecl()))
 		dumpTypeAsChild(TD->getTypeForDecl());
 }
@@ -1752,8 +1781,9 @@ void MyASTDumper::VisitLinkageSpecDecl(const LinkageSpecDecl *D) {
 }
 
 void MyASTDumper::VisitAccessSpecDecl(const AccessSpecDecl *D) {
-	*OS << ' ';
+	*OS << " Type=\"";
 	dumpAccessSpecifier(D->getAccess());
+	*OS << "\"";
 }
 
 void MyASTDumper::VisitFriendDecl(const FriendDecl *D) {
@@ -2076,10 +2106,10 @@ void MyASTDumper::VisitExpr(const Expr *Node) {
 		case VK_RValue:
 			break;
 		case VK_LValue:
-			*OS << "Type=\"lvalue\"";
+			*OS << " Type=\"lvalue\"";
 			break;
 		case VK_XValue:
-			*OS << "Type=\"xvalue\"";
+			*OS << " Type=\"xvalue\"";
 			break;
 		}
 	}
@@ -2163,12 +2193,14 @@ void MyASTDumper::VisitDeclRefExpr(const DeclRefExpr *Node) {
 	f.flush();
 	str = provide_escapes(str);
 	OS = save;
-	*OS << "Expr=\"" << str << "\"";
+	*OS << " Expr=\"" << str << "\"";
 }
 
 void MyASTDumper::VisitUnresolvedLookupExpr(const UnresolvedLookupExpr *Node) {
 	VisitExpr(Node);
-	*OS << " (";
+
+	*OS << " WhateverThisShitIs=\"(";
+
 	if (!Node->requiresADL())
 		*OS << "no ";
 	*OS << "ADL) = '" << Node->getName() << '\'';
@@ -2177,6 +2209,9 @@ void MyASTDumper::VisitUnresolvedLookupExpr(const UnresolvedLookupExpr *Node) {
 		I = Node->decls_begin(), E = Node->decls_end();
 	if (I == E)
 		*OS << " empty";
+
+	*OS << "\"";
+
 	for (; I != E; ++I)
 		dumpPointer(*I);
 }
@@ -2281,7 +2316,10 @@ void MyASTDumper::VisitUnaryExprOrTypeTraitExpr(
 
 void MyASTDumper::VisitMemberExpr(const MemberExpr *Node) {
 	VisitExpr(Node);
-	*OS << " " << (Node->isArrow() ? "->" : ".") << *Node->getMemberDecl();
+	*OS << " Qual=\""
+	    << (Node->isArrow() ? "->" : ".")
+	    << *Node->getMemberDecl()
+	    << "\" ";
 	dumpPointer(Node->getMemberDecl());
 }
 
@@ -2358,11 +2396,12 @@ void MyASTDumper::VisitAddrLabelExpr(const AddrLabelExpr *Node) {
 
 void MyASTDumper::VisitCXXNamedCastExpr(const CXXNamedCastExpr *Node) {
 	VisitExpr(Node);
-	*OS << " " << Node->getCastName()
+	*OS << " BigFatCast=\"" << Node->getCastName()
 		<< "<" << Node->getTypeAsWritten().getAsString() << ">"
 		<< " <" << Node->getCastKindName();
 	dumpBasePath(OS, Node);
 	*OS << ">";
+	*OS << "\"";
 }
 
 void MyASTDumper::VisitCXXBoolLiteralExpr(const CXXBoolLiteralExpr *Node) {
@@ -2395,6 +2434,7 @@ void MyASTDumper::VisitCXXConstructExpr(const CXXConstructExpr *Node) {
 	VisitExpr(Node);
 	CXXConstructorDecl *Ctor = Node->getConstructor();
 	dumpType(Ctor->getType());
+	*OS << " MoreShit=\"";
 	if (Node->isElidable())
 		*OS << " elidable";
 	if (Node->isListInitialization())
@@ -2403,6 +2443,7 @@ void MyASTDumper::VisitCXXConstructExpr(const CXXConstructExpr *Node) {
 		*OS << " std::initializer_list";
 	if (Node->requiresZeroInitialization())
 		*OS << " zeroing";
+	*OS << "\"";
 }
 
 void MyASTDumper::VisitCXXBindTemporaryExpr(const CXXBindTemporaryExpr *Node) {
