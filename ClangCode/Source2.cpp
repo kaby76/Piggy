@@ -2857,33 +2857,19 @@ LLVM_DUMP_METHOD void Comment::dumpColor() const {
 extern "C" {
 #endif
 
-char* RunTheDamnThing(clang::ASTContext &Ctx)
+std::string RunTheDamnThing(clang::ASTContext &Ctx)
 {
 	// Set to false for debugging the AST serializer code.
-	if (true)
-	{
-		const SourceManager &SM = Ctx.getSourceManager();
-		std::string crap;
-		llvm::raw_string_ostream more_crap(crap);
-		MyASTDumper P(&more_crap, &Ctx.getCommentCommandTraits(), &SM);
-		TranslationUnitDecl* tu = Ctx.getTranslationUnitDecl();
-		P.start();
-		P.dumpDecl(tu);
-		P.complete();
-		more_crap.flush();
-		return _strdup(crap.c_str());
-	}
-	else
-	{
-		const SourceManager &SM = Ctx.getSourceManager();
-		MyASTDumper P(&llvm::outs(), &Ctx.getCommentCommandTraits(), &SM);
-		TranslationUnitDecl* tu = Ctx.getTranslationUnitDecl();
-		P.start();
-		P.dumpDecl(tu);
-		P.complete();
-		llvm::outs().flush();
-		return (char*)"";
-	}
+	const SourceManager &SM = Ctx.getSourceManager();
+	std::string crap;
+	llvm::raw_string_ostream more_crap(crap);
+	MyASTDumper P(&more_crap, &Ctx.getCommentCommandTraits(), &SM);
+	TranslationUnitDecl* tu = Ctx.getTranslationUnitDecl();
+	P.start();
+	P.dumpDecl(tu);
+	P.complete();
+	more_crap.flush();
+	return crap;
 }
 
 #ifdef __cplusplus

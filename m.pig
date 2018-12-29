@@ -5,6 +5,7 @@ template ClangEnums : Enums
 	init {{
 		// Override limits in matching.
 		limit = ".*\\clang-c\\.*";
+		dllname = "libclang";
 	}}
 }
 
@@ -13,6 +14,6 @@ application
 	ClangEnums.GenerateEnums
 	ClangEnums.CollectStructs
 	ClangEnums.GenerateStructs
-//	ClangEnums.Functions
+	ClangEnums.Functions
 	ClangEnums.GenerateEnd
 	;

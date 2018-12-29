@@ -4,7 +4,8 @@ template Enums
     header {{
         protected bool first = true;
         protected List<string> signatures = new List<string>();
-        protected string limit = "";
+        protected string limit = ""; // Context of what file can match.
+		protected string dllname = "unknown_dll"; // A dll to load for DllImport.
         protected int counter;
 		protected HashSet<string> done = new HashSet<string>();
     }}
@@ -103,12 +104,13 @@ template Enums
     pass Functions {
         ( FunctionDecl SrcRange=$"{Enums.limit}" Name=*
             {{
-                result.Append("[DllImport(\"foobar\", CallingConvention = global::System.Runtime.InteropServices.CallingConvention.ThisCall,"
+                result.Append("[DllImport(" + dllname + ", CallingConvention = CallingConvention.ThisCall,"
                    + " EntryPoint=\"" + tree.Attr("Name") + "\")]" + Environment.NewLine);
                 result.Append("public static extern "
                    + PiggyRuntime.TemplateHelpers.GetFunctionReturn(tree.Attr("Type")) + " "
                    + tree.Attr("Name") + "(");
-                  first = true;
+				result.AppendLine("");
+                first = true;
             }}
             ( ParmVarDecl Name=* Type=*
                 {{

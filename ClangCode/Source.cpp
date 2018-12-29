@@ -92,7 +92,7 @@ extern "C" {
 		search->include_files.insert(search->include_files.end(), a);
 	}
 
-	extern char * RunTheDamnThing(clang::ASTContext &Context);
+	extern std::string RunTheDamnThing(clang::ASTContext &Context);
 
 	EXPORT char * ClangSerializeAst()
 	{
@@ -120,10 +120,15 @@ extern "C" {
 			return nullptr;
 
 		// Let's try tree walking.
-		search->cur_ast = search->ASTs.begin();
-		std::unique_ptr<clang::ASTUnit>::pointer aa = search->cur_ast->get();
-		auto result = RunTheDamnThing(aa->getASTContext());
-		return result;
+		std::vector<std::unique_ptr<clang::ASTUnit>>::iterator a = search->ASTs.begin();
+		std::string scratch;
+		for ( ; a != search->ASTs.end(); ++a)
+		{
+			std::unique_ptr<clang::ASTUnit>::pointer aa = a->get();
+			std::string r = RunTheDamnThing(aa->getASTContext());
+			scratch.append(r);
+		}
+		return strdup(scratch.c_str());
 	}
 
 	EXPORT char * Name(clang::ast_type_traits::DynTypedNode* p)
