@@ -1,4 +1,6 @@
-﻿namespace PiggyGenerator
+﻿using System.Collections.Generic;
+
+namespace PiggyGenerator
 {
     using System;
     using Antlr4.Runtime;
@@ -8,10 +10,11 @@
 
     public class SpecFileAndListener : SpecParserBaseListener
     {
-        Piggy _program;
+        private Piggy _program;
         private Pass _current_pass;
         private Template _current_template;
         private static int _number_of_applications;
+        private HashSet<string> _seen_usings = new HashSet<string>();
 
         public SpecFileAndListener(Piggy program)
         {
@@ -134,6 +137,8 @@
             var c = context.GetChild(1);
             var text = c.GetText();
             text = text.Replace("'", "");
+            if (_seen_usings.Contains(text)) return;
+            _seen_usings.Add(text);
             SpecFileAndListener file = new SpecFileAndListener(_program);
             file.ParseSpecFile(text);
         }

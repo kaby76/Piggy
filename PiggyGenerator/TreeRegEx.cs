@@ -704,13 +704,26 @@
                 if (map) matches.MyAdd(t, p);
                 return true;
             }
+
             if (pattern.StartsWith("$\""))
             {
                 pattern = pattern.Substring(2);
                 pattern = pattern.Substring(0, pattern.Length - 1);
-                pattern = ReplaceMacro(pattern);
+                try
+                {
+                    pattern = ReplaceMacro(pattern);
+                }
+                catch (Exception e)
+                {
+                    System.Console.WriteLine("Cannot perform substitution in pattern with string.");
+                    System.Console.WriteLine("String " + pattern);
+                    System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(p));
+                    System.Console.WriteLine(e.Message);
+                    throw e;
+                }
                 pattern = pattern.Replace("\\", "\\\\");
             }
+
             Regex re = new Regex(pattern);
             string tvaltext = t_val.GetText();
             tvaltext = tvaltext.Substring(1);

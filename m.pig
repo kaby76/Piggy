@@ -4,8 +4,8 @@ template ClangEnums : Enums
 {
 	init {{
 		// Override limits in matching.
-		limit = ".*\\clang-c\\.*";
-		dllname = "libclang";
+		limit = ".*\\llvm\\.*";
+		dllname = "libllvm";
 	}}
 }
 
