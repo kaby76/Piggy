@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using org.antlr.symtab;
 
     public class Template
     {
@@ -27,6 +28,6 @@
                 a();
         }
 
-        public Type @Type { get; set; }
+        public System.Type @Type { get; set; }
     }
 }

@@ -1,6 +1,21 @@
 CUDA
 
+Enums
+
+Swigged.Cuda.CUresult
+Swigged.Cuda.CUdevice_attribute
+Swigged.Cuda.CUjit_option
+
+Types
+
 Swigged.Cuda.CUcontext
+Swigged.Cuda.CUfunction
+Swigged.Cuda.CUlinkState
+Swigged.Cuda.CUmodule
+Swigged.Cuda.CUstream
+
+Functions
+
 Swigged.Cuda.Cuda.CU_MEMHOSTALLOC_DEVICEMAP
 Swigged.Cuda.Cuda.cuCtxSynchronize
 Swigged.Cuda.Cuda.cuDeviceGet
@@ -44,7 +59,6 @@ Swigged.Cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_SHARED_MEMORY_PER_BLOCK
 Swigged.Cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_TOTAL_CONSTANT_MEMORY
 Swigged.Cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_UNIFIED_ADDRESSING
 Swigged.Cuda.CUdevice_attribute.CU_DEVICE_ATTRIBUTE_WARP_SIZE
-Swigged.Cuda.CUfunction
 Swigged.Cuda.CUjit_option
 Swigged.Cuda.CUjit_option.CU_JIT_ERROR_LOG_BUFFER
 Swigged.Cuda.CUjit_option.CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES
@@ -54,12 +68,8 @@ Swigged.Cuda.CUjit_option.CU_JIT_LOG_VERBOSE
 Swigged.Cuda.CUjitInputType.CU_JIT_INPUT_LIBRARY
 Swigged.Cuda.CUjitInputType.CU_JIT_INPUT_PTX
 Swigged.Cuda.CUlimit.CU_LIMIT_STACK_SIZE
-Swigged.Cuda.CUlinkState
 Swigged.Cuda.CUmemAttach_flags.CU_MEM_ATTACH_GLOBAL
-Swigged.Cuda.CUmodule
-Swigged.Cuda.CUresult
 Swigged.Cuda.CUresult.CUDA_SUCCESS
-Swigged.Cuda.CUstream
 
 
 

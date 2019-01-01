@@ -45,7 +45,7 @@ init: INIT code | ;
 pass: PASS ID LCURLY pattern* RCURLY ;
 
 // Note: the regular expression grammar is based on that of Cameron.
-pattern: rexp ;
+pattern: basic ;
 rexp : simple_rexp (OR simple_rexp)* ;
 simple_rexp : basic_rexp+ ;
 basic_rexp : star_rexp | plus_rexp | elementary_rexp ;

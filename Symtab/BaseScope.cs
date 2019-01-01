@@ -44,7 +44,8 @@
 
         public virtual Symbol getSymbol(string name)
         {
-            return symbols[name];
+            symbols.TryGetValue(name, out Symbol result);
+            return result;
         }
 
         public virtual Scope EnclosingScope

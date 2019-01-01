@@ -173,16 +173,16 @@
         }
 
         /*
-         * Match template: TEMPLATE rexp SEMI ;
+         * Match pattern: basic ;
          * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_pattern(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.PatternContext template = p as SpecParserParser.PatternContext;
-            if (template == null) return false;
+            SpecParserParser.PatternContext pattern = p as SpecParserParser.PatternContext;
+            if (pattern == null) return false;
             var re = p.GetChild(0);
             if (re == null) return false;
-            bool result = match_rexp(re, t, map);
+            bool result = match_basic(re, t, map);
             if (result && map) matches.MyAdd(t, p);
             return result;
         }
@@ -502,6 +502,12 @@
             if (id_or_star as SpecParserParser.Id_or_star_or_emptyContext == null)
                 return false;
             var id = id_or_star.GetChild(0);
+
+            if (id_tree.GetText() == "EnumDecl")
+            { }
+
+
+
             if (id == null)
             {
                 p_pos++;

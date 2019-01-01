@@ -3,6 +3,7 @@
 
 using System.Collections;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using org.antlr.symtab;
 
 namespace PiggyGenerator
 {
@@ -139,6 +140,7 @@ using System.Threading.Tasks;
 using System.IO;
 using PiggyRuntime;
 using System.Runtime.InteropServices;
+using org.antlr.symtab;
 
 namespace " + @namespace + @"
 {

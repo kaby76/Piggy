@@ -25,76 +25,76 @@
             _current_scope = null;
         }
 
-        public override void EnterDecl(AstParserParser.DeclContext context)
-        {
-            IParseTree id = context.GetChild(1);
-            string name = id.GetText();
-            switch (name)
-            {
-                case "TranslationUnitDecl":
-                {
-                    var t = new Tree(_parent, _ast, context);
-                    Scope scope = new GlobalScope(null);
-                    _stack.Push(scope);
-                    break;
-                }
-                case "LinkageSpecDecl":
-                {
-                    var t = new Tree(_parent, _ast, context);
-                    Scope scope = new LocalScope(_stack.Peek());
-                    _stack.Push(scope);
-                    break;
-                }
-                case "TypedefDecl":
-                {
-                    var t = new Tree(_parent, _ast, context);
-                    var scope = _stack.Peek();
-                    var c = t.Child(0);
-                    this._types.TryGetValue(c, out org.antlr.symtab.Type cty);
-                    string td_name = t.Attr("Name");
-                    if (scope.resolve(td_name) != null) break;
-                    var typedef = new TypeAlias(td_name, cty);
-                    scope.define(typedef);
-                    break;
-                }
-                case "EnumDecl":
-                {
-                    var t = new Tree(_parent, _ast, context);
-                    var scope = _stack.Peek();
-                    var enum_name = t.Attr("Name");
-                    if (enum_name == "") break;
-                    var typedef = new TypeAlias(enum_name, null);
-                    scope.define(typedef);
-                    break;
-                }
-            }
-        }
+        //public override void EnterDecl(AstParserParser.DeclContext context)
+        //{
+        //    IParseTree id = context.GetChild(1);
+        //    string name = id.GetText();
+        //    switch (name)
+        //    {
+        //        case "TranslationUnitDecl":
+        //        {
+        //            var t = new Tree(_parent, _ast, context);
+        //            Scope scope = new GlobalScope(null);
+        //            _stack.Push(scope);
+        //            break;
+        //        }
+        //        case "LinkageSpecDecl":
+        //        {
+        //            var t = new Tree(_parent, _ast, context);
+        //            Scope scope = new LocalScope(_stack.Peek());
+        //            _stack.Push(scope);
+        //            break;
+        //        }
+        //        case "TypedefDecl":
+        //        {
+        //            var t = new Tree(_parent, _ast, context);
+        //            var scope = _stack.Peek();
+        //            var c = t.Child(0);
+        //            this._types.TryGetValue(c, out org.antlr.symtab.Type cty);
+        //            string td_name = t.Attr("Name");
+        //            if (scope.resolve(td_name) != null) break;
+        //            var typedef = new TypeAlias(td_name, cty);
+        //            scope.define(typedef);
+        //            break;
+        //        }
+        //        case "EnumDecl":
+        //        {
+        //            var t = new Tree(_parent, _ast, context);
+        //            var scope = _stack.Peek();
+        //            var enum_name = t.Attr("Name");
+        //            if (enum_name == "") break;
+        //            var typedef = new TypeAlias(enum_name, null);
+        //            scope.define(typedef);
+        //            break;
+        //        }
+        //    }
+        //}
 
-        public override void ExitDecl(AstParserParser.DeclContext context)
-        {
-            IParseTree id = context.GetChild(1);
-            string name = id.GetText();
-            switch (name)
-            {
-                case "TranslationUnitDecl":
-                {
-                    _stack.Pop();
-                    break;
-                }
-                case "LinkageSpecDecl":
-                {
-                    _stack.Pop();
-                    break;
-                }
-                case "TypedefDecl":
-                {
-                    break;
-                }
-                case "EnumDecl":
-                {
-                    break;
-                }
-            }
-        }
+        //public override void ExitDecl(AstParserParser.DeclContext context)
+        //{
+        //    IParseTree id = context.GetChild(1);
+        //    string name = id.GetText();
+        //    switch (name)
+        //    {
+        //        case "TranslationUnitDecl":
+        //        {
+        //            _stack.Pop();
+        //            break;
+        //        }
+        //        case "LinkageSpecDecl":
+        //        {
+        //            _stack.Pop();
+        //            break;
+        //        }
+        //        case "TypedefDecl":
+        //        {
+        //            break;
+        //        }
+        //        case "EnumDecl":
+        //        {
+        //            break;
+        //        }
+        //    }
+        //}
     }
 }
