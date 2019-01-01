@@ -9,10 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiggyGenerator", "PiggyGene
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF34E46F-4123-4ED4-B962-203502AAD343}"
 	ProjectSection(SolutionItems) = preProject
-		basic.pig = basic.pig
-		help.h = help.h
+		cuda.pig = cuda.pig
+		Decls.pig = Decls.pig
+		Enums.pig = Enums.pig
+		Structs.pig = Structs.pig
+		cuda-includes.cpp = cuda-includes.cpp
+		cuda-piggy.sh = cuda-piggy.sh
+		llvm-includes.cpp = llvm-includes.cpp
+		piggy.sh = piggy.sh
 		LICENSE.txt = LICENSE.txt
-		m.pig = m.pig
 		README.md = README.md
 	EndProjectSection
 EndProject
