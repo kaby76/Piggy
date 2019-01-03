@@ -40,5 +40,4 @@
             GLOBALS.define(s);
         }
     }
-
 }

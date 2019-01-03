@@ -1,4 +1,5 @@
-﻿using PiggyGenerator;
+﻿using System;
+using PiggyGenerator;
 using CommandLine;
 
 namespace ConsoleApp1
@@ -10,7 +11,7 @@ namespace ConsoleApp1
             [Option('a', "clang-ast-file", Required = false, HelpText = "Clang ast input file.")]
             public string ClangFile { get; set; }
 
-            [Option('s', "piggy-spec-file", Required = true, HelpText = "Piggy spec input file.")]
+            [Option('s', "piggy-spec-file", Required = false, HelpText = "Piggy spec input file.")]
             public string PiggyFile { get; set; }
 
             [Option('k', "keep-intermediate-file", Required = false, HelpText = "Keep the intermediate C# file for debugging.")]
@@ -36,6 +37,8 @@ namespace ConsoleApp1
                     spec_file = o.PiggyFile;
                     keep_file = o.KeepFile;
                     expression = o.Expression;
+                    if (spec_file == null && expression == null)
+                        throw new Exception("Either spec file or expression must be set.");
                 })
                 .WithNotParsed(a =>
                 {

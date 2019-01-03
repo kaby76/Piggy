@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "-s cuda.pig -a .generated_cuda_ast",
+      "commandLineArgs": "-e \"(EnumDecl)\" -a .generated_cuda_ast",
       "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3"
     }
   }

@@ -15,7 +15,6 @@
         public IParseTree _ast;
         public List<Pass> _passes;
         public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
-        public Dictionary<IParseTree, int> depth = new Dictionary<IParseTree, int>();
         public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
         public List<IParseTree> pre_order = new List<IParseTree>();
         public List<IParseTree> post_order = new List<IParseTree>();
@@ -86,13 +85,11 @@
             var stack = new Stack<IParseTree>();
             pre_order = new List<IParseTree>();
             stack.Push(_ast);
-            depth[_ast] = 0;
             int current_dfs_number = 0;
 
             while (stack.Count > 0)
             {
                 var v = stack.Pop();
-                var current_depth = depth[v];
                 if (visited.Contains(v)) continue;
                 visited.Add(v);
                 pre_order_number[v] = current_dfs_number;
@@ -100,7 +97,6 @@
                 for (int i = v.ChildCount - 1; i >= 0; --i)
                 {
                     var c = v.GetChild(i);
-                    depth[c] = current_depth + 1;
                     if (!visited.Contains(c))
                         stack.Push(c);
                 }

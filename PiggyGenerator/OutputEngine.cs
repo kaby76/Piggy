@@ -1,13 +1,5 @@
-﻿
-// #define DEBUGOUTPUT
-
-using System.Collections;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using org.antlr.symtab;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
-
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -350,7 +342,7 @@ namespace " + @namespace + @"
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
             StackQueue<List<IParseTree>> dfs_parent_chain = new StackQueue<List<IParseTree>>();
             stack.Push(re._ast);
-            dfs_parent_chain.Push(new List<IParseTree>(){ });
+            dfs_parent_chain.Push(new List<IParseTree>() { });
             while (stack.Count > 0)
             {
                 var x = stack.Pop();
@@ -378,18 +370,6 @@ namespace " + @namespace + @"
 
                         if (pattern != null && pc != null)
                         {
-#if DEBUGOUTPUT
-                            System.Console.WriteLine("------------- types");
-                            System.Console.WriteLine("x type " + x.GetType());
-                            System.Console.WriteLine("c type " + c.GetType());
-                            System.Console.WriteLine("p type " + pattern.GetType());
-                            System.Console.WriteLine("pc type " + pc.GetType());
-                            System.Console.WriteLine("------------- values");
-                            System.Console.WriteLine("x value " + TreeRegEx.sourceTextForContext(x));
-                            System.Console.WriteLine("c value " + TreeRegEx.sourceTextForContext(c));
-                            System.Console.WriteLine("p value " + TreeRegEx.sourceTextForContext(pattern));
-                            System.Console.WriteLine("pc value " + TreeRegEx.sourceTextForContext(pc));
-#endif
                             for (; ci < pattern.ChildCount; ++ci)
                             {
                                 var cp = pattern.GetChild(ci);
@@ -419,7 +399,7 @@ namespace " + @namespace + @"
                                 if (exit_loop) break;
                             }
                         }
-                        
+
                         after.Insert(0, c);
                     }
 
@@ -427,15 +407,11 @@ namespace " + @namespace + @"
                     {
                         stack.Push(al);
                         dfs_parent_chain.Push((new List<IParseTree>()).Concat(context)
-                            .Concat(new List<IParseTree>() {x}).ToList());
+                            .Concat(new List<IParseTree>() { x }).ToList());
                     }
                 }
                 else if (is_spec_node(x))
                 {
-                    //System.Console.WriteLine("+sss+");
-                    //System.Console.WriteLine("x " + TreeRegEx.sourceTextForContext(x));
-                    //System.Console.WriteLine("-----");
-
                     if (x as SpecParserParser.TextContext != null)
                     {
                         string s = TreeRegEx.sourceTextForContext(x);
@@ -454,10 +430,6 @@ namespace " + @namespace + @"
                         while (top >= 0)
                         {
                             con = context[top];
-#if DEBUGOUTPUT
-                            System.Console.WriteLine("con " + TreeRegEx.sourceTextForContext(con));
-                            System.Console.WriteLine("-----");
-#endif
                             if (is_ast_node(con)) break;
                             top--;
                         }
@@ -474,7 +446,7 @@ namespace " + @namespace + @"
                             MethodInfo main = _piggy._code_blocks[x];
                             Type type = re._current_type;
                             object instance = re._instance;
-                            object[] a = new object[]{ new Tree(re.parent, re._ast, con), builder };
+                            object[] a = new object[] { new Tree(re.parent, re._ast, con), builder };
                             var res = main.Invoke(instance, a);
                         }
                         finally
@@ -543,6 +515,40 @@ namespace " + @namespace + @"
             }
         }
 
+        public void OutputMatches(StringBuilder builder, TreeRegEx re)
+        {
+            var visited = new HashSet<IParseTree>();
+            StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
+            stack.Push(re._ast);
+            while (stack.Count > 0)
+            {
+                var x = stack.Pop();
+                if (is_ast_node(x))
+                {
+                    if (visited.Contains(x)) continue;
+                    visited.Add(x);
+                    re.matches.TryGetValue(x, out HashSet<IParseTree> v);
+                    if (v != null)
+                    {
+                        System.Console.WriteLine(TreeRegEx.sourceTextForContext(x));
+                    }
+                    else
+                        for (int i = x.ChildCount - 1; i >= 0; --i)
+                        {
+                            var c = x.GetChild(i);
+                            if (!visited.Contains(c))
+                            {
+                                stack.Push(c);
+                            }
+                        }
+                }
+                else if (x as TerminalNodeImpl != null)
+                    ;
+                else
+                    throw new Exception();
+            }
+        }
+
         private List<Pass> GetAllPassesNamed(Template template, string pass_name)
         {
             List<Pass> collection = new List<Pass>();
@@ -559,7 +565,7 @@ namespace " + @namespace + @"
             return collection;
         }
 
-        public string Run()
+        public string Run(bool just_find)
         {
             StringBuilder combined_result = new StringBuilder();
             CompileTemplates();
@@ -592,76 +598,46 @@ namespace " + @namespace + @"
                 List<Pass> passes = GetAllPassesNamed(template, pass_name);
                 TreeRegEx regex = new TreeRegEx(_piggy, passes, _instances[template.Type]);
                 regex.dfs_match();
-
-#if DEBUGOUTPUT
-                foreach (KeyValuePair<IParseTree, HashSet<IParseTree>> match in regex.matches)
-                {
-                    System.Console.WriteLine("==========================");
-                    System.Console.WriteLine("Tree type " + match.Key.GetType());
-                    System.Console.WriteLine("Tree " + TreeRegEx.sourceTextForContext(match.Key));
-                    foreach (var m in match.Value)
-                    {
-                        System.Console.WriteLine("Pattern type " + m.GetType());
-                        System.Console.WriteLine("Pattern " + TreeRegEx.sourceTextForContext(m));
-                    }
-                }
-                System.Console.WriteLine("==========================");
-#endif
-                PatternMatchingEngine(combined_result, regex);
+                if (just_find) OutputMatches(combined_result, regex);
+                else PatternMatchingEngine(combined_result, regex);
             }
 
-            //////
-            //string re2 = Regex.Replace(combined_result.ToString(),
-            //    @"\r([^\n])", @"\r\n$1");
-            //System.IO.File.WriteAllText(@"C:\temp\t2.txt", re2);
-            //var re3 = Regex.Replace(re2,
-            //    @"([^\r])\n", @"$1\r\n");
-            //System.IO.File.WriteAllText(@"C:\temp\t3.txt", re3);
-            //var re9 = new Regex(@"^\s+");
-            //var matches = re9.Matches(re3);
-            //foreach (Match m in matches)
-            //{
-            //    var m2 = m.Groups;
-            //}
-            //string sa = re3;
-            //for (;;)
-            //{
-            //    var re4 = Regex.Replace(sa, @"[\t]+", " ");
-            //    re3 = Regex.Replace(re4, "\r\n ", "\r\n");
-            //    re4 = Regex.Replace(re3, @"^\s+", "");
-            //    if (sa == re4) break;
-            //    sa = re4;
-            //}
-            //System.IO.File.WriteAllText(@"C:\temp\t4.txt", sa);
-            string sa = combined_result.ToString();
-
-            var workspace = new AdhocWorkspace();
-            string projectName = "HelloWorldProject";
-            ProjectId projectId = ProjectId.CreateNewId();
-            VersionStamp versionStamp = VersionStamp.Create();
-            ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName, LanguageNames.CSharp);
-            SourceText sourceText = SourceText.From(sa);
-            Project newProject = workspace.AddProject(helloWorldProject);
-            Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
-            OptionSet options = workspace.Options;
-            options = options
-                    .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
-                    .WithChangedOption(CSharpFormattingOptions.IndentBraces, false)
-                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
-                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
-                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
-                    .WithChangedOption(CSharpFormattingOptions.NewLineForElse, true)
-                    .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, true)
-                    .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, true)
-                ;
-            var syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
-            SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
-            StringBuilder sb = new StringBuilder();
-            using (StringWriter writer = new StringWriter(sb))
+            if (just_find)
             {
-                formattedNode.WriteTo(writer);
-                var r = writer.ToString();
-                return r;
+                return combined_result.ToString();
+            }
+            else
+            {
+                string sa = combined_result.ToString();
+                var workspace = new AdhocWorkspace();
+                string projectName = "HelloWorldProject";
+                ProjectId projectId = ProjectId.CreateNewId();
+                VersionStamp versionStamp = VersionStamp.Create();
+                ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName,
+                    LanguageNames.CSharp);
+                SourceText sourceText = SourceText.From(sa);
+                Project newProject = workspace.AddProject(helloWorldProject);
+                Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
+                OptionSet options = workspace.Options;
+                options = options
+                        .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
+                        .WithChangedOption(CSharpFormattingOptions.IndentBraces, false)
+                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
+                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
+                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
+                        .WithChangedOption(CSharpFormattingOptions.NewLineForElse, true)
+                        .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, true)
+                        .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, true)
+                    ;
+                var syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+                SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
+                StringBuilder sb = new StringBuilder();
+                using (StringWriter writer = new StringWriter(sb))
+                {
+                    formattedNode.WriteTo(writer);
+                    var r = writer.ToString();
+                    return r;
+                }
             }
         }
     }

@@ -21,6 +21,33 @@ namespace PiggyGenerator
             _program = program;
         }
 
+        public void ParseExpressionPattern(string expression)
+        {
+            ErrorListener<IToken> listener = new ErrorListener<IToken>();
+            ICharStream stream = CharStreams.fromstring(expression);
+            ITokenSource lexer = new SpecLexer(stream);
+            ITokenStream tokens = new CommonTokenStream(lexer);
+            SpecParserParser parser = new SpecParserParser(tokens);
+            parser.BuildParseTree = true;
+            parser.AddErrorListener(listener);
+            var spec_ast = parser.pattern();
+            if (listener.had_error)
+            {
+                System.Console.WriteLine(spec_ast.GetText());
+                throw new Exception();
+            }
+            var template = new Template();
+            _current_template = template;
+            template.TemplateName = "Grep";
+            _program._templates.Add(template);
+            _current_pass = new Pass();
+            _current_pass.Name = "Grep";
+            _current_pass.Owner = _current_template;
+            _current_template.Passes.Add(_current_pass);
+            _program._application.OrderedPasses.Add("Grep.Grep");
+            ParseTreeWalker.Default.Walk(this, spec_ast);
+        }
+
         public void ParseSpecFile(string specification)
         {
             ErrorListener<IToken> listener = new ErrorListener<IToken>();
@@ -29,7 +56,6 @@ namespace PiggyGenerator
                 System.Console.WriteLine("File " + specification + " does not exist.");
                 throw new Exception();
             }
-
             ICharStream stream = CharStreams.fromPath(specification);
             ITokenSource lexer = new SpecLexer(stream);
             ITokenStream tokens = new CommonTokenStream(lexer);
@@ -42,7 +68,6 @@ namespace PiggyGenerator
                 System.Console.WriteLine(spec_ast.GetText());
                 throw new Exception();
             }
-
             ParseTreeWalker.Default.Walk(this, spec_ast);
         }
 
@@ -64,9 +89,9 @@ namespace PiggyGenerator
 
         public override void EnterTemplate(SpecParserParser.TemplateContext context)
         {
-            var template = new Template();
             var c = context.GetChild(1);
             var name = c.GetText();
+            var template = new Template();
             template.TemplateName = name;
             _program._templates.Add(template);
             _current_template = template;
@@ -122,7 +147,6 @@ namespace PiggyGenerator
 
         public override void EnterPattern(SpecParserParser.PatternContext context)
         {
-            var current_template = _current_template;
             var current_pass = _current_pass;
             var pattern = new Pattern();
             pattern.Owner = current_pass;
