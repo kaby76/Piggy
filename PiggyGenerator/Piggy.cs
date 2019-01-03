@@ -16,6 +16,7 @@ namespace PiggyGenerator
         public static string _copyright = @"";
         public List<string> _clang_files = new List<string>();
         public string _specification = string.Empty;
+        public string _expression = null;
         public List<string> _clang_options = new List<string>();
         public bool _display_ast = false;
         public Dictionary<string, List<SpecParserParser.TemplateContext>> _patterns = new Dictionary<string, List<SpecParserParser.TemplateContext>>();
@@ -31,7 +32,7 @@ namespace PiggyGenerator
         public List<string> _referenced_assemblies = new List<string>();
         public bool _keep_file;
 
-        public void Doit(string ast_file, string spec_file, bool keep_file)
+        public void Doit(string ast_file, string spec_file, bool keep_file, string expression)
         {
             _keep_file = keep_file;
             ErrorListener<IToken> listener = new ErrorListener<IToken>();

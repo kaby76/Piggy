@@ -55,7 +55,7 @@
             }
         }
 
-        public override Symbol resolve(string name)
+        public override Symbol resolve(string name, bool alias = false)
         {
             Symbol s = resolveMember(name);
             if (s != null)
@@ -66,7 +66,7 @@
             Scope parent = EnclosingScope;
             if (parent != null)
             {
-                return parent.resolve(name);
+                return parent.resolve(name, alias);
             }
             return null; // not found
         }

@@ -15,6 +15,9 @@ namespace ConsoleApp1
 
             [Option('k', "keep-intermediate-file", Required = false, HelpText = "Keep the intermediate C# file for debugging.")]
             public bool KeepFile { get; set; }
+
+            [Option('e', "expression", Required = false, HelpText = "Individual pattern to match AST, like grep.")]
+            public string Expression { get; set; }
         }
 
 
@@ -25,19 +28,21 @@ namespace ConsoleApp1
             string ast_file = null;
             string spec_file = null;
             bool keep_file = false;
+            string expression = null;
             CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed<Options>(o =>
                 {
                     ast_file = o.ClangFile;
                     spec_file = o.PiggyFile;
                     keep_file = o.KeepFile;
+                    expression = o.Expression;
                 })
                 .WithNotParsed(a =>
                 {
                     System.Console.WriteLine(a);
                 });
 
-            p.Doit(ast_file, spec_file, keep_file);
+            p.Doit(ast_file, spec_file, keep_file, expression);
         }
     }
 }

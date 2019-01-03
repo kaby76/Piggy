@@ -8,7 +8,7 @@ template Decls
         protected string limit = ".*"; // Context of what file can match.
         protected string dllname = "unknown_dll"; // A dll to load for DllImport.
         protected Stack<Scope> _stack = new Stack<Scope>();
-        protected SymbolTable _symbol_table = new SymbolTable();
+        public static SymbolTable _symbol_table = new SymbolTable();
     }}
 
     init {{

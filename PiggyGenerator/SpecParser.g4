@@ -60,7 +60,7 @@ id_or_star_or_empty: ID | STAR | /* epsilon */ ;
 more : rexp | text | code | attr ;
 code: LDCURLY OTHER* RDCURLY ;
 text: LANG OTHER_ANG* RANG ;
-attr: ID EQ (StringLiteral | STAR);
+attr: ID EQ (StringLiteral | STAR) | NOT ID;
 /*
 // CMPT 384 Lecture Notes Robert D. Cameron November 29 - December 1, 1999
 // BNF Grammar of Regular Expressions

@@ -26,6 +26,7 @@ STAR            :       '*';
 PLUS            :       '+';
 DOT             :       '.';
 DOLLAR          :       '$';
+NOT             :       '!';
 OPEN_RE         :       '(%';
 CLOSE_RE        :       '%)';
 OPEN_PAREN      :       '(';

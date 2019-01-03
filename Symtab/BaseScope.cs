@@ -1,6 +1,7 @@
 ﻿namespace org.antlr.symtab
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// An abstract base class that houses common functionality for scopes. </summary>
@@ -32,8 +33,6 @@
             EnclosingScope = enclosingScope;
         }
 
-//JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in .NET:
-//ORIGINAL LINE: public java.util.Map<String, ? extends Symbol> getMembers()
         public virtual IDictionary<string, Symbol> Members
         {
             get
@@ -96,8 +95,6 @@
         /// Add a nested scope to this scope; could also be a FunctionSymbol
         ///  if your language allows nested functions.
         /// </summary>
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: @Override public void nest(Scope scope) throws IllegalArgumentException
         public virtual void nest(Scope scope)
         {
             if (scope is SymbolWithScope)
@@ -107,20 +104,44 @@
             nestedScopesNotSymbols.Add(scope);
         }
 
-        public virtual Symbol resolve(string name)
+        public virtual Symbol resolve(string name, bool alias = false)
         {
-            symbols.TryGetValue(name, out Symbol s);
-            if (s != null)
+            if (!alias)
             {
-                return s;
+                symbols.TryGetValue(name, out Symbol s);
+                if (s != null)
+                {
+                    return s;
+                }
+                // if not here, check any enclosing scope
+                Scope parent = EnclosingScope;
+                if (parent != null)
+                {
+                    return parent.resolve(name, alias);
+                }
+                return null; // not found
             }
-            // if not here, check any enclosing scope
-            Scope parent = EnclosingScope;
-            if (parent != null)
+            else
             {
-                return parent.resolve(name);
+                var list = symbols.Where(kvp =>
+                {
+                    var a = kvp.Value as TypeAlias;
+                    if (a != null)
+                    {
+                        if (a.targetType.Name == name) return true;
+                    }
+                    return false;
+                });
+                if (list.Count() > 1) return null;
+                if (list.Count() == 1) return list.First().Value;
+                // if not here, check any enclosing scope
+                Scope parent = EnclosingScope;
+                if (parent != null)
+                {
+                    return parent.resolve(name, alias);
+                }
+                return null; // not found
             }
-            return null; // not found
         }
 
 //JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
