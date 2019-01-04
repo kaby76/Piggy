@@ -5,6 +5,8 @@ template Structs
         protected string limit = ""; // Context of what file can match.
         protected Stack<Scope> _stack = new Stack<Scope>();
         public static SymbolTable _symbol_table = new SymbolTable();
+		protected List<string> generate_for_these = new List<string>(){"*"};
+		protected List<string> do_not_match_these = new List<string>();
     }}
 
     init {{
@@ -42,6 +44,10 @@ template Structs
                 if (decl_level == -1) return;
                 var typedef_name = tree.Peek(decl_level).Attr("Name");
                 if (typedef_name == "") return;
+				// Kleene star can potentially match too much. Remove these
+				// from consideration another way.
+				if (do_not_match_these.Contains(typedef_name)) return;
+				if (do_not_match_these.Contains(name)) return;
                 var def = scope.getSymbol(typedef_name);
                 if (def != null) return;
                 var sym = scope.getSymbol(name);
@@ -63,6 +69,7 @@ template Structs
                 var scope = _stack.Peek();
                 var typedef_name = scope.resolve(name, true);
                 if (typedef_name != null) name = typedef_name.Name;
+				if (!generate_for_these.Contains(name)) return;
                 result.AppendLine(
                     @"public partial struct " + name + @"
                     {
