@@ -354,6 +354,17 @@
             return result;
         }
 
+        public bool is_pattern_not_attr(IParseTree p)
+        {
+            if (p == null) return false;
+            if (p as SpecParserParser.MoreContext == null) return false;
+            p = p.GetChild(0);
+            SpecParserParser.AttrContext attr = p as SpecParserParser.AttrContext;
+            if (attr == null) return false;
+            return attr.GetText().StartsWith("!");
+        }
+
+
         /*
          * Determine via lookahead if a node for a pattern matcher
          * is an attribute or not.
@@ -562,6 +573,7 @@
                 // a ")". Note, if the pattern is a "*" or "+" expression,
                 // we keep looking for this pattern. Otherwise, we skip to the
                 // next pattern child.
+                bool is_not_attr = this.is_pattern_not_attr(p_more);
                 bool is_attr = this.is_pattern_attr(p_more);
                 bool is_plus = this.is_pattern_plus(p_more);
                 bool is_star = this.is_pattern_star(p_more);
@@ -590,7 +602,14 @@
                     }
                 }
                 // If you didn't match pattern child, then this pattern can't match.
-                if (!matched) return false;
+                if (is_not_attr)
+                {
+                    if (matched) return false;
+                }
+                else
+                {
+                    if (!matched) return false;
+                }
             }
 
             {
@@ -695,7 +714,17 @@
             int pos = 0;
             var p_id = p_attr.GetChild(pos);
             var t_id = t_attr.GetChild(pos);
-            if (p_id.GetText() != t_id.GetText()) return false;
+            if (p_id.GetText() == "!")
+            {
+                pos++;
+                p_id = p_attr.GetChild(pos);
+                if (p_id.GetText() == t_id.GetText()) return true;
+                else return false;
+            }
+            else
+            {
+                if (p_id.GetText() != t_id.GetText()) return false;
+            }
             pos++;
             pos++;
             var p_val = p_attr.GetChild(pos);
