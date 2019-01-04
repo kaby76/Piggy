@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.Build.Tasks;
+
 namespace PiggyRuntime
 {
     using System;
@@ -44,6 +46,11 @@ namespace PiggyRuntime
             }
             Tree t = new Tree(_parent, _ast, v);
             return t;
+        }
+
+        public IParseTree Current
+        {
+            get { return _current; }
         }
 
         public string Attr(string name)

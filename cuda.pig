@@ -6,7 +6,6 @@ template CudaEnums : Enums
     init {{
         // Override limits in matching.
         limit = ".*\\.*GPU.*\\.*";
-        dllname = "nvcuda";
     }}
 }
 
