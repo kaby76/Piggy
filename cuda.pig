@@ -1,13 +1,5 @@
-using 'Decls.pig';
 using 'Enums.pig';
 using 'Structs.pig';
-
-template CudaDecls : Decls
-{
-    init {{
-        limit = ".*\\.*GPU.*\\.*";
-    }}
-}
 
 template CudaEnums : Enums
 {
@@ -26,9 +18,8 @@ template CudaStructs : Structs
 }
 
 application
-    CudaDecls.CollectEnums
-    CudaEnums.GenerateHeader
-    CudaEnums.GenerateEnums
+    CudaEnums.CollectTypedefEnums
+	CudaEnums.GenerateEnums
     CudaStructs.CollectStructs
     CudaStructs.GenerateStructs
     CudaEnums.Functions

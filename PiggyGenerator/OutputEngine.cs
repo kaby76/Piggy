@@ -290,7 +290,7 @@ namespace " + @namespace + @"
 
                             foreach (Diagnostic diagnostic in failures)
                             {
-                                Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
+                                Console.Error.WriteLine("{0}: {1} {2}", diagnostic.Location.ToString(), diagnostic.Id, diagnostic.GetMessage());
                             }
                             throw new Exception();
                         }

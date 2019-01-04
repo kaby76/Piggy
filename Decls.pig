@@ -18,28 +18,27 @@ template Decls
     }}
 
     pass CollectEnums {
-        ( EnumDecl SrcRange=$"{Decls.limit}"
+        ( TypedefDecl SrcRange=$"{Decls.limit}" Name=* ( ElaboratedType ( EnumType ( Enum Name=*
             {{
-                // Grab the declaration. If no name, then create one.
                 var scope = _stack.Peek();
                 var name = tree.Attr("Name");
-                if (name == "") return;
+				var typedef_name = tree.Peek(3).Attr("Name");
+                if (typedef_name == "") return;
+                if (scope.getSymbol(typedef_name) != null) return;
+				var type = new TypeAlias(typedef_name, name);
+                scope.define(type);
+            }}
+        ))))
+
+        ( EnumDecl SrcRange=$"{Decls.limit}" Name=*
+            {{
+                var scope = _stack.Peek();
+                var name = tree.Attr("Name");
+
                 if (scope.getSymbol(name) != null) return;
                 var type = new EnumSymbol(name);
                 scope.define(type);
             }}
         )
-
-        ( TypedefDecl Name=* ( ElaboratedType ( EnumType ( Enum Name=*
-            {{
-                var scope = _stack.Peek();
-                var name = tree.Attr("Name");
-                if (name == "") return;
-                if (scope.getSymbol(name) != null) return;
-                var type = new TypeAlias(name, null);
-                scope.define(type);
-            }}
-        ))))
-
     }
 }
