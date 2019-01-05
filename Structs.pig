@@ -4,13 +4,12 @@ template Structs
         protected bool first = true;
         protected string limit = ""; // Context of what file can match.
         protected Stack<Scope> _stack = new Stack<Scope>();
-        public static SymbolTable _symbol_table = new SymbolTable();
 		protected List<string> generate_for_these = new List<string>(){"*"};
 		protected List<string> do_not_match_these = new List<string>();
     }}
 
     init {{
-        _stack.Push(new GlobalScope(null));
+        _stack.Push(_symbol_table.GLOBALS);
     }}
 
     pass CollectStructs {

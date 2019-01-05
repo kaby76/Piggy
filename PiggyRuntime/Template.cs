@@ -22,12 +22,8 @@
 
         public List<Action> InitializationActions { get; set; } = new List<Action>();
 
-        public virtual void ExecuteInitializations()
-        {
-            foreach (var a in InitializationActions)
-                a();
-        }
-
         public System.Type @Type { get; set; }
+
+        public static SymbolTable _symbol_table = new SymbolTable();
     }
 }

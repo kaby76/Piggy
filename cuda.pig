@@ -34,6 +34,9 @@ template CudaFuncs : Funcs
     init {{
         limit = ".*\\.*GPU.*\\.*";
 		dllname = "nvcuda";
+		_parm_type_map = new Dictionary<string, string>() {
+			{ "CUresult:enum cudaError_enum", "CUresult" }
+		};
     }}
 }
 

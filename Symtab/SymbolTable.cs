@@ -15,7 +15,7 @@
         public static readonly Type INVALID_TYPE = new InvalidType();
 
         public BaseScope PREDEFINED = new PredefinedScope();
-        public GlobalScope GLOBALS;
+        public GlobalScope GLOBALS = new GlobalScope(null);
 
         public SymbolTable()
         {

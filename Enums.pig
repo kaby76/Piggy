@@ -5,11 +5,10 @@ template Enums
         protected bool first = true;
         protected string limit = ""; // Context of what file can match.
         protected Stack<Scope> _stack = new Stack<Scope>();
-        public static SymbolTable _symbol_table = new SymbolTable();
     }}
 
     init {{
-        _stack.Push(new GlobalScope(null));
+        _stack.Push(_symbol_table.GLOBALS);
     }}
 
     pass CollectTypedefEnums {
