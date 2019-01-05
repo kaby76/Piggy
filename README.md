@@ -32,6 +32,8 @@ only the headers.
 Piggy is actually two tools: a wrapper for Clang to output serialized ASTs; a tool that reads ASTs and a .PIG file,
 which specifies the templates, and outputs code.
 
+Both tools are Net Core apps. So, you can either build the tool and use _dotnet_ or publish the apps to use an stand-alone executable.
+
 1) Use ClangSerializer to output the AST for your code. To call the program, run _ClangSerializer -c "..." -f "..."_, where
 -c are the Clang options as one argument (use quotes and space delimiting each option, and don't use the minus sign, e.g., -c "Ic:/temp/include"); -f specifies the input file (e.g., -f "cuda-includes.cpp"). ClangSerializer outputs a parenthesized expression tree to standard out, which you should redirect to a file for the next step.
 
@@ -108,6 +110,23 @@ For the latest Antlr grammar files describing the input into Piggy, see
 and [SpecLexer.g4](https://github.com/kaby76/Piggy/blob/master/Piggy/SpecLexer.g4).
 
 (Note: I highly recommend using my [AntlrVSIX](https://marketplace.visualstudio.com/items?itemName=KenDomino.AntlrVSIX) plugin for reading and editing Antlr grammars in Visual Studio 2017!)
+
+### Using Piggy as a _grep_
+
+Piggy can be used as a grep to find nodes in the tree with the _-e_ option. Any pattern used in a template should be possible. Here are some examples:
+~~~~
+# Get all EnumDecls.
+cat .generated_cuda_ast | cat .generated_cuda_ast | dotnet ./Piggy/bin/Debug/netcoreapp2.2/Piggy.dll -e "( EnumDecl )"
+
+# Get all TypedefDecls.
+cat .generated_cuda_ast | cat .generated_cuda_ast | dotnet ./Piggy/bin/Debug/netcoreapp2.2/Piggy.dll -e "( TypedefDecl )"
+
+# Get all EnumDecls that start with CU for the name.
+cat .generated_cuda_ast | cat .generated_cuda_ast | dotnet ./Piggy/bin/Debug/netcoreapp2.2/Piggy.dll -e '( EnumDecl Name="CU*" )'
+
+# Get all EnumDecls that do not have a Name attribute.
+cat .generated_cuda_ast | cat .generated_cuda_ast | dotnet ./Piggy/bin/Debug/netcoreapp2.2/Piggy.dll -e "( EnumDecl !Name )"
+~~~~
 
 ## Relation to template engines
 
