@@ -35,7 +35,25 @@ template CudaFuncs : Funcs
         limit = ".*\\.*GPU.*\\.*";
 		dllname = "nvcuda";
 		_parm_type_map = new Dictionary<string, string>() {
-			{ "CUresult:enum cudaError_enum", "CUresult" }
+			{ "CUresult:enum cudaError_enum", "CUresult" },
+			{ "const char **", "out IntPtr" },
+			{ "unsigned int", "uint" },
+			{ "int *", "out int" },
+			{ "CUdevice *", "out CUdevice" },
+			{ "char *", "[Out] byte[]"},
+			{ "CUuuid *", "out CUuuid" },
+			{ "size_t *", "out SizeT" },
+			{ "unsigned int *", "out uint" },
+			{ "CUdevprop *", "out CUdevprop" },
+			{ "CUcontext *", "out CUcontext" },
+			{ "CUfunc_cache *", "out CUfunc_cache" },
+			{ "CUmodule *", "out CUmodule" },
+			{ "CUsharedconfig *", "out CUsharedconfig" },
+			{ "CUfunction *", "out CUfunction" },
+			{ "CUdeviceptr *", "out CUdeviceptr" },
+			{ "CUtexref *", "out CUtexref" },
+			{ "CUsurfref *", "out CUsurfref" },
+			{ "void **", "out IntPtr" },
 		};
     }}
 }
