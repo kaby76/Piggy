@@ -32,51 +32,23 @@ only the headers.
 Piggy is actually two tools: a wrapper for Clang to output serialized ASTs; a tool that reads ASTs and a .PIG file,
 which specifies the templates, and outputs code.
 
-1) First, use ClangSerializer to output the AST for your code. To call the program, run _ClangSerializer -c "..." -f "..."_, where
--c is a Clang option, typically an include directory, e.g., "-c 'Ic:/temp/include', and where -f is the input code, which could
-be a .cpp or .h file, e.g., "-f 'c:/temp/include/clang-c/index.h'". This will output to stdout an AST in a standardized format.
-Save the output to a file for reference by the second tool.
+1) Use ClangSerializer to output the AST for your code. To call the program, run _ClangSerializer -c "..." -f "..."_, where
+-c are the Clang options as one argument (use quotes and space delimiting each option, and don't use the minus sign, e.g., -c "Ic:/temp/include"); -f specifies the input file (e.g., -f "cuda-includes.cpp"). ClangSerializer outputs a parenthesized expression tree to standard out, which you should redirect to a file for the next step.
 
-2) Second, use Piggy to convert the AST to code. To call the program, run _Piggy -s xxx.pig -a xxx.ast_, where
+2) Use Piggy to convert the AST to code. To call the program, run _Piggy -s xxx.pig -a xxx.ast_, where
 -s is an option to specify the input .pig file that contains the template rules; and where -a is an option to specify the input
-AST. The output of Piggy is assumed to be C# code, and formatted by the tool before outputting.
+AST. The output of Piggy is assumed to be C# code, and formatted by the tool before outputting. It is also possible to use Piggy as a _grep_ tool to find nodes in the AST. For example, _Piggy -a xxx.ast -e "( EnumDecl )"_ will find all EnumDecl's in the tree.
 
-## Background ##
-
-Piggy extends the ideas of other pinvoke generators:
-* [SWIG](http://swig.org/), the original pinvoke generator, which uses a specification file containing type maps.
-* [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
- and [CppSharp](https://github.com/mono/CppSharp), which use Clang AST visitors of the Clang-C API.
-* [Lumír Kojecký's](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
- [CodeProject article for dynamically compiling and executing C# code in the Net Framework](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
-* [Clang-query](https://github.com/llvm-mirror/clang-tools-extra/tree/master/clang-query),
-which was used as a starting point for serializing an AST (the XML serializer no longer exists).
-* [Jared Parsons' PInvoke Interop Assistant](https://github.com/jaredpar/pinvoke),
-which is another open-source pinvoke generator.
-* [xInterop C++.Net Bridge, by Shawn Liu](https://www.xinterop.com/). Commercial product, no longer available.
-
-## Piggy Specification File
-
-Instead of using and extending the unwieldy command-line arguments for input,
-Piggy uses a specification file. This file specifies what options to use
-for Clang and C# code generation. The grammar and parser for the specification file is for Antlr, a
-high quality parser generator.
-
-For an example of the Piggy specification file, see the Enums example in the root directory. There are two files,
-m.pig and basic.pig. The m.pig file sets up the Clang input: C files and compiler options. Then, it includes
-the main specification file basic.pig. In that file, multiple passes are specified in order to generate enums and 
-function pinvoke declarations. The example demonstrates some very important featuers: Kleene star tree expressions,
-dynamic string interpolation for selecting only "clang-c" directories.
-
-### Spec file grammar
-
-For the latest Antlr grammar files describing the input into Piggy, see
-[SpecParser.g4](https://github.com/kaby76/Piggy/blob/master/Piggy/SpecParser.g4)
-and [SpecLexer.g4](https://github.com/kaby76/Piggy/blob/master/Piggy/SpecLexer.g4).
-
-(Note: I highly recommend using my [AntlrVSIX](https://marketplace.visualstudio.com/items?itemName=KenDomino.AntlrVSIX) plugin for reading and editing Antlr grammars in Visual Studio 2017!)
+I recommend you look at the CUDA example in the root directory of Piggy. It contains code for enums, typedefs, and functions for generating a basic CUDA interface. Please understand that Piggy requires a bit of work for you to generate a pinvoke interface. There is no magic here, and you will have to program a bit to get it to work the way you want. I eventually plan to expand the Enums/Structs/Funcs.pig files to have a large library for generating basic interfaces. I also plan to write .targets and .props files to have Piggy generate an interface during a build to use in your program.
 
 ## Building Piggy ##
+
+Piggy requires a few things to build. Once built, a number of the dependencies are not required.
+
+1) Java SE SDK (for building Piggy)
+2) Antlr4 tool (for building Piggy)
+3) LLVM source (for building Piggy)
+4) Net Core 2 (for building and running Piggy)
 
 Download [llvm](http://releases.llvm.org/7.0.0/llvm-7.0.0.src.tar.xz),
  [clang](http://releases.llvm.org/7.0.0/cfe-7.0.0.src.tar.xz),
@@ -96,6 +68,46 @@ msbuild LLVM.sln /p:Configuration=Debug /p:Platform=x64
 ~~~~
 Once you have built LLVM and Clang, you can build Piggy. Make sure to map e:/ to the
 location of clang-llvm/.
+
+Piggy requires Antlr4. Please set up JAVA_HOME for the root of the Java installation, and Antlr4ToolPath to the path of the Antlr4 jar file. Alternatively, place in your CSPROJ file:
+~~~~
+<PropertyGroup>
+    <JAVA_HOME>C:\Program Files\Java\jdk-11.0.1</JAVA_HOME>
+</PropertyGroup>
+
+<PropertyGroup>
+    <Antlr4ToolPath>C:\Program Files\Java\javalib\antlr-4.7.2-complete.jar</Antlr4ToolPath>
+</PropertyGroup>
+~~~~
+
+## Background ##
+
+Piggy extends the ideas of other pinvoke generators:
+* [SWIG](http://swig.org/), the original pinvoke generator, which uses a specification file containing type maps.
+* [ClangSharp](https://github.com/Microsoft/ClangSharp) [(Mukul Sabharwal; mjsabby)](https://github.com/mjsabby),
+ and [CppSharp](https://github.com/mono/CppSharp), which use Clang AST visitors of the Clang-C API.
+* [Lumír Kojecký's](https://www.codeproject.com/script/Membership/View.aspx?mid=9709944)
+ [CodeProject article for dynamically compiling and executing C# code in the Net Framework](https://www.codeproject.com/Tips/715891/Compiling-Csharp-Code-at-Runtime).
+* [Clang-query](https://github.com/llvm-mirror/clang-tools-extra/tree/master/clang-query),
+which was used as a starting point for serializing an AST (the XML serializer no longer exists).
+* [Jared Parsons' PInvoke Interop Assistant](https://github.com/jaredpar/pinvoke),
+which is another open-source pinvoke generator.
+* [xInterop C++.Net Bridge, by Shawn Liu](https://www.xinterop.com/). Commercial product, no longer available.
+
+## Piggy Specification File
+
+Instead of using and extending the unwieldy command-line arguments for input,
+Piggy uses a specification file. This file specifies teh templates for generating code.
+
+For an example of the Piggy specification file, see the CUDA example in the root directory, starting with the Bash file "cuda-piggy.sh".
+
+### Spec file grammar
+
+For the latest Antlr grammar files describing the input into Piggy, see
+[SpecParser.g4](https://github.com/kaby76/Piggy/blob/master/Piggy/SpecParser.g4)
+and [SpecLexer.g4](https://github.com/kaby76/Piggy/blob/master/Piggy/SpecLexer.g4).
+
+(Note: I highly recommend using my [AntlrVSIX](https://marketplace.visualstudio.com/items?itemName=KenDomino.AntlrVSIX) plugin for reading and editing Antlr grammars in Visual Studio 2017!)
 
 ## Relation to template engines
 
