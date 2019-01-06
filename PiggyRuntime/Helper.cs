@@ -25,29 +25,16 @@
             if (c == "uint") return "uint";
             if (c == "short") return "short";
             if (c == "ushort") return "ushort";
+            if (c == "long") return "long";
+            if (c == "unsigned long") return "ulong";
             if (c == "long long") return "long";
             if (c == "unsigned long long") return "ulong";
+            if (c == "unsigned int") return "uint";
             if (c == "float") return "float";
             if (c == "double") return "double";
             if (c == "bool") return "bool";
             if (c == "char") return "int";
             return type;
-        }
-
-        public static bool BaseType(string type)
-        {
-            type = type.Trim();
-            var b = type.Split(' ').ToList();
-            if (b.Count > 1) return false;
-            var c = b[0];
-            if (c == "int") return false;
-            if (c == "long") return false;
-            if (c == "short") return false;
-            if (c == "float") return false;
-            if (c == "double") return false;
-            if (c == "bool") return false;
-            if (c == "char") return false;
-            return true;
         }
     }
 

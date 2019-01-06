@@ -48,7 +48,7 @@ template Enums
                 var scope = _stack.Peek();
                 var typedef_name = scope.resolve(name, true);
                 if (typedef_name != null) name = typedef_name.Name;
-                result.Append("public enum @" + name + " {" + Environment.NewLine);
+                result.Append("public enum " + name + " {" + Environment.NewLine);
             }}
             (%
                 ( EnumConstantDecl
@@ -58,7 +58,7 @@ template Enums
                                 first = false;
                             else
                                 result.Append("," + Environment.NewLine);
-                            result.Append("@" + tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value"));
+                            result.Append("" + tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value"));
                         }}
                     )
                 )
@@ -69,7 +69,7 @@ template Enums
                             first = false;
                         else
                             result.Append("," + Environment.NewLine);
-                        result.Append("@" + tree.Attr("Name"));
+                        result.Append("" + tree.Attr("Name"));
                     }}
                 )
             %)*

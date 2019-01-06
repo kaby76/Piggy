@@ -13,6 +13,18 @@ template Funcs
         _stack.Push(_symbol_table.GLOBALS);
     }}
 
+	pass Start {
+		( TranslationUnitDecl [[
+		public class Functions {
+		]])
+	}
+
+	pass End {
+		( TranslationUnitDecl [[
+		}
+		]])
+	}
+
     pass Functions {
         ( FunctionDecl SrcRange=$"{Funcs.limit}" Name=*
             {{

@@ -4,7 +4,6 @@ template Structs
         protected bool first = true;
         protected string limit = ""; // Context of what file can match.
         protected Stack<Scope> _stack = new Stack<Scope>();
-		protected List<string> generate_for_these = new List<string>(){"*"};
 		protected List<string> do_not_match_these = new List<string>();
     }}
 
@@ -62,13 +61,38 @@ template Structs
     }
 
     pass GenerateStructs {
+		// If there are fields, set them up.
         ( CXXRecordDecl SrcRange=$"{Structs.limit}" Name=*
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = scope.resolve(name, true);
                 if (typedef_name != null) name = typedef_name.Name;
-				if (!generate_for_these.Contains(name)) return;
+                result.AppendLine(
+                    @"public partial struct " + name + @"
+                    {
+                    ");
+            }}
+			(%
+                ( FieldDecl
+                    {{
+						var type = tree.Attr("Type");
+						var name = tree.Attr("Name");
+                        result.AppendLine("" + type + " " + name + ";");
+                    }}
+                )
+            %)*
+            [[}
+            ]]
+        )
+
+		// If no fields, make a plain struct.
+        ( CXXRecordDecl SrcRange=$"{Structs.limit}" Name=*
+            {{
+                string name = tree.Attr("Name");
+                var scope = _stack.Peek();
+                var typedef_name = scope.resolve(name, true);
+                if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
                     @"public partial struct " + name + @"
                     {
