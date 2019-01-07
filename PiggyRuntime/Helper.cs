@@ -72,7 +72,7 @@ namespace PiggyRuntime
             {"float", "float"},
             {"double", "double"},
             {"bool", "bool"},
-            {"char", "int"},
+            {"char", "byte"},
         };
 
         public static string ModNonParamUsageType(string type)

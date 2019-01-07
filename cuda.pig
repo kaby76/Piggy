@@ -93,7 +93,7 @@ application
 	CudaNamespace.GenerateStart
     CudaEnums.CollectTypedefEnums
 	CudaEnums.GenerateEnums
-    CudaStructs.CollectStructs
+    CudaTypedefs.GeneratePointerTypes
     CudaStructs.GenerateStructs
 	CudaTypedefs.GenerateTypedefs
 	CudaFuncs.Start

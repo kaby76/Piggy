@@ -2,61 +2,12 @@ template Structs
 {
     header {{
         protected bool first = true;
-		protected List<string> do_not_match_these = new List<string>();
+        protected List<string> do_not_match_these = new List<string>();
+        int generated = 0;
     }}
 
-    pass CollectStructs {
-        ( TypedefDecl SrcRange=$"{Structs.limit}" Name=* (* CXXRecord Name=*
-            {{
-                var scope = _stack.Peek();
-                // Get the name of the typedef.
-                var name = tree.Attr("Name");
-                // Challenge here with Kleene Closure--I don't know apriori at
-                // what level the TypedefDecl was matched, so I don't know what level
-                // to do the peek. Piggy needs work. For now, just search
-                // up the tree for the right type.
-                int decl_level = -1;
-                var decl = tree;
-                for (int i = 0; ; ++i)
-                {
-                    var p = decl.Current;
-                    if (p == null)
-                        break;
-                    if (p.GetChild(1).GetText() == "TypedefDecl")
-                    {
-                        decl_level = i;
-                        break;
-                    }
-                    if (p == null)
-                        break;
-                    decl = decl.Peek(1);
-                    if (decl == null)
-                        break;
-                }
-                if (decl_level == -1) return;
-                var typedef_name = tree.Peek(decl_level).Attr("Name");
-                if (typedef_name == "") return;
-				// Kleene star can potentially match too much. Remove these
-				// from consideration another way.
-				if (do_not_match_these.Contains(typedef_name)) return;
-				if (do_not_match_these.Contains(name)) return;
-
-                var def = scope.getSymbol(typedef_name);
-                if (def != null) return;
-                var sym = scope.getSymbol(name);
-                if (sym == null)
-                {
-                    sym = new StructSymbol(name);
-                    scope.define(sym);
-                }
-                var type = new TypeAlias(typedef_name, sym as org.antlr.symtab.Type);
-                scope.define(type);
-            }}
-        *) )
-    }
-
     pass GenerateStructs {
-		// If there are fields, set them up.
+        // If there are fields, set them up.
         ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=* Attrs="definition"
             {{
                 string name = tree.Attr("Name");
@@ -64,23 +15,39 @@ template Structs
                 var typedef_name = scope.resolve(name, true);
                 if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
-                    @"public partial struct " + name + @"
-                    {
-                    ");
+                    @"[StructLayout(LayoutKind.Sequential)]
+                    public partial struct " + name + @"
+                    {");
             }}
                 ( FieldDecl
                     {{
-						var name = tree.Attr("Name");
-						var premod_type = tree.Attr("Type");
-						var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
-                        result.AppendLine("" + postmod_type + " " + name + ";");
+                        var name = tree.Attr("Name");
+                        var premod_type = tree.Attr("Type");
+                        var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+                        Regex regex = new Regex("(?<basetype>.*)[[](?<index>.*)[]]");
+                        var match = regex.Match(postmod_type);
+                        if (match.Success)
+                        {
+                            var ssize = (string)match.Groups["index"].Value;
+                            var num = Int32.Parse(ssize);
+                            var basetype = (string)match.Groups["basetype"].Value;
+                            var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
+                            for (int i = 0; i < num; ++i)
+                            {
+                                result.AppendLine("" + base_postmod_type + " gen" + generated++ + ";");
+                            }
+                        }
+                        else
+                        {
+                            result.AppendLine("" + postmod_type + " " + name + ";");
+                        }
                     }}
                 )+
             [[}
             ]]
         )
 
-		// If no fields, make a struct for storing a pointer to the struct.
+        // If no fields, make a struct for storing a pointer to the struct.
         ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=* Attrs="definition"
             {{
                 string name = tree.Attr("Name");
@@ -88,7 +55,8 @@ template Structs
                 var typedef_name = scope.resolve(name, true);
                 if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
-                    @"public partial struct " + name + @"
+                    @"[StructLayout(LayoutKind.Sequential)]
+                    public partial struct " + name + @"
                     {
                         public " + name + @"(IntPtr pointer)
                         {
