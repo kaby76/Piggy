@@ -297,12 +297,11 @@
          */
         private bool match_plus_rexp(IParseTree p, IParseTree t, bool map = false)
         {
-            SpecParserParser.Star_rexpContext star_rexp =
-                p as SpecParserParser.Star_rexpContext;
-            if (star_rexp == null) return false;
-            var child = star_rexp.GetChild(0);
+            SpecParserParser.Plus_rexpContext plus_rexp =
+                p as SpecParserParser.Plus_rexpContext;
+            if (plus_rexp == null) return false;
+            var child = plus_rexp.GetChild(0);
             if (child == null) return false;
-            // Match one or more of elementary.
             bool result = match_elementary_rexp(child, t, map);
             if (result && map) matches.MyAdd(t, p);
             return result;
@@ -606,6 +605,9 @@
                 {
                     if (matched) return false;
                 }
+                else if (is_star)
+                {
+                }
                 else
                 {
                     if (!matched) return false;
@@ -753,6 +755,11 @@
                     throw e;
                 }
                 pattern = pattern.Replace("\\", "\\\\");
+            }
+            else
+            {
+                pattern = pattern.Substring(1);
+                pattern = pattern.Substring(0, pattern.Length - 1);
             }
 
             Regex re = new Regex(pattern);

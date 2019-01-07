@@ -3,14 +3,7 @@ template Funcs
 {
     header {{
         protected bool first = true;
-        protected string limit = ""; // Context of what file can match.
         protected string dllname = "";
-        protected Stack<Scope> _stack = new Stack<Scope>();
-        protected Dictionary<string, string> _parm_type_map = new Dictionary<string, string>();
-    }}
-
-    init {{
-        _stack.Push(_symbol_table.GLOBALS);
     }}
 
 	pass Start {
@@ -31,15 +24,19 @@ template Funcs
                 result.Append("[DllImport(\"" + dllname + "\", CallingConvention = CallingConvention.ThisCall,"
                    + " EntryPoint=\"" + tree.Attr("Name") + "\")]" + Environment.NewLine);
                 var scope = _stack.Peek();
-                var type = tree.Attr("Type");
-                var found_type = scope.getSymbol(type);
-                if (found_type == null)
+				var function_type = tree.Attr("Type");
+				var raw_return_type = PiggyRuntime.TemplateHelpers.GetFunctionReturn(function_type);
+                var premod_type = raw_return_type;
+                var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+				var symbol = scope.getSymbol(postmod_type);
+				string type = "";
+                if (symbol == null)
                 {
-                    type = PiggyRuntime.TemplateHelpers.GetFunctionReturn(type);
+					type = "UNKNOWN";
                 }
                 else
                 {
-                    type = found_type.Name;
+                    type = symbol.Name;
                 }
                 result.Append("public static extern "
                    + type + " "
@@ -53,9 +50,7 @@ template Funcs
                     else
                         result.Append(", ");
                     var premod_type = tree.Attr("Type");
-					var trimmed = premod_type.Split(':')[0];
-                    _parm_type_map.TryGetValue(trimmed, out string postmod_type);
-                    if (postmod_type == null) postmod_type = PiggyRuntime.TemplateHelpers.ModParamType(trimmed);
+					var postmod_type = PiggyRuntime.TemplateHelpers.ModParamUsageType(premod_type);
                     result.Append(postmod_type + " " + tree.Attr("Name"));
                 }}
             )*

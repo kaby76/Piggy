@@ -1127,14 +1127,18 @@ void MyASTDumper::VisitEnumDecl(const EnumDecl *D) {
 
 void MyASTDumper::VisitRecordDecl(const RecordDecl *D) {
 	*OS << " KindName=\"";
-	*OS << ' ' << D->getKindName();
+	*OS << D->getKindName();
 	*OS << "\"";
 	dumpName(D);
 	*OS << " Attrs=\"";
+	int space = 0;
+	if (D->isModulePrivate() && D->isCompleteDefinition())
+		space = 1;
 	if (D->isModulePrivate())
-		*OS << " __module_private__";
+		*OS << "__module_private__";
+	if (space) *OS << ' ';
 	if (D->isCompleteDefinition())
-		*OS << " definition";
+		*OS << "definition";
 	*OS << "\"";
 }
 

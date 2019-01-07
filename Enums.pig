@@ -3,12 +3,6 @@ template Enums
 {
     header {{
         protected bool first = true;
-        protected string limit = ""; // Context of what file can match.
-        protected Stack<Scope> _stack = new Stack<Scope>();
-    }}
-
-    init {{
-        _stack.Push(_symbol_table.GLOBALS);
     }}
 
     pass CollectTypedefEnums {

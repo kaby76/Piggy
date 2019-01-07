@@ -6,7 +6,10 @@
 
     public class Template
     {
-        public Template() { }
+        public Template()
+        {
+            _stack.Push(_symbol_table.GLOBALS);
+        }
 
         public string TemplateName { get; set; }
 
@@ -24,6 +27,10 @@
 
         public System.Type @Type { get; set; }
 
-        public static SymbolTable _symbol_table = new SymbolTable();
+        protected static SymbolTable _symbol_table = new SymbolTable();
+
+        protected static Stack<Scope> _stack = new Stack<Scope>();
+
+        protected string limit = ""; // Context of what file can match.
     }
 }

@@ -2,13 +2,7 @@ template Structs
 {
     header {{
         protected bool first = true;
-        protected string limit = ""; // Context of what file can match.
-        protected Stack<Scope> _stack = new Stack<Scope>();
 		protected List<string> do_not_match_these = new List<string>();
-    }}
-
-    init {{
-        _stack.Push(_symbol_table.GLOBALS);
     }}
 
     pass CollectStructs {
@@ -46,6 +40,7 @@ template Structs
 				// from consideration another way.
 				if (do_not_match_these.Contains(typedef_name)) return;
 				if (do_not_match_these.Contains(name)) return;
+
                 var def = scope.getSymbol(typedef_name);
                 if (def != null) return;
                 var sym = scope.getSymbol(name);
@@ -62,7 +57,7 @@ template Structs
 
     pass GenerateStructs {
 		// If there are fields, set them up.
-        ( CXXRecordDecl SrcRange=$"{Structs.limit}" Name=*
+        ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=* Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
@@ -73,21 +68,20 @@ template Structs
                     {
                     ");
             }}
-			(%
                 ( FieldDecl
                     {{
-						var type = tree.Attr("Type");
 						var name = tree.Attr("Name");
-                        result.AppendLine("" + type + " " + name + ";");
+						var premod_type = tree.Attr("Type");
+						var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+                        result.AppendLine("" + postmod_type + " " + name + ";");
                     }}
-                )
-            %)*
+                )+
             [[}
             ]]
         )
 
-		// If no fields, make a plain struct.
-        ( CXXRecordDecl SrcRange=$"{Structs.limit}" Name=*
+		// If no fields, make a struct for storing a pointer to the struct.
+        ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=* Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();

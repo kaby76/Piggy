@@ -1,9 +1,11 @@
-﻿namespace PiggyRuntime
+﻿
+namespace PiggyRuntime
 {
     using System;
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Collections.Generic;
 
     public class TemplateHelpers
     {
@@ -17,24 +19,82 @@
             return res;
         }
 
-        public static string ModParamType(string type)
+        private static Dictionary<string, string> _parm_type_map = new Dictionary<string, string>()
         {
-            // Convert C++ types to C#.
-            var c = type.Trim();
-            if (c == "int") return "int";
-            if (c == "uint") return "uint";
-            if (c == "short") return "short";
-            if (c == "ushort") return "ushort";
-            if (c == "long") return "long";
-            if (c == "unsigned long") return "ulong";
-            if (c == "long long") return "long";
-            if (c == "unsigned long long") return "ulong";
-            if (c == "unsigned int") return "uint";
-            if (c == "float") return "float";
-            if (c == "double") return "double";
-            if (c == "bool") return "bool";
-            if (c == "char") return "int";
-            return type;
+            {"int", "int"},
+            {"uint", "uint"},
+            {"short", "short"},
+            {"ushort", "ushort"},
+            {"long", "long"},
+            {"unsigned long", "ulong"},
+            {"long long", "long"},
+            {"unsigned long long", "ulong"},
+            {"unsigned int", "uint"},
+            {"float", "float"},
+            {"double", "double"},
+            {"bool", "bool"},
+            {"char", "int"},
+        };
+
+        public static string ModParamUsageType(string type)
+        {
+            type = type.Trim();
+            type = type.Split(':')[0];
+            _parm_type_map.TryGetValue(type, out string result);
+            if (result == null) return type;
+            return result;
+        }
+
+        public static string ModParamUsageType(Dictionary<string, string> additions)
+        {
+            foreach (var kvp in additions)
+            {
+                var type = kvp.Key;
+                var rewrite = kvp.Value;
+                type = type.Trim();
+                type = type.Split(':')[0];
+                _parm_type_map[type] = rewrite;
+            }
+            return null;
+        }
+
+        private static Dictionary<string, string> _type_map = new Dictionary<string, string>()
+        {
+            {"int", "int"},
+            {"uint", "uint"},
+            {"short", "short"},
+            {"ushort", "ushort"},
+            {"long", "long"},
+            {"unsigned long", "ulong"},
+            {"long long", "long"},
+            {"unsigned long long", "ulong"},
+            {"unsigned int", "uint"},
+            {"float", "float"},
+            {"double", "double"},
+            {"bool", "bool"},
+            {"char", "int"},
+        };
+
+        public static string ModNonParamUsageType(string type)
+        {
+            type = type.Trim();
+            type = type.Split(':')[0];
+            _type_map.TryGetValue(type, out string result);
+            if (result == null) return type;
+            return result;
+        }
+
+        public static string ModNonParamUsageType(Dictionary<string, string> additions)
+        {
+            foreach (var kvp in additions)
+            {
+                var type = kvp.Key;
+                var rewrite = kvp.Value;
+                type = type.Trim();
+                type = type.Split(':')[0];
+                _type_map[type] = rewrite;
+            }
+            return null;
         }
     }
 
