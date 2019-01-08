@@ -121,7 +121,7 @@
                         SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
                         _current_type = pattern.Owner.Owner.Type;
                         // Try matching at vertex, if the node hasn't been already matched.
-                        if (!matches.ContainsKey(t))
+                        if (!matches.ContainsKey(v))
                         {
                             //System.Console.WriteLine("Trying match ");
                             //System.Console.WriteLine("Template " + sourceTextForContext(t));
@@ -129,6 +129,10 @@
                             bool matched = match_pattern(t, v);
                             if (matched)
                                 match_pattern(t, v, true);
+                        }
+                        else
+                        {
+                            
                         }
                     }
                 }

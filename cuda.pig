@@ -58,6 +58,16 @@ template CudaFuncs : Funcs
         limit = ".*\\.*GPU.*\\.*";
 		dllname = "nvcuda";
     }}
+
+	pass Functions {
+        ( FunctionDecl SrcRange=$"{CudaFuncs.limit}" Name="cuModuleLoadDataEx"
+            {{ int x = 1; }}
+			[[ [DllImport("nvcuda", CallingConvention = CallingConvention.ThisCall, EntryPoint = "cuModuleLoadDataEx")]
+			public static extern CUresult cuModuleLoadDataEx(out CUmodule jarg1, IntPtr jarg2, uint jarg3, CUjit_option[] jarg4, IntPtr jarg5);
+			
+			]]
+        )
+    }
 }
 
 application
