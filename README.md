@@ -134,11 +134,11 @@ Piggy is similar to other engines, like CppSharp and ClangSharp,
 but whereas those engines use hardwired tree walking code to output pinvoke declarations,
 Piggy uses templates.
 Like JSP (1), which turned the concept of a servlet inside-out into a template
-which we now call HTML (2), Piggy turns the tree walking matcher "inside-out" with .
+which we now call HTML (2), Piggy turns the tree walking matcher "inside-out" for tree walking.
 
 Piggy does not separate "model/view" as discussed
 by Parr (2). So, the logic of the translation to pinvoke declarations is
-interspersed with the model--the AST pattern.
+interspersed with the AST pattern.
 In the future, a tree matching template could be formalized
 in order to refine the concept of a tree matching template. It's probably
 been done before, but I haven't had time to fully research the idea.
