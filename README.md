@@ -66,7 +66,7 @@ Build using cmake (see [instructions](https://clang.llvm.org/get_started.html)).
 ~~~~
 mkdir build; cd build
 cmake -G "Visual Studio 15 2017" -A x64 -Thost=x64 ..\llvm
-msbuild LLVM.sln /p:Configuration=Debug /p:Platform=x64
+msbuild LLVM.sln /p:Configuration=Release /p:Platform=x64
 ~~~~
 Once you have built LLVM and Clang, you can build Piggy. Make sure to map e:/ to the
 location of clang-llvm/.
