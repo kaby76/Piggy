@@ -12,16 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.generated_cuda_ast = .generated_cuda_ast
 		cuda-includes.cpp = cuda-includes.cpp
 		cuda-piggy.sh = cuda-piggy.sh
-		cuda.pig = cuda.pig
-		Enums.pig = Enums.pig
-		Funcs.pig = Funcs.pig
 		LICENSE.txt = LICENSE.txt
 		llvm-includes.cpp = llvm-includes.cpp
-		Namespace.pig = Namespace.pig
 		piggy.sh = piggy.sh
 		README.md = README.md
-		Structs.pig = Structs.pig
-		Typedefs.pig = Typedefs.pig
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClangCode", "ClangCode\ClangCode.vcxproj", "{10BD2752-C671-4FED-84CE-5D4F951040B5}"
@@ -33,6 +27,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiggyRuntime", "PiggyRuntime\PiggyRuntime.csproj", "{F225B810-8F81-4131-B613-942B66EB22E5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClangSerializer", "ClangSerializer\ClangSerializer.csproj", "{96E440B3-4BEE-494F-B016-C16AEF392E99}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{0DEBEA44-0D5F-40B6-8F08-A2ED5E36367C}"
+	ProjectSection(SolutionItems) = preProject
+		Templates\cuda.pig = Templates\cuda.pig
+		Templates\Enums.pig = Templates\Enums.pig
+		Templates\Funcs.pig = Templates\Funcs.pig
+		Templates\Namespace.pig = Templates\Namespace.pig
+		Templates\Structs.pig = Templates\Structs.pig
+		Templates\Typedefs.pig = Templates\Typedefs.pig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

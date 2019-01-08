@@ -2,8 +2,6 @@
   "profiles": {
     "ClangSerializer": {
       "commandName": "Project",
-      "commandLineArgs": "  -c \"Ic:\\Users\\Kenne\\Documents\\clang-llvm\\llvm\\include\"   \"Ic:\\Users\\Kenne\\Documents\\clang-llvm\\build\\include\"   -f llvm-includes.cpp",
-      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3",
       "nativeDebugging": true
     }
   }

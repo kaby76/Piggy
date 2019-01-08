@@ -3,6 +3,15 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Product>Piggy</Product>
+    <Description>a</Description>
+    <PackageId>Piggy</PackageId>
+    <PackageReleaseNotes>b</PackageReleaseNotes>
+    <Version>1.0.0</Version>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Company>Piggy</Company>
+    <Authors>Piggy</Authors>
   </PropertyGroup>
 
   <ItemGroup>

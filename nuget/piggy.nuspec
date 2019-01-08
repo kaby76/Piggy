@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>piggy</id>
+    <title>piggy</title>
+    <version>1.0.0</version>
+    <authors>Ken Domino</authors>
+    <owners>Ken Domino</owners>
+    <language>en-us</language>
+    <projectUrl>https://github.com/kaby76/piggy</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/kaby76/piggy/master/piggy.svg</iconUrl>
+    <licenseUrl>https://github.com/kaby76/piggy/blob/master/license</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A PInvoke Generator.</description>
+    <copyright>Copyright © Ken Domino 2019</copyright>
+    <tags>pinvoke generator</tags>
+    <developmentDependency>true</developmentDependency>
+  </metadata>
+  <files>
+    <file src="..\ClangSerializer\bin\Release\netcoreapp2.2\" target="lib/net40" />
+  </files>
+</package>
