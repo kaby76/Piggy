@@ -1,7 +1,7 @@
 template Namespace
 {
     header {{
-        protected string namespace_name = "";
+        protected string namespace_name = "Just_a_Default_Name";
     }}
 
     pass GenerateStart {
@@ -18,12 +18,10 @@ template Namespace
             using System.Text;
             using System.Threading.Tasks;
             using System.IO;
-            using PiggyRuntime;
             using System.Runtime.InteropServices;
-            using org.antlr.symtab;
             using System.Text.RegularExpressions;
 
-            namespace]] {{ Console.Write(namespace_name); }} [[ {
+            namespace ]] {{ result.Append(namespace_name); }} [[ {
 
                 [StructLayout(LayoutKind.Sequential)]
                 public struct SizeT

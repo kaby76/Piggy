@@ -47,17 +47,26 @@ template CudaEnums : Enums
     init {{
         // Override limits in matching.
         limit = ".*\\.*GPU.*\\.*";
+		var list = new List<string>() {
+			"cudaError_enum",
+			"CUdevice_attribute_enum",
+			"CUjit_option_enum",
+			"CUmemAttach_flags_enum",
+			"CUjitInputType_enum",
+			};
+		generate_for_only = String.Join("|", list);
     }}
 }
 
 template CudaStructs : Structs
 {
     init {{
+        // Override limits in matching.
         limit = ".*\\.*GPU.*\\.*";
-		do_not_match_these = new List<string>() {
-			"CUstreamCallback",
-			"CUstreamMemOpFlushRemoteWritesParams_st"
-		};
+		var list = new List<string>() {
+			"xxxxxx",
+			};
+		generate_for_only = String.Join("|", list);
     }}
 }
 
@@ -66,6 +75,18 @@ template CudaTypedefs : Typedefs
     init {{
         // Override limits in matching.
         limit = ".*\\.*GPU.*\\.*";
+		var list = new List<string>() {
+			"^CUresult$",
+			"^CUcontext$",
+			"^CUfunction$",
+			"^CUlinkState$",
+			"^CUmodule$",
+			"^CUstream$",
+			"^CUdevice$",
+			"^CUjit_option$",
+			"^CUdeviceptr$",
+			};
+		generate_for_only = String.Join("|", list);
     }}
 }
 
@@ -74,12 +95,26 @@ template CudaFuncs : Funcs
 {
     init {{
         limit = ".*\\.*GPU.*\\.*";
+		var list = new List<string>() {
+			"^cuCtxSynchronize$",
+			"^cuDeviceGet$",
+			"^cuDeviceGetCount$",
+			"^cuDeviceGetName$",
+			"^cuDevicePrimaryCtxReset$",
+			"^cuDeviceTotalMem_v2$",
+			"^cuGetErrorString$",
+			"^cuInit$",
+			"^cuLaunchKernel$",
+			"^cuLinkComplete$",
+			"^cuMemFreeHost$",
+			"^cuMemGetInfo_v2$",
+			"^cuModuleGetGlobal_v2$" };
+		generate_for_only = String.Join("|", list);
 		dllname = "nvcuda";
     }}
 
 	pass Functions {
         ( FunctionDecl SrcRange=$"{CudaFuncs.limit}" Name="cuModuleLoadDataEx"
-            {{ int x = 1; }}
 			[[ [DllImport("nvcuda", CallingConvention = CallingConvention.ThisCall, EntryPoint = "cuModuleLoadDataEx")]
 			public static extern CUresult cuModuleLoadDataEx(out CUmodule jarg1, IntPtr jarg2, uint jarg3, CUjit_option[] jarg4, IntPtr jarg5);
 			
@@ -90,7 +125,6 @@ template CudaFuncs : Funcs
 
 application
 	CudaNamespace.GenerateStart
-    CudaEnums.CollectTypedefEnums
 	CudaEnums.GenerateEnums
     CudaTypedefs.GeneratePointerTypes
     CudaStructs.GenerateStructs

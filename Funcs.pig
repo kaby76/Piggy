@@ -4,6 +4,7 @@ template Funcs
     header {{
         protected bool first = true;
         protected string dllname = "";
+		protected string generate_for_only = ".*"; // default to everything.
     }}
 
 	pass Start {
@@ -19,7 +20,7 @@ template Funcs
 	}
 
     pass Functions {
-        ( FunctionDecl SrcRange=$"{Funcs.limit}" Name=*
+        ( FunctionDecl SrcRange=$"{Funcs.limit}" Name=$"{Funcs.generate_for_only}"
             {{
                 result.Append("[DllImport(\"" + dllname + "\", CallingConvention = CallingConvention.ThisCall,"
                    + " EntryPoint=\"" + tree.Attr("Name") + "\")]" + Environment.NewLine);
@@ -28,16 +29,7 @@ template Funcs
 				var raw_return_type = PiggyRuntime.TemplateHelpers.GetFunctionReturn(function_type);
                 var premod_type = raw_return_type;
                 var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
-				var symbol = scope.getSymbol(postmod_type);
-				string type = "";
-                if (symbol == null)
-                {
-					type = "UNKNOWN";
-                }
-                else
-                {
-                    type = symbol.Name;
-                }
+				var type = postmod_type;
                 result.Append("public static extern "
                    + type + " "
                    + tree.Attr("Name") + "(");

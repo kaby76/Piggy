@@ -3,45 +3,17 @@ template Enums
 {
     header {{
         protected bool first = true;
+		protected string generate_for_only = ".*"; // default to everything.
     }}
 
-    pass CollectTypedefEnums {
-        // Create enum types for use with typedefs.
-        ( EnumDecl SrcRange=$"{Enums.limit}" Name=*
-            {{
-                var scope = _stack.Peek();
-                var name = tree.Attr("Name");
-                if (scope.getSymbol(name) != null) return;
-                var type = new EnumSymbol(name);
-                scope.define(type);
-            }}
-        )
-
-        // These occur after the EnumDecl.
-        ( TypedefDecl SrcRange=$"{Enums.limit}" Name=* ( ElaboratedType ( EnumType ( Enum Name=*
-            {{
-                var scope = _stack.Peek();
-                var name = tree.Attr("Name");
-                var typedef_name = tree.Peek(3).Attr("Name");
-                if (typedef_name == "") return;
-                var def = scope.getSymbol(typedef_name);
-                if (def != null) return;
-                var sym = scope.getSymbol(name) as org.antlr.symtab.Type;
-                if (sym == null) return;
-                var type = new TypeAlias(typedef_name, sym);
-                scope.define(type);
-            }}
-        ))))
-    }
-
     pass GenerateEnums {
-        ( EnumDecl SrcRange=$"{Enums.limit}" Name=*
+        ( EnumDecl SrcRange=$"{Enums.limit}" Name=$"{Enums.generate_for_only}"
             {{
                 first = true;
                 string name = tree.Attr("Name");
-                var scope = _stack.Peek();
-                var typedef_name = scope.resolve(name, true);
-                if (typedef_name != null) name = typedef_name.Name;
+//                var scope = _stack.Peek();
+//                var typedef_name = scope.resolve(name, true);
+//                if (typedef_name != null) name = typedef_name.Name;
                 result.Append("public enum " + name + " {" + Environment.NewLine);
             }}
             (%

@@ -1,13 +1,17 @@
 
 template Typedefs
 {
+    header {{
+		protected string generate_for_only = ".*"; // default to everything.
+    }}
+
     // The only mechanism to create an alias type in C# is to use a struct,
     // where there is one field of the type desired.
 	//
 	// There are so far the following cases:
 
     pass GeneratePointerTypes {
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=* ( PointerType )
+        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( PointerType )
             {{
                 var scope = _stack.Peek();
                 var name = tree.Attr("Name");
@@ -31,22 +35,12 @@ template Typedefs
     }
 
     pass GenerateTypedefs {
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=* ( BuiltinType BareType=*
+        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( BuiltinType BareType=*
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(1).Attr("Name");
                 var baretype_name = tree.Attr("BareType");
-                // Bare type could be pointer, etc., so apply modifications to get C# corrected type.
                 baretype_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(baretype_name);
-                if (scope.getSymbol(name) != null) return;
-                var sym = scope.getSymbol(baretype_name);
-                if (sym == null)
-                {
-                    sym = new PrimitiveType(baretype_name) as org.antlr.symtab.Symbol;
-					scope.define(sym);
-                }
-                var def = new StructSymbol(name);
-                scope.define(def);
                 result.AppendLine(
                     @"public partial struct " + name + @"
                     {
@@ -60,21 +54,12 @@ template Typedefs
             }}
         ))
     
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=* ( ElaboratedType ( RecordType ( CXXRecord Name=*
+        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( ElaboratedType ( RecordType ( CXXRecord Name=*
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
                 var cxxrec_name = tree.Attr("Name");
                 cxxrec_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(cxxrec_name);
-                if (scope.getSymbol(name) != null) return;
-                var sym = scope.getSymbol(cxxrec_name);
-                if (sym == null)
-                {
-                    sym = new StructSymbol(cxxrec_name);
-					scope.define(sym);
-                }
-                var def = new StructSymbol(name);
-                scope.define(def);
                 result.AppendLine(
                     @"public partial struct " + name + @"
                     {
@@ -83,6 +68,25 @@ template Typedefs
                             this.Value = value;
                         }
                         public " + cxxrec_name + @" Value;
+                    }
+                    ");
+            }}
+        ))))
+
+        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( ElaboratedType ( EnumType ( Enum Name=*
+            {{
+                var scope = _stack.Peek();
+                var name = tree.Peek(3).Attr("Name");
+                var base_name = tree.Attr("Name");
+                base_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(base_name);
+                result.AppendLine(
+                    @"public partial struct " + name + @"
+                    {
+                        public " + name + @"(" + base_name + @" value)
+                        {
+                            this.Value = value;
+                        }
+                        public " + base_name + @" Value;
                     }
                     ");
             }}

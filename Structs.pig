@@ -2,18 +2,19 @@ template Structs
 {
     header {{
         protected bool first = true;
-        protected List<string> do_not_match_these = new List<string>();
+		protected string generate_for_only = ".*"; // everything.
         int generated = 0;
     }}
 
     pass GenerateStructs {
         // If there are fields, set them up.
-        ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=* Attrs="definition"
+        ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=$"{Structs.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
-                var typedef_name = scope.resolve(name, true);
-                if (typedef_name != null) name = typedef_name.Name;
+//                var typedef_name = scope.resolve(name, true);
+				var typedef_name = name;
+//                if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
@@ -48,12 +49,13 @@ template Structs
         )
 
         // If no fields, make a struct for storing a pointer to the struct.
-        ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=* Attrs="definition"
+        ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName="struct" Name=$"{Structs.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
-                var typedef_name = scope.resolve(name, true);
-                if (typedef_name != null) name = typedef_name.Name;
+//                var typedef_name = scope.resolve(name, true);
+				var typedef_name = name;
+//                if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
