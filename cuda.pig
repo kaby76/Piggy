@@ -10,17 +10,33 @@ template CudaNamespace : Namespace
 		PiggyRuntime.TemplateHelpers.ModParamUsageType(
 			new Dictionary<string, string>() {
 			{ "const char **", "out IntPtr" },
-			{ "CUdevice *", "out CUdevice" },
 			{ "char *", "[Out] byte[]"},
 			{ "unsigned int *", "out uint" },
 			{ "void **", "out IntPtr" },
+			{ "void *", "IntPtr" },
+            { "const char *", "string" },
+            { "const void *", "IntPtr" },
+			{ "const <type> *", "in <type>"},
 		});
 		PiggyRuntime.TemplateHelpers.ModNonParamUsageType(
 			new Dictionary<string, string>() {
 			{ "char *", "byte[]"},
-			{ "CUsharedconfig", "CUsharedconfig" },
 			{ "size_t", "SizeT" },
-		});
+	        { "int", "int"},
+            { "uint", "uint"},
+            { "short", "short"},
+            { "ushort", "ushort"},
+            { "long", "long"},
+            { "unsigned long", "ulong"},
+            { "long long", "long"},
+            { "unsigned long long", "ulong"},
+            { "unsigned int", "uint"},
+            { "float", "float"},
+            { "double", "double"},
+            { "bool", "bool"},
+            { "char", "byte"},
+            { "const char *", "string" },
+	});
 	}}
 }
 

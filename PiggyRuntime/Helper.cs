@@ -19,8 +19,6 @@
 
         private static Dictionary<string, string> _parm_type_map = new Dictionary<string, string>()
         {
-            {"const char *", "string" },
-            {"const void *", "IntPtr" },
         };
 
         public static string ModParamUsageType(string type)
@@ -68,20 +66,6 @@
 
         private static Dictionary<string, string> _type_map = new Dictionary<string, string>()
         {
-            {"int", "int"},
-            {"uint", "uint"},
-            {"short", "short"},
-            {"ushort", "ushort"},
-            {"long", "long"},
-            {"unsigned long", "ulong"},
-            {"long long", "long"},
-            {"unsigned long long", "ulong"},
-            {"unsigned int", "uint"},
-            {"float", "float"},
-            {"double", "double"},
-            {"bool", "bool"},
-            {"char", "byte"},
-            {"const char *", "string" },
         };
 
         public static string ModNonParamUsageType(string type)
