@@ -1,8 +1,6 @@
-﻿
-namespace PiggyRuntime
+﻿namespace PiggyRuntime
 {
     using System;
-    using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Collections.Generic;
@@ -21,28 +19,38 @@ namespace PiggyRuntime
 
         private static Dictionary<string, string> _parm_type_map = new Dictionary<string, string>()
         {
-            {"int", "int"},
-            {"uint", "uint"},
-            {"short", "short"},
-            {"ushort", "ushort"},
-            {"long", "long"},
-            {"unsigned long", "ulong"},
-            {"long long", "long"},
-            {"unsigned long long", "ulong"},
-            {"unsigned int", "uint"},
-            {"float", "float"},
-            {"double", "double"},
-            {"bool", "bool"},
-            {"char", "int"},
+            {"const char *", "string" },
+            {"const void *", "IntPtr" },
         };
 
         public static string ModParamUsageType(string type)
         {
             type = type.Trim();
             type = type.Split(':')[0];
-            _parm_type_map.TryGetValue(type, out string result);
-            if (result == null) return type;
-            return result;
+            _parm_type_map.TryGetValue(type, out string r);
+            if (r != null) return r;
+            var pointers = type.Split('*');
+            if (pointers.Length == 2)
+            {
+                var bs = pointers[0].Trim();
+                _type_map.TryGetValue(bs, out string result);
+                if (result == null) return "out " + bs;
+                return "out " + result;
+            }
+            else if (pointers.Length == 1)
+            {
+                var bs = pointers[0].Trim();
+                _type_map.TryGetValue(bs, out string result);
+                if (result == null) return pointers[0];
+                return result;
+            }
+            else
+            {
+                var bs = pointers[0].Trim();
+                _type_map.TryGetValue(bs, out string result);
+                if (result == null) return "out IntPtr";
+                return result;
+            }
         }
 
         public static string ModParamUsageType(Dictionary<string, string> additions)
@@ -73,12 +81,20 @@ namespace PiggyRuntime
             {"double", "double"},
             {"bool", "bool"},
             {"char", "byte"},
+            {"const char *", "string" },
         };
 
         public static string ModNonParamUsageType(string type)
         {
             type = type.Trim();
             type = type.Split(':')[0];
+            var pointers = type.Split('*');
+            if (pointers.Length > 1)
+            {
+                // Pointer type.
+                // Just make it IntPtr.
+                return "IntPtr";
+            }
             _type_map.TryGetValue(type, out string result);
             if (result == null) return type;
             return result;

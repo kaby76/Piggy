@@ -59,5 +59,33 @@ template Typedefs
                     ");
             }}
         ))
-    }
+    
+        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=* ( ElaboratedType ( RecordType ( CXXRecord Name=*
+            {{
+                var scope = _stack.Peek();
+                var name = tree.Peek(3).Attr("Name");
+                var cxxrec_name = tree.Attr("Name");
+                cxxrec_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(cxxrec_name);
+                if (scope.getSymbol(name) != null) return;
+                var sym = scope.getSymbol(cxxrec_name);
+                if (sym == null)
+                {
+                    sym = new StructSymbol(cxxrec_name);
+					scope.define(sym);
+                }
+                var def = new StructSymbol(name);
+                scope.define(def);
+                result.AppendLine(
+                    @"public partial struct " + name + @"
+                    {
+                        public " + name + @"(" + cxxrec_name + @" value)
+                        {
+                            this.Value = value;
+                        }
+                        public " + cxxrec_name + @" Value;
+                    }
+                    ");
+            }}
+        ))))
+	}
 }
