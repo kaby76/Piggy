@@ -58,9 +58,10 @@ Download [llvm](http://releases.llvm.org/7.0.0/llvm-7.0.0.src.tar.xz),
 
 Untar the downloads. Then,
 ~~~~
- mv llvm-7.0.0.src clang-llvm               # rename directory to "llvm"
- mv cfe-7.0.0.src clang-llvm/tools/clang;   # move and rename directory to "clang" 
- mv clang-tools-extra-7.0.0.src clang-llvm/tools/clang/tools/extra  # #move and rename
+ mkdir clang-llvm
+ mv llvm-7.0.0.src clang-llvm/llvm               # rename directory to "llvm"
+ mv cfe-7.0.0.src clang-llvm/llvm/tools/clang;   # move and rename directory to "clang" 
+ mv clang-tools-extra-7.0.0.src clang-llvm/llvm/tools/clang/tools/extra  # #move and rename
 ~~~~
 Build using cmake (see [instructions](https://clang.llvm.org/get_started.html)).
 ~~~~
