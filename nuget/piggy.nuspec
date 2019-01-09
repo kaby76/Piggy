@@ -51,5 +51,12 @@
     <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangSerializer.pdb" target="build"/>
     <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangSerializer.runtimeconfig.json" target="build"/>
 
+    <file src="..\Templates\cuda.pig" target="Templates" />
+    <file src="..\Templates\Enums.pig" target="Templates" />
+    <file src="..\Templates\Funcs.pig" target="Templates" />
+    <file src="..\Templates\Namespace.pig" target="Templates" />
+    <file src="..\Templates\Structs.pig" target="Templates" />
+    <file src="..\Templates\Typedefs.pig" target="Templates" />
+
   </files>
 </package>
