@@ -49,7 +49,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -119,7 +119,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>e:\clang-llvm\llvm\tools\clang\tools;e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories>e:\clang-llvm\llvm\tools\clang\tools;e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>e:\clang-llvm\llvm\tools\clang\tools\include;e:\clang-llvm\build\tools\clang\include;e:\clang-llvm\build\include;e:\clang-llvm\llvm\include;e:\clang-llvm\llvm\tools\clang\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4146;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>

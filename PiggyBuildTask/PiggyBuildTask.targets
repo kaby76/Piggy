@@ -1,0 +1,180 @@
+<!--
+   Copyright (c) Ken Domino. All Rights Reserved.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Antlr4IsSdkProject)' == ''">
+    <PiggyIsSdkProject>False</PiggyIsSdkProject>
+    <PiggyIsSdkProject Condition="'$(TargetFramework)' != '' OR '$(TargetFrameworks)' != ''">True</PiggyIsSdkProject>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BuildSystem>MSBuild</BuildSystem>
+    <TaskVersion>1.0.0.0</TaskVersion>
+    <TaskKeyToken>eb42632606e9261f</TaskKeyToken>
+    <PiggyBuildTaskAssemblyName Condition="'$(PiggyBuildTaskAssemblyName)'==''">PiggyBuildTask, Version=$(TaskVersion), Culture=neutral, PublicKeyToken=$(TaskKeyToken)</PiggyBuildTaskAssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LoadTimeSensitiveTargets>
+      $(LoadTimeSensitiveTargets);
+      PiggyCompile;
+    </LoadTimeSensitiveTargets>
+    <LoadTimeSensitiveProperties>
+      $(LoadTimeSensitiveProperties);
+      PiggyCompileDependsOn;
+    </LoadTimeSensitiveProperties>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PiggyBuildTaskLocation Condition="'$(PiggyBuildTaskPath)'==''">$(MSBuildBinPath)</PiggyBuildTaskLocation>
+    <PiggyBuildTaskLocation Condition="'$(PiggyBuildTaskPath)'!=''">$(PiggyBuildTaskPath)</PiggyBuildTaskLocation>
+    <PiggyToolLocation Condition="'$(PiggyToolPath)'==''">NOT_SET_IN_ENV</PiggyToolLocation>
+    <PiggyToolLocation Condition="'$(PiggyToolPath)'!=''">$(PiggyToolPath)</PiggyToolLocation>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PiggyGenCodeFileNames Condition="'$(PiggyGenCodeFileNames)'==''">$(MSBuildProjectFile).PiggyGeneratedCodeFileListAbsolute.txt</PiggyGenCodeFileNames>
+  </PropertyGroup>
+
+  <UsingTask Condition="'$(PiggyBuildTaskPath)'==''" TaskName="Piggy.Build.Tasks.PiggyClassGenerationTask" AssemblyName="$(PiggyBuildTaskAssemblyName)" />
+  <UsingTask Condition="'$(PiggyBuildTaskPath)'!=''" TaskName="Piggy.Build.Tasks.PiggyClassGenerationTask" AssemblyFile="$(PiggyBuildTaskPath)\PiggyBuildTask.dll" />
+
+  <PropertyGroup>
+    <PrepareResourcesDependsOn>
+      PiggyCompile;
+      PiggyCompileAddFilesGenerated;
+      $(PrepareResourcesDependsOn)
+    </PrepareResourcesDependsOn>
+    <SourceFilesProjectOutputGroupDependsOn>
+      PiggyCompile;
+      PiggyCompileAddFilesGenerated;
+      $(SourceFilesProjectOutputGroupDependsOn)
+    </SourceFilesProjectOutputGroupDependsOn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PiggyCompileDependsOn>
+      PiggyCompileReadGeneratedFileList
+    </PiggyCompileDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(BuildingInsideVisualStudio)'=='true'">
+    <AvailableItemName Include="Piggy" />
+  </ItemGroup>
+
+  <ItemDefinitionGroup>
+    <Piggy>
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace Condition="'$(PiggyIsSdkProject)' != 'True'">$(RootNamespace)</CustomToolNamespace>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <Encoding>UTF-8</Encoding>
+      <TargetLanguage>CSharp</TargetLanguage>
+    </Piggy>
+  </ItemDefinitionGroup>
+
+  <Target Name="PiggyCompileReadGeneratedFileList">
+    <ReadLinesFromFile File="$(IntermediateOutputPath)$(PiggyGenCodeFileNames)">
+      <Output TaskParameter="Lines" ItemName="PiggyOutputCodeFilesList"/>
+    </ReadLinesFromFile>
+  </Target>
+
+  <PropertyGroup>
+    <!-- Add grammar compilation to the CoreCompileDependsOn so that the IDE inproc compilers (particularly VB)
+         can "see" the generated source files. -->
+    <CoreCompileDependsOn Condition="'$(BuildingInsideVisualStudio)' == 'true' ">
+      PiggyDesignTimeGrammarCompilation;
+      $(CoreCompileDependsOn)
+    </CoreCompileDependsOn>
+  </PropertyGroup>
+
+  <Target Name="PiggyDesignTimeGrammarCompilation">
+    <PropertyGroup>
+      <PiggyDesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</PiggyDesignTimeBuild>
+    </PropertyGroup>
+
+    <!-- Only if we are not actually performing a compile i.e. we are in design mode -->
+    <CallTarget Condition="'$(PiggyDesignTimeBuild)' == 'true'"
+                Targets="PiggyCompile" />
+  </Target>
+
+  <Target Name="PiggyCompile"
+          DependsOnTargets="$(PiggyCompileDependsOn)"
+          Condition="'@(Piggy)' != ''"
+          Inputs="@(Piggy);@(PiggyTokens);@(PiggyAbstractGrammar)"
+          Outputs="@(PiggyOutputCodeFilesList);
+                  $(IntermediateOutputPath)$(PiggyGenCodeFileNames);">
+
+    <ItemGroup>
+      <PiggyGeneratedCodeFiles Remove="@(PiggyGeneratedCodeFiles)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <PiggyDesignTimeBuild>false</PiggyDesignTimeBuild>
+      <PiggyDesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</PiggyDesignTimeBuild>
+    </PropertyGroup>
+
+    <PiggyClassGenerationTask
+      ToolPath="$(PiggyToolLocation)"
+      BuildTaskPath="$(PiggyBuildTaskLocation)"
+      OutputPath="$(IntermediateOutputPath)"
+      Encoding="%(Piggy.Encoding)"
+      TargetLanguage="%(Piggy.TargetLanguage)"
+      TargetFrameworkVersion="$(TargetFrameworkVersion)"
+      SourceCodeFiles="@(Piggy -> '%(FullPath)')"
+      ContinueOnError="$(PiggyDesignTimeBuild)"
+      LanguageSourceExtensions="$(DefaultLanguageSourceExtension)"
+      >
+
+      <Output ItemName="PiggyGeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
+    </PiggyClassGenerationTask>
+
+    <WriteLinesToFile
+      Condition="'$(PiggyDesignTimeBuild)' != 'true'"
+      File="$(IntermediateOutputPath)$(PiggyGenCodeFileNames)"
+      Lines="@(PiggyGeneratedCodeFiles)"
+      Overwrite="true"/>
+  </Target>
+
+  <Target Name="PiggyCompileAddFilesGenerated"
+          AfterTargets="PiggyCompile"
+          Condition="'@(Piggy)' != ''">
+
+    <ItemGroup>
+      <PiggyGeneratedCodeFiles Condition="'@(PiggyGeneratedCodeFiles)' == ''" Include="@(PiggyOutputCodeFilesList)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <FileWrites Include="@(PiggyGeneratedCodeFiles);
+                           $(IntermediateOutputPath)$(PiggyGenCodeFileNames);" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="@(PiggyGeneratedCodeFiles)" />
+      <!-- The WinFX "GenerateTemporaryTargetAssembly" target requires generated code files be added here. -->
+      <_GeneratedCodeFiles Include="@(PiggyGeneratedCodeFiles)" />
+    </ItemGroup>
+
+  </Target>
+
+  <Choose>
+    <When Condition="'$(PiggyIsSdkProject)' == 'True'">
+      <ItemGroup>
+        <PropertyPageSchema
+	 Include="$(MSBuildThisFileDirectory)..\build\PiggyBuildTaskSchema.xml">
+          <Context>Project</Context>
+        </PropertyPageSchema>
+        <PropertyPageSchema
+	 Include="$(MSBuildThisFileDirectory)..\build\Piggy.xml">
+          <Context>File;BrowseObject</Context>
+        </PropertyPageSchema>
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <Import Condition="'$(PiggyIsSdkProject)' == 'True'"
+	    Project="PiggyBuildTask.DefaultItems.targets" />
+</Project>

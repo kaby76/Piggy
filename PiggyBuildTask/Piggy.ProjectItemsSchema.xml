@@ -1,0 +1,5 @@
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <ContentType Name="Piggy" DisplayName="Piggy specification" ItemType="Piggy" />
+  <ItemType Name="Piggy" DisplayName="Piggy specification" />
+  <FileExtension Name=".pig" ContentType="Piggy" />
+</ProjectSchemaDefinitions>

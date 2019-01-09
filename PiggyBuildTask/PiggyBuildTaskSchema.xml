@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file specifies how Visual Studio IDE defines Piggy grammar file properties. It is used
+in conjunction with the Piggy.xml file. -->
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <ContentType Name="Piggy" DisplayName="Piggy specification" ItemType="Piggy" />
+  <ItemType Name="Piggy" DisplayName="Piggy specification" />
+  <FileExtension Name=".pig" ContentType="Piggy" />
+</ProjectSchemaDefinitions>

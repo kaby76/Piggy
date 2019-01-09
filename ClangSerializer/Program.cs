@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace ClangSerializer
+﻿namespace ClangSerializer
 {
     using System.Collections.Generic;
     using System.IO;
@@ -9,6 +7,7 @@ namespace ClangSerializer
     using System;
     using System.Runtime.InteropServices;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     class Program
     {
@@ -23,23 +22,28 @@ namespace ClangSerializer
 
         class Options
         {
-            [Option('c', "clang-option", Required = false, HelpText = "Clang option.")]
+            [Option('o', "clang-option", Required = false, HelpText = "Clang option.")]
             public IEnumerable<string> ClangOptions { get; set; }
 
-            [Option('f', "clang-file", Required = false, HelpText = "Clang input file.")]
+            [Option('c', "clang-file", Required = false, HelpText = "Clang C input file.")]
             public IEnumerable<string> ClangFiles { get; set; }
+
+            [Option('a', "clang-file", Required = false, HelpText = "AST output file.")]
+            public string AstOutFile { get; set; }
         }
 
         static void Main(string[] args)
         {
             List<string> options = new List<string>();
             List<string> arguments = new List<string>();
+            string ast_output_file = null;
 
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed<Options>(o =>
                 {
                     options = o.ClangOptions.Select(t => "-" + t).ToList();
                     arguments = o.ClangFiles.ToList();
+                    ast_output_file = o.AstOutFile;
                 })
                 .WithNotParsed(a =>
                 {
@@ -60,7 +64,16 @@ namespace ClangSerializer
             string re2 = Regex.Replace(ast_result.ToString(), "\r([^\n])", "\r\n$1");
             string re3 = Regex.Replace(re2,"([^\r])\n", "$1\r\n");
 
-            System.Console.WriteLine(re3);
+            if (ast_output_file == null || ast_output_file == "")
+                System.Console.WriteLine(re3);
+            else
+            {
+                StringBuilder sbb = new StringBuilder();
+                using (StringWriter writer = new StringWriter(sbb))
+                {
+                    System.IO.File.WriteAllText(ast_output_file, re3);
+                }
+            }
         }
     }
 }

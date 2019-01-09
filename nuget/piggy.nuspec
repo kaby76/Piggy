@@ -17,6 +17,22 @@
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
+    <!-- Build Configuration -->
+
+    <file src="PiggyBuildTask\PiggyBuildTask.props" target="build"/>
+    <file src="PiggyBuildTask\PiggyBuildTask.targets" target="build"/>
+    <file src="PiggyBuildTask\PiggyBuildTask.DefaultItems.props" target="build"/>
+    <file src="PiggyBuildTask\PiggyBuildTask.DefaultItems.targets" target="build"/>
+    <file src="PiggyBuildTask\PiggyBuildTaskSchema.xml" target="build"/>
+    <file src="PiggyBuildTask\Piggy.xml" target="build"/>
+
+    <!-- Build Tasks -->
+
+    <file src="PiggyBuildTask\bin\Debug\netstandard1.5\PiggyBuildTask.dll" target="lib\netstandard1.5"/>
+    <file src="PiggyBuildTask\bin\Debug\netstandard1.5\PiggyBuildTask.dll" target="lib\net40"/>
+    <file src="PiggyBuildTask\bin\Debug\netstandard1.5\PiggyBuildTask.pdb" target="lib\netstandard1.5"/>
+    <file src="PiggyBuildTask\bin\Debug\netstandard1.5\PiggyBuildTask.pdb" target="lib\net40"/>
+
     <file src="..\ClangSerializer\bin\Release\netcoreapp2.2\" target="lib/net40" />
   </files>
 </package>

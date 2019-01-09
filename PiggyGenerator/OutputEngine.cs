@@ -239,17 +239,6 @@ namespace " + @namespace + @"
                     var encoded = CSharpSyntaxTree.Create(syntaxRootNode,
                         null, formatted_source_code_path, Encoding.UTF8);
 
-                    //AdhocWorkspace workspace = new Microsoft.CodeAnalysis.AdhocWorkspace();
-                    //string projectName = "CompileTemplates";
-                    //ProjectId projectId = ProjectId.CreateNewId();
-                    //VersionStamp versionStamp = VersionStamp.Create();
-                    //ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName,
-                    //    projectName, LanguageNames.CSharp);
-                    //Project newProject = workspace.AddProject(helloWorldProject);
-                    //Document newDocument = workspace.AddDocument(newProject.Id, formatted_source_code_path, sourceText);
-                    //SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
-                    //var encoded = syntaxRoot.SyntaxTree;
-
                     List<MetadataReference> all_references = new List<MetadataReference>();
                     FixUpMetadataReferences(all_references, typeof(PiggyRuntime.Template));
                     FixUpMetadataReferences(all_references, typeof(object));

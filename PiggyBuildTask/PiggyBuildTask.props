@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Folder containing PiggyBuildTask.dll -->
+    <PiggyBuildTaskPath>$(MSBuildThisFileDirectory)..\lib\netstandard1.5</PiggyBuildTaskPath>
+    <!-- Path to the Piggy tool itself -->
+    <PiggyToolPath>$(MSBuildThisFileDirectory)..\lib\netstandard1.5</PiggyToolPath>
+  </PropertyGroup>
+
+  <Import Project="PiggyBuildTask.DefaultItems.props" />
+</Project>
