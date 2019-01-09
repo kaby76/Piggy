@@ -29,12 +29,12 @@
   </PropertyGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.dll" DestinationFolder="$(OutDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.pdb" DestinationFolder="$(OutDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.dll" DestinationFolder="$(OutDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.pdb" DestinationFolder="$(OutDir)" />
   </Target>
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.dll" DestinationFolder="$(PublishDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Debug\ClangCode.pdb" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.dll" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.pdb" DestinationFolder="$(PublishDir)" />
   </Target>
 
 </Project>
