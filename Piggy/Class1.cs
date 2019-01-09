@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace PiggyBuildTask
+namespace Piggy.Build.Task
 {
-    public class Class1 : Task
+    public class PiggyClassGenerationTask : Microsoft.Build.Utilities.Task
     {
+        private List<ITaskItem> _generatedCodeFiles = new List<ITaskItem>();
+
+        [Required]
+        public string ToolPath
+        {
+            get;
+            set;
+        }
+
         [Required]
         public string OutputPath
         {
@@ -25,7 +32,6 @@ namespace PiggyBuildTask
             set;
         }
 
-        [Required]
         public string ClangOptions
         {
             get;
@@ -33,10 +39,16 @@ namespace PiggyBuildTask
         }
 
         [Output]
-        public string GeneratedCodeFile
+        public ITaskItem[] GeneratedCodeFiles
         {
-            get;
-            set;
+            get
+            {
+                return this._generatedCodeFiles.ToArray();
+            }
+            set
+            {
+                this._generatedCodeFiles = new List<ITaskItem>(value);
+            }
         }
 
         private static string JoinArguments(IEnumerable<string> arguments)

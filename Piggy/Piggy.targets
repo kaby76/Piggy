@@ -40,8 +40,8 @@
     <PiggyGenCodeFileNames Condition="'$(PiggyGenCodeFileNames)'==''">$(MSBuildProjectFile).PiggyGeneratedCodeFileListAbsolute.txt</PiggyGenCodeFileNames>
   </PropertyGroup>
 
-  <UsingTask Condition="'$(PiggyBuildTaskPath)'==''" TaskName="Piggy.Build.Tasks.PiggyClassGenerationTask" AssemblyName="$(PiggyBuildTaskAssemblyName)" />
-  <UsingTask Condition="'$(PiggyBuildTaskPath)'!=''" TaskName="Piggy.Build.Tasks.PiggyClassGenerationTask" AssemblyFile="$(PiggyBuildTaskPath)\PiggyBuildTask.dll" />
+  <UsingTask Condition="'$(PiggyBuildTaskPath)'==''" TaskName="Piggy.Build.Task.PiggyClassGenerationTask" AssemblyName="$(PiggyBuildTaskAssemblyName)" />
+  <UsingTask Condition="'$(PiggyBuildTaskPath)'!=''" TaskName="Piggy.Build.Task.PiggyClassGenerationTask" AssemblyFile="$(PiggyBuildTaskPath)\Piggy.dll" />
 
   <PropertyGroup>
     <PrepareResourcesDependsOn>
@@ -119,14 +119,9 @@
 
     <PiggyClassGenerationTask
       ToolPath="$(PiggyToolLocation)"
-      BuildTaskPath="$(PiggyBuildTaskLocation)"
       OutputPath="$(IntermediateOutputPath)"
-      Encoding="%(Piggy.Encoding)"
-      TargetLanguage="%(Piggy.TargetLanguage)"
-      TargetFrameworkVersion="$(TargetFrameworkVersion)"
       SourceCodeFiles="@(Piggy -> '%(FullPath)')"
-      ContinueOnError="$(PiggyDesignTimeBuild)"
-      LanguageSourceExtensions="$(DefaultLanguageSourceExtension)"
+      ClangOptions="$(ClangOptions)"
       >
 
       <Output ItemName="PiggyGeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
