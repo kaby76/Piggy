@@ -2,6 +2,8 @@
 rm -rf ClangCode/x64
 rm -rf ClangSerializer/bin
 rm -rf ClangSerializer/obj
+rm -rf PiggyBuildTask/bin
+rm -rf PiggyBuildTask/obj
 rm -rf Piggy/bin
 rm -rf Piggy/obj
 rm -rf PiggyRuntime/bin

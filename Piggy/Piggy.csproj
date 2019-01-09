@@ -1,40 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Product>Piggy</Product>
-    <Description>a</Description>
-    <PackageId>Piggy</PackageId>
-    <PackageReleaseNotes>b</PackageReleaseNotes>
-    <Version>1.0.0</Version>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Company>Piggy</Company>
-    <Authors>Piggy</Authors>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.3.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.9.20" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="15.9.20" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\PiggyGenerator\PiggyGenerator.csproj" />
-    <ProjectReference Include="..\PiggyRuntime\PiggyRuntime.csproj" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.dll" DestinationFolder="$(OutDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.pdb" DestinationFolder="$(OutDir)" />
-  </Target>
-  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.dll" DestinationFolder="$(PublishDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.pdb" DestinationFolder="$(PublishDir)" />
-  </Target>
 
 </Project>

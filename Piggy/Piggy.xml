@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- This file specifies how Visual Studio IDE defines Piggy file properties. It is used
-in conjunction with the PiggyBuildTasksSchema.xml schema. -->
+in conjunction with the PiggySchema.xml schema. -->
 <Rule Name="Piggy" DisplayName="File Properties" PageTemplate="generic" Description="File Properties" xmlns="http://schemas.microsoft.com/build/2009/properties">
   <Rule.DataSource>
     <DataSource Persistence="ProjectFile" ItemType="Piggy" HasConfigurationCondition="False" SourceOfDefaultValue="AfterContext" />

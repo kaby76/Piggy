@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ClangCode", "ClangCode\ClangCode.vcxproj", "{10BD2752-C671-4FED-84CE-5D4F951040B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Piggy", "Piggy\Piggy.csproj", "{6323A596-A584-441F-8AE5-1580147628D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiggyTool", "PiggyTool\PiggyTool.csproj", "{6323A596-A584-441F-8AE5-1580147628D1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symtab", "Symtab\Symtab.csproj", "{D30ECC0C-5EB5-4E7A-8616-EAD3229FC0C1}"
 EndProject
@@ -38,7 +38,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{
 		Templates\Typedefs.pig = Templates\Typedefs.pig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiggyBuildTask", "PiggyBuildTask\PiggyBuildTask.csproj", "{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Piggy", "Piggy\Piggy.csproj", "{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

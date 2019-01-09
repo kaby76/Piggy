@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- Folder containing PiggyBuildTask.dll -->
+    <!-- Folder containing Piggy.dll -->
     <PiggyBuildTaskPath>$(MSBuildThisFileDirectory)..\lib\netstandard1.5</PiggyBuildTaskPath>
     <!-- Path to the Piggy tool itself -->
     <PiggyToolPath>$(MSBuildThisFileDirectory)..\lib\netstandard1.5</PiggyToolPath>
   </PropertyGroup>
 
-  <Import Project="PiggyBuildTask.DefaultItems.props" />
+  <Import Project="Piggy.DefaultItems.props" />
 </Project>
