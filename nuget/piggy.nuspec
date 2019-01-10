@@ -18,7 +18,6 @@
   </metadata>
   <files>
     <!-- Build Configuration -->
-
     <file src="..\Piggy\Piggy.props" target="build"/>
     <file src="..\Piggy\Piggy.targets" target="build"/>
     <file src="..\Piggy\Piggy.DefaultItems.props" target="build"/>
@@ -34,29 +33,11 @@
     <file src="..\Piggy\bin\Debug\netstandard2.0\Piggy.pdb" target="lib\net461"/>
 
     <!-- Tools -->
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\PiggyGenerator.dll" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\PiggyGenerator.pdb" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\PiggyRuntime.dll" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\PiggyRuntime.pdb" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\PiggyTool.dll" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\PiggyTool.pdb" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\PiggyTool.dll.config" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\Symtab.dll" target="build"/>
-    <file src="..\PiggyTool\bin\Debug\netcoreapp2.2\Symtab.pdb" target="build"/>
+    <file src="..\PiggyTool\bin\Release\netcoreapp2.2\publish\**" target="build"/>
+    <file src="..\ClangSerializer\bin\Release\netcoreapp2.2\publish\**" target="build"/>
 
-    <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangCode.dll" target="build"/>
-    <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangCode.pdb" target="build"/>
-    <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangSerializer.deps.json" target="build"/>
-    <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangSerializer.dll" target="build"/>
-    <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangSerializer.pdb" target="build"/>
-    <file src="..\ClangSerializer\bin\Debug\netcoreapp2.2\ClangSerializer.runtimeconfig.json" target="build"/>
-
-    <file src="..\Templates\cuda.pig" target="Templates" />
-    <file src="..\Templates\Enums.pig" target="Templates" />
-    <file src="..\Templates\Funcs.pig" target="Templates" />
-    <file src="..\Templates\Namespace.pig" target="Templates" />
-    <file src="..\Templates\Structs.pig" target="Templates" />
-    <file src="..\Templates\Typedefs.pig" target="Templates" />
+    <!-- Templates -->
+    <file src="..\Templates\**" target="Templates" />
 
   </files>
 </package>

@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace PiggyGenerator
 {
     using System.IO;
@@ -16,6 +18,8 @@ namespace PiggyGenerator
         public List<string> _clang_files = new List<string>();
         public string _specification = string.Empty;
         public string _expression = null;
+        public string _template_directory = null;
+        public string _output_file = null;
         public List<string> _clang_options = new List<string>();
         public List<Template> _templates = new List<Template>();
         public Application _application = new Application();
@@ -24,11 +28,13 @@ namespace PiggyGenerator
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
         public bool _keep_file;
 
-        public void Doit(string ast_file, string spec_file, bool keep_file, string expression)
+        public void Doit(string ast_file, string spec_file, bool keep_file, string expression, string template_directory, string output_file)
         {
             _keep_file = keep_file;
             _expression = expression;
             _specification = spec_file;
+            _template_directory = template_directory;
+            _output_file = output_file;
 
             // Parse ast using Antlr.
             // Get back AST as string.
@@ -74,7 +80,17 @@ namespace PiggyGenerator
                 SpecFileAndListener file = new SpecFileAndListener(this);
                 file.ParseSpecFile(_specification);
                 var output_engine = new OutputEngine(this);
-                System.Console.WriteLine(output_engine.Run(false));
+                var result = output_engine.Run(false);
+                if (output_file != null && output_file != "")
+                {
+                    StringBuilder sbb = new StringBuilder();
+                    using (StringWriter writer = new StringWriter(sbb))
+                    {
+                        System.IO.File.WriteAllText(output_file, result);
+                    }
+                }
+                else
+                    System.Console.WriteLine(result);
             }
         }
     }

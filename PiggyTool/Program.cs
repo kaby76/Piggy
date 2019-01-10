@@ -19,6 +19,12 @@ namespace ConsoleApp1
 
             [Option('e', "expression", Required = false, HelpText = "Individual pattern to match AST, like grep.")]
             public string Expression { get; set; }
+
+            [Option('t', "templates", Required = false, HelpText = "Location of using templates.")]
+            public string TemplateDirectory { get; set; }
+
+            [Option('o', "output-file", Required = false, HelpText = "Generated DllImports file.")]
+            public string OutputFile { get; set; }
         }
 
 
@@ -30,6 +36,8 @@ namespace ConsoleApp1
             string spec_file = null;
             bool keep_file = false;
             string expression = null;
+            string template_directory = null;
+            string output_file = null;
             CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed<Options>(o =>
                 {
@@ -37,6 +45,8 @@ namespace ConsoleApp1
                     spec_file = o.PiggyFile;
                     keep_file = o.KeepFile;
                     expression = o.Expression;
+                    output_file = o.OutputFile;
+                    template_directory = o.TemplateDirectory;
                     if (spec_file == null && expression == null)
                         throw new Exception("Either spec file or expression must be set.");
                 })
@@ -45,7 +55,7 @@ namespace ConsoleApp1
                     System.Console.WriteLine(a);
                 });
 
-            p.Doit(ast_file, spec_file, keep_file, expression);
+            p.Doit(ast_file, spec_file, keep_file, expression, template_directory, output_file);
         }
     }
 }

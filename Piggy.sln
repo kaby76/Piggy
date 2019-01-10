@@ -27,6 +27,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiggyRuntime", "PiggyRuntime\PiggyRuntime.csproj", "{F225B810-8F81-4131-B613-942B66EB22E5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClangSerializer", "ClangSerializer\ClangSerializer.csproj", "{96E440B3-4BEE-494F-B016-C16AEF392E99}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10BD2752-C671-4FED-84CE-5D4F951040B5} = {10BD2752-C671-4FED-84CE-5D4F951040B5}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{0DEBEA44-0D5F-40B6-8F08-A2ED5E36367C}"
 	ProjectSection(SolutionItems) = preProject
@@ -128,8 +131,8 @@ Global
 		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Debug|x64.Build.0 = Debug|Any CPU
 		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Debug|x86.Build.0 = Debug|Any CPU
-		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Release|x64.ActiveCfg = Release|Any CPU
 		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Release|x64.Build.0 = Release|Any CPU
 		{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}.Release|x86.ActiveCfg = Release|Any CPU

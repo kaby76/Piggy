@@ -22,13 +22,13 @@
 
         class Options
         {
-            [Option('o', "clang-option", Required = false, HelpText = "Clang option.")]
+            [Option('c', "clang-option", Required = false, HelpText = "Clang option.")]
             public IEnumerable<string> ClangOptions { get; set; }
 
-            [Option('c', "clang-file", Required = false, HelpText = "Clang C input file.")]
+            [Option('f', "clang-file", Required = false, HelpText = "Clang C input file.")]
             public IEnumerable<string> ClangFiles { get; set; }
 
-            [Option('a', "clang-file", Required = false, HelpText = "AST output file.")]
+            [Option('o', "clang-file", Required = false, HelpText = "AST output file.")]
             public string AstOutFile { get; set; }
         }
 

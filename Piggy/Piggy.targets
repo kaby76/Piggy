@@ -6,7 +6,7 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Antlr4IsSdkProject)' == ''">
+  <PropertyGroup Condition="'$(PiggyIsSdkProject)' == ''">
     <PiggyIsSdkProject>False</PiggyIsSdkProject>
     <PiggyIsSdkProject Condition="'$(TargetFramework)' != '' OR '$(TargetFrameworks)' != ''">True</PiggyIsSdkProject>
   </PropertyGroup>
@@ -32,8 +32,6 @@
   <PropertyGroup>
     <PiggyBuildTaskLocation Condition="'$(PiggyBuildTaskPath)'==''">$(MSBuildBinPath)</PiggyBuildTaskLocation>
     <PiggyBuildTaskLocation Condition="'$(PiggyBuildTaskPath)'!=''">$(PiggyBuildTaskPath)</PiggyBuildTaskLocation>
-    <PiggyToolLocation Condition="'$(PiggyToolPath)'==''">NOT_SET_IN_ENV</PiggyToolLocation>
-    <PiggyToolLocation Condition="'$(PiggyToolPath)'!=''">$(PiggyToolPath)</PiggyToolLocation>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -118,10 +116,11 @@
     </PropertyGroup>
 
     <PiggyClassGenerationTask
-      ToolPath="$(PiggyToolLocation)"
       OutputPath="$(IntermediateOutputPath)"
-      SourceCodeFiles="@(Piggy -> '%(FullPath)')"
-      ClangOptions="$(ClangOptions)"
+      ClangOptions="%(Piggy.ClangOptions)"
+      ClangSourceFile="%(Piggy.ClangSourceFile)"
+      AstOutputFile="%(Piggy.AstOutputFile)"
+      InitialTemplate="%(FullPath)"
       >
 
       <Output ItemName="PiggyGeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />

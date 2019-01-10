@@ -18,13 +18,6 @@
     <PackageReference Include="CommandLineParser" Version="2.3.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ClangCode\ClangCode.vcxproj">
-      <Name>ClangCode</Name>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
-
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.dll" DestinationFolder="$(OutDir)" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.pdb" DestinationFolder="$(OutDir)" />

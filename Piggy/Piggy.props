@@ -6,7 +6,6 @@
 
   <PropertyGroup>
     <PiggyBuildTaskPath>$(MSBuildThisFileDirectory)..\lib\netstandard2.0</PiggyBuildTaskPath>
-    <PiggyToolPath>$(MSBuildThisFileDirectory)</PiggyToolPath>
   </PropertyGroup>
 
   <Import Project="Piggy.DefaultItems.props" />

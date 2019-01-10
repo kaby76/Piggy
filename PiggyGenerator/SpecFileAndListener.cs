@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
     using System;
     using Antlr4.Runtime;
     using Antlr4.Runtime.Misc;
     using Antlr4.Runtime.Tree;
     using PiggyRuntime;
+    using System.Collections.Generic;
 
     public class SpecFileAndListener : SpecParserBaseListener
     {
@@ -48,15 +47,22 @@ namespace PiggyGenerator
             ParseTreeWalker.Default.Walk(this, spec_ast);
         }
 
-        public void ParseSpecFile(string specification)
+        public void ParseSpecFile(string specification_file_name)
         {
             ErrorListener<IToken> listener = new ErrorListener<IToken>();
-            if (!System.IO.File.Exists(specification))
+            // Try current location, or template directory.
+            string location = specification_file_name;
+            if (!System.IO.File.Exists(location))
             {
-                System.Console.WriteLine("File " + specification + " does not exist.");
-                throw new Exception();
+                location = _program._template_directory + "\\" +
+                                     specification_file_name;
+                if (!System.IO.File.Exists(location))
+                {
+                    System.Console.WriteLine("File " + specification_file_name + " does not exist.");
+                    throw new Exception();
+                }
             }
-            ICharStream stream = CharStreams.fromPath(specification);
+            ICharStream stream = CharStreams.fromPath(location);
             ITokenSource lexer = new SpecLexer(stream);
             ITokenStream tokens = new CommonTokenStream(lexer);
             SpecParserParser parser = new SpecParserParser(tokens);

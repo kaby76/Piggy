@@ -15,16 +15,22 @@ in conjunction with the PiggySchema.xml schema. -->
 
   <StringProperty
     Category="Clang"
-    Name="Options"
+    Name="ClangOptions"
     DisplayName="Compiler options"
     Default=""
     Description="Use this to set Clang compiler options, as one string." />
   <StringProperty
     Category="Clang"
-    Name="InputFile"
+    Name="ClangSourceFile"
     DisplayName="Input C file"
     Default="true"
     Description="Specifies the input files to compile." />
+  <StringProperty
+    Category="Clang"
+    Name="AstOutputFile"
+    DisplayName="Ast output file"
+    Default="generated_ast.txt"
+    Description="Generated ast output placed in this file." />
   <StringProperty
     Category="Piggy"
     Name="OutputFile"
@@ -33,7 +39,7 @@ in conjunction with the PiggySchema.xml schema. -->
     Description="Generated output placed in this file." />
 
   <!--
-    The rest of these properties are not ANTLR-specific, but CPS provides no way to inherit properties, so if we fail to
+    The rest of these properties are not Piggy-specific, but CPS provides no way to inherit properties, so if we fail to
     include them then they will just disappear.
   -->
 
@@ -68,7 +74,7 @@ in conjunction with the PiggySchema.xml schema. -->
     Category="Misc"
     Description="The item specified in the Include attribute.">
     <StringProperty.DataSource>
-      <DataSource Persistence="Intrinsic" ItemType="Antlr4" PersistedName="Identity" SourceOfDefaultValue="AfterContext" />
+      <DataSource Persistence="Intrinsic" ItemType="Piggy" PersistedName="Identity" SourceOfDefaultValue="AfterContext" />
     </StringProperty.DataSource>
   </StringProperty>
 
@@ -79,7 +85,7 @@ in conjunction with the PiggySchema.xml schema. -->
     Category="Misc"
     Description="Location of the file.">
     <StringProperty.DataSource>
-      <DataSource Persistence="Intrinsic" ItemType="Antlr4" PersistedName="FullPath" SourceOfDefaultValue="AfterContext" />
+      <DataSource Persistence="Intrinsic" ItemType="Piggy" PersistedName="FullPath" SourceOfDefaultValue="AfterContext" />
     </StringProperty.DataSource>
   </StringProperty>
 
@@ -90,13 +96,13 @@ in conjunction with the PiggySchema.xml schema. -->
     Category="Misc"
     Description="Name of the file or folder.">
     <StringProperty.DataSource>
-      <DataSource Persistence="Intrinsic" ItemType="Antlr4" PersistedName="FileNameAndExtension" SourceOfDefaultValue="AfterContext" />
+      <DataSource Persistence="Intrinsic" ItemType="Piggy" PersistedName="FileNameAndExtension" SourceOfDefaultValue="AfterContext" />
     </StringProperty.DataSource>
   </StringProperty>
 
   <StringProperty Name="URL" ReadOnly="true" Visible="false">
     <StringProperty.DataSource>
-      <DataSource Persistence="Intrinsic" ItemType="Antlr4" PersistedName="FullPath" SourceOfDefaultValue="AfterContext" />
+      <DataSource Persistence="Intrinsic" ItemType="Piggy" PersistedName="FullPath" SourceOfDefaultValue="AfterContext" />
     </StringProperty.DataSource>
   </StringProperty>
   <BoolProperty Name="Visible" Visible="false" />
@@ -108,7 +114,7 @@ in conjunction with the PiggySchema.xml schema. -->
   </StringProperty>
   <StringProperty Name="Extension" Visible="False" ReadOnly="true">
     <StringProperty.DataSource>
-      <DataSource Persistence="Intrinsic" ItemType="Antlr4" PersistedName="Extension" SourceOfDefaultValue="AfterContext" />
+      <DataSource Persistence="Intrinsic" ItemType="Piggy" PersistedName="Extension" SourceOfDefaultValue="AfterContext" />
     </StringProperty.DataSource>
   </StringProperty>
   <StringProperty Name="LastGenOutput" Visible="false" Description="The filename of the last file generated as a result of the SFG." />
@@ -116,7 +122,7 @@ in conjunction with the PiggySchema.xml schema. -->
   <BoolProperty Name="AutoGen" Visible="false" Description="A value indicating whether this is a generated file." />
   <StringProperty Name="CustomTool" Visible="false" Description="DTE Property for accessing the Generator property.">
     <StringProperty.DataSource>
-      <DataSource Persistence="ProjectFile" ItemType="Antlr4" PersistedName="Generator" HasConfigurationCondition="False" SourceOfDefaultValue="AfterContext" />
+      <DataSource Persistence="ProjectFile" ItemType="Piggy" PersistedName="Generator" HasConfigurationCondition="False" SourceOfDefaultValue="AfterContext" />
     </StringProperty.DataSource>
   </StringProperty>
 </Rule>

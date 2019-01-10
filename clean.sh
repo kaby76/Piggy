@@ -8,6 +8,8 @@ rm -rf Piggy/bin
 rm -rf Piggy/obj
 rm -rf PiggyRuntime/bin
 rm -rf PiggyRuntime/obj
+rm -rf PiggyTool/bin
+rm -rf PiggyTool/obj
 rm -rf PiggyGenerator/bin
 rm -rf PiggyGenerator/obj
 rm -rf Symtab/bin
