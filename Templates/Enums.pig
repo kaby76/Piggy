@@ -3,7 +3,7 @@ template Enums
 {
     header {{
         protected bool first = true;
-		protected string generate_for_only = ".*"; // default to everything.
+        protected string generate_for_only = ".*"; // default to everything.
     }}
 
     pass GenerateEnums {

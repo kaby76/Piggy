@@ -2,7 +2,7 @@ template Structs
 {
     header {{
         protected bool first = true;
-		protected string generate_for_only = ".*"; // everything.
+        protected string generate_for_only = ".*"; // everything.
         int generated = 0;
     }}
 
@@ -13,7 +13,7 @@ template Structs
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
 //                var typedef_name = scope.resolve(name, true);
-				var typedef_name = name;
+                var typedef_name = name;
 //                if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
@@ -35,12 +35,12 @@ template Structs
                             var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
                             for (int i = 0; i < num; ++i)
                             {
-                                result.AppendLine("" + base_postmod_type + " gen" + generated++ + ";");
+                                result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
                             }
                         }
                         else
                         {
-                            result.AppendLine("" + postmod_type + " " + name + ";");
+                            result.AppendLine("public " + postmod_type + " " + name + ";");
                         }
                     }}
                 )+
@@ -54,7 +54,7 @@ template Structs
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
 //                var typedef_name = scope.resolve(name, true);
-				var typedef_name = name;
+                var typedef_name = name;
 //                if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]

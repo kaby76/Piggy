@@ -2,13 +2,13 @@
 template Typedefs
 {
     header {{
-		protected string generate_for_only = ".*"; // default to everything.
+        protected string generate_for_only = ".*"; // default to everything.
     }}
 
     // The only mechanism to create an alias type in C# is to use a struct,
     // where there is one field of the type desired.
-	//
-	// There are so far the following cases:
+    //
+    // There are so far the following cases:
 
     pass GeneratePointerTypes {
         ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( PointerType )
@@ -91,5 +91,5 @@ template Typedefs
                     ");
             }}
         ))))
-	}
+    }
 }

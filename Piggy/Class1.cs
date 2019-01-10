@@ -171,7 +171,8 @@ namespace Piggy.Build.Task
 
                 {
                     arguments.Add("-o");
-                    arguments.Add(InitialTemplate + ".cs");
+                    var p = OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs";
+                    arguments.Add(p);
                 }
 
                 using (Process process = new Process())
@@ -194,7 +195,7 @@ namespace Piggy.Build.Task
 
             if (!success) return success;
 
-            _generatedCodeFiles.Add((ITaskItem)new TaskItem(InitialTemplate + ".cs"));
+            _generatedCodeFiles.Add((ITaskItem)new TaskItem(OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs"));
 
             return success;
         }
