@@ -7,6 +7,7 @@
 
     public class TemplateHelpers
     {
+        // This is pretty much a hack to remove from Clang type strings the type of the function return.
         public static string GetFunctionReturn(string clang_reported_type)
         {
             // Clang ASTs have weird function values for Type. Extract out the
@@ -14,6 +15,12 @@
             Regex regex = new Regex("(?<ret>[^(]*)[(].*[)].*");
             Match matches = regex.Match(clang_reported_type);
             string res = matches.Groups["ret"].Value;
+            // Make sure it's trimmed.
+            res = res.Trim();
+            // Next, C# doesn't like declaring functions as "extern struct foobar fun()".
+            // So, remove the struct/class designations in front.
+            if (res.StartsWith("struct ")) res = res.Substring(7);
+            else if (res.StartsWith("class ")) res = res.Substring(7);
             return res;
         }
 
@@ -27,27 +34,42 @@
             type = type.Split(':')[0];
             _parm_type_map.TryGetValue(type, out string r);
             if (r != null) return r;
-            var pointers = type.Split('*');
+            string[] pointers = type.Split('*');
             if (pointers.Length == 2)
             {
                 var bs = pointers[0].Trim();
                 _type_map.TryGetValue(bs, out string result);
-                if (result == null) return "out " + bs;
-                return "out " + result;
+                if (result != null) return "out " + result;
+
+                // Apply some hacky surgery to get the type.
+                // C# doesn't like declaring functions as "extern struct foobar fun()".
+                // So, remove the struct/class designations in front.
+                if (bs.StartsWith("struct ")) bs = bs.Substring(7);
+                else if (bs.StartsWith("class ")) bs = bs.Substring(7);
+
+                return "out " + bs;
             }
             else if (pointers.Length == 1)
             {
                 var bs = pointers[0].Trim();
                 _type_map.TryGetValue(bs, out string result);
-                if (result == null) return pointers[0];
-                return result;
+                if (result != null) return result;
+
+                // Apply some hacky surgery to get the type.
+                // C# doesn't like declaring functions as "extern struct foobar fun()".
+                // So, remove the struct/class designations in front.
+                if (bs.StartsWith("struct ")) bs = bs.Substring(7);
+                else if (bs.StartsWith("class ")) bs = bs.Substring(7);
+
+                return bs;
             }
             else
             {
                 var bs = pointers[0].Trim();
                 _type_map.TryGetValue(bs, out string result);
-                if (result == null) return "out IntPtr";
-                return result;
+                if (result != null) return result;
+
+                return "out IntPtr";
             }
         }
 

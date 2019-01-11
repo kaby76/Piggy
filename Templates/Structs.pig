@@ -53,9 +53,7 @@ template Structs
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
-//                var typedef_name = scope.resolve(name, true);
                 var typedef_name = name;
-//                if (typedef_name != null) name = typedef_name.Name;
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
