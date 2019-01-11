@@ -20,6 +20,7 @@ template Namespace
             using System.IO;
             using System.Runtime.InteropServices;
             using System.Text.RegularExpressions;
+	    using System.Linq;
 
             namespace ]] {{ result.Append(namespace_name); }} [[ {
 

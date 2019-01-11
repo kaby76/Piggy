@@ -134,6 +134,8 @@ using PiggyRuntime;
 using System.Runtime.InteropServices;
 using org.antlr.symtab;
 using System.Text.RegularExpressions;
+using System.Linq;
+
 
 namespace " + @namespace + @"
 {

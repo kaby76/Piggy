@@ -4,7 +4,23 @@ template Funcs
     header {{
         protected bool first = true;
         protected string dllname = "";
-        protected string generate_for_only = ".*"; // default to everything.
+        protected struct generate_type {
+            public string name;
+            public System.Runtime.InteropServices.CallingConvention convention;
+            public Dictionary<int, string> special_args;
+        }
+        protected string generate_for_only = ".*";
+        protected List<generate_type> details
+            = new List<generate_type>()
+            {
+                { new generate_type()
+                    {
+                        name = ".*",
+                        convention = System.Runtime.InteropServices.CallingConvention.Cdecl,
+                        special_args = null
+                    }
+                }
+            }; // default for everything.
     }}
 
     pass Start {
@@ -22,8 +38,19 @@ template Funcs
     pass Functions {
         ( FunctionDecl SrcRange=$"{Funcs.limit}" Name=$"{Funcs.generate_for_only}"
             {{
-                result.Append("[DllImport(\"" + dllname + "\", CallingConvention = CallingConvention.ThisCall,"
-                   + " EntryPoint=\"" + tree.Attr("Name") + "\")]" + Environment.NewLine);
+				var function_name = tree.Attr("Name");
+				var gt = details.Where(d => 
+					{
+						Regex regex = new Regex("(?<exp>" + d.name + ")");
+                        var match = regex.Match(function_name);
+						if (match.Success)
+							return true;
+						else
+							return false;
+					}).First();
+                result.Append("[DllImport(\"" + dllname + "\","
+					+ " CallingConvention = CallingConvention." + gt.convention.ToString() + ", "
+                    + " EntryPoint=\"" + function_name + "\")]" + Environment.NewLine);
                 var scope = _stack.Peek();
                 var function_type = tree.Attr("Type");
                 var raw_return_type = PiggyRuntime.TemplateHelpers.GetFunctionReturn(function_type);

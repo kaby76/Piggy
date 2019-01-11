@@ -116,6 +116,16 @@ template CudaFuncs : Funcs
             "^cuDeviceGetProperties$",
             };
         generate_for_only = String.Join("|", list);
+		details = new List<generate_type>()
+            {
+                { new generate_type()
+                    {
+                        name = ".*",
+                        convention = System.Runtime.InteropServices.CallingConvention.Cdecl,
+                        special_args = null
+                    }
+                }
+            }; // default for everything.
         dllname = "nvcuda";
     }}
 
