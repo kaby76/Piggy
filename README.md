@@ -1,7 +1,5 @@
 # Piggy
 
-_NB Status: Piggy is currently being developed and not available yet._
-
 Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This free and open source software
 is a pinvoke generator from C++ headers. It is a powerful source-to-source
 transformational system that goes well beyond any other existing pinvoke generator.
@@ -27,19 +25,26 @@ traversal.
 This tool does not read DLLs for P/Invoke generation,
 only the headers.
 
-## How to run the tool ##
+## How to run the tool in CSPROJs/MSBuild/Visual Studio/Dotnet ##
+
+Piggy is outfitted with build rules to run seamlessly within a C# project and build. To do that, first create your C# project,
+then add a reference to the [NuGet Piggy package](https://www.nuget.org/packages/piggy/). Next, create a .PIG file using a copy
+of the example [here](https://github.com/kaby76/PiggySimple), and also create a .CPP file containing the include file
+of the interface for the DLL. Make sure to set all the properties for the .PIG file (right-click, Properties). Then, "Rebuild".
+
+## How to run the tool directly ##
 
 Piggy is actually two tools: a wrapper for Clang to output serialized ASTs; a tool that reads ASTs and a .PIG file,
 which specifies the templates, and outputs code.
 
 Both tools are Net Core apps. So, you can either build the tool and use _dotnet_ or publish the apps to use an stand-alone executable.
 
-1) Use ClangSerializer to output the AST for your code. To call the program, run _ClangSerializer -c "..." -f "..."_, where
+1) Use ClangSerializer to output the AST for your code. To call the program, run _dotnet ClangSerializer/bin/bin/Release/netcoreapp2.2/publish/ClangSerializer.dll -c "..." -f "something.cpp" -o "ast,txt" _, where
 -c are the Clang options as one argument (use quotes and space delimiting each option, and don't use the minus sign, e.g., -c "Ic:/temp/include"); -f specifies the input file (e.g., -f "cuda-includes.cpp"). ClangSerializer outputs a parenthesized expression tree to standard out, which you should redirect to a file for the next step.
 
-2) Use Piggy to convert the AST to code. To call the program, run _Piggy -s xxx.pig -a xxx.ast_, where
--s is an option to specify the input .pig file that contains the template rules; and where -a is an option to specify the input
-AST. The output of Piggy is assumed to be C# code, and formatted by the tool before outputting. It is also possible to use Piggy as a _grep_ tool to find nodes in the AST. For example, _Piggy -a xxx.ast -e "( EnumDecl )"_ will find all EnumDecl's in the tree.
+2) Use Piggy to convert the AST to code. To call the program, run _dotnet Piggy/bin/bin/Release/netcoreapp2.2/publish/Piggy.dll -s xxx.pig -a xxx.ast -o xxx.pig.cs_, where
+-s is an option to specify the input .pig file that contains the template rules; where -a is an option to specify the input
+AST; -o specifies the output C# file. The output of Piggy is assumed to be C# code, and formatted by the tool before outputting. It is also possible to use Piggy as a _grep_ tool to find nodes in the AST. For example, _Piggy -a xxx.ast -e "( EnumDecl )"_ will find all EnumDecl's in the tree.
 
 I recommend you look at the CUDA example in the root directory of Piggy. It contains code for enums, typedefs, and functions for generating a basic CUDA interface. Please understand that Piggy requires a bit of work for you to generate a pinvoke interface. There is no magic here, and you will have to program a bit to get it to work the way you want. I eventually plan to expand the Enums/Structs/Funcs.pig files to have a large library for generating basic interfaces. I also plan to write .targets and .props files to have Piggy generate an interface during a build to use in your program.
 
