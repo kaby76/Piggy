@@ -1,8 +1,9 @@
 # Piggy
 
-Welcome to Piggy (*P*/*I*nvoke *G*enerator for C#). This free and open source software
-is a pinvoke generator from C++ headers. It is a powerful source-to-source
-transformational system that goes well beyond any other existing pinvoke generator.
+Welcome to Piggy. This free and open source software
+is an AST pattern matcher and template engine for C++ headers. It is a powerful source-to-source
+transformational system that was motivated by the lack of a good pinvoke generator for C#, and
+tools such as XPath, XSLT, and Antlr.
 It uses the same basic algorithm of DFS traversal of the
 AST commonly used, e.g., as in ClangSharp and CppSharp, but turns the visitor code of those
 programs "inside-out" using _templates_.
