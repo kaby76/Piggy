@@ -5,8 +5,8 @@ is an AST pattern matcher and template engine for C++ headers. It is a powerful 
 transformational system that was motivated by the lack of a good pinvoke generator for C#, and
 tools such as XPath, XSLT, and Antlr.
 It uses the same basic algorithm of DFS traversal of the
-AST commonly used, e.g., as in ClangSharp and CppSharp, but turns the visitor code of those
-programs "inside-out" using _templates_.
+AST commonly used, e.g., as in ClangSharp and CppSharp, but turns the visitor and listener patterns and
+code of those programs "inside-out" using _templates_.
 
 In Piggy, a _template_ is a combination of a tree
 regular expression, C# code and plain text blocks. The pattern matcher 
