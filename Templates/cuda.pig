@@ -98,25 +98,31 @@ template CudaFuncs : Funcs
     init {{
         limit = ".*\\.*GPU.*\\.*";
         var list = new List<string>() {
+            "^cuCtxCreate_v2$",
+            "^cuCtxDestroy_v2",
             "^cuCtxSynchronize$",
             "^cuDeviceGet$",
             "^cuDeviceGetCount$",
             "^cuDeviceGetName$",
+            "^cuDeviceGetPCIBusId$",
+            "^cuDeviceGetProperties$",
             "^cuDevicePrimaryCtxReset$",
             "^cuDeviceTotalMem_v2$",
             "^cuGetErrorString$",
             "^cuInit$",
             "^cuLaunchKernel$",
             "^cuLinkComplete$",
+            "^cuMemAlloc_v2$",
+            "^cuMemcpyDtoH_v2$",
+            "^cuMemcpyHtoD_v2$",
             "^cuMemFreeHost$",
             "^cuMemGetInfo_v2$",
+            "^cuModuleGetFunction$",
             "^cuModuleGetGlobal_v2$",
-            "^cuDeviceGetPCIBusId$",
-            "^cuDeviceGetName$",
-            "^cuDeviceGetProperties$",
+            "^cuModuleLoadData$",
             };
         generate_for_only = String.Join("|", list);
-		details = new List<generate_type>()
+        details = new List<generate_type>()
             {
                 { new generate_type()
                     {
@@ -133,6 +139,12 @@ template CudaFuncs : Funcs
         ( FunctionDecl SrcRange=$"{CudaFuncs.limit}" Name="cuModuleLoadDataEx"
             [[ [DllImport("nvcuda", CallingConvention = CallingConvention.ThisCall, EntryPoint = "cuModuleLoadDataEx")]
             public static extern CUresult cuModuleLoadDataEx(out CUmodule jarg1, IntPtr jarg2, uint jarg3, CUjit_option[] jarg4, IntPtr jarg5);
+            
+            ]]
+        )
+        ( FunctionDecl SrcRange=$"{CudaFuncs.limit}" Name="cuLaunchKernel"
+            [[ [DllImport("nvcuda", CallingConvention = CallingConvention.ThisCall, EntryPoint = "cuLaunchKernel")]
+            public static extern CUresult cuLaunchKernel(CUfunction f, uint gridDimX, uint gridDimY, uint gridDimZ, uint blockDimX, uint blockDimY, uint blockDimZ, uint sharedMemBytes, CUstream hStream, IntPtr kernelParams, IntPtr extra);
             
             ]]
         )

@@ -21,13 +21,14 @@ template Typedefs
                 def = new StructSymbol(name);
                 scope.define(def);
                 result.AppendLine(
-                    @"public partial struct " + name + @"
+                    @"[StructLayout(LayoutKind.Sequential)]
+                    public partial struct " + name + @"
                     {
+                        public " + baretype_name + @" Value;
                         public " + name + @"(" + baretype_name + @" value)
                         {
                             this.Value = value;
                         }
-                        public " + baretype_name + @" Value;
                     }
                     ");
             }}
@@ -42,13 +43,14 @@ template Typedefs
                 var baretype_name = tree.Attr("BareType");
                 baretype_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(baretype_name);
                 result.AppendLine(
-                    @"public partial struct " + name + @"
+                    @"[StructLayout(LayoutKind.Sequential)]
+                    public partial struct " + name + @"
                     {
+                        public " + baretype_name + @" Value;
                         public " + name + @"(" + baretype_name + @" value)
                         {
                             this.Value = value;
                         }
-                        public " + baretype_name + @" Value;
                     }
                     ");
             }}
@@ -61,13 +63,14 @@ template Typedefs
                 var cxxrec_name = tree.Attr("Name");
                 cxxrec_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(cxxrec_name);
                 result.AppendLine(
-                    @"public partial struct " + name + @"
+                    @"[StructLayout(LayoutKind.Sequential)]
+                    public partial struct " + name + @"
                     {
+                        public " + cxxrec_name + @" Value;
                         public " + name + @"(" + cxxrec_name + @" value)
                         {
                             this.Value = value;
                         }
-                        public " + cxxrec_name + @" Value;
                     }
                     ");
             }}
@@ -80,13 +83,14 @@ template Typedefs
                 var base_name = tree.Attr("Name");
                 base_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(base_name);
                 result.AppendLine(
-                    @"public partial struct " + name + @"
+                    @"[StructLayout(LayoutKind.Sequential)]
+                    public partial struct " + name + @"
                     {
+                        public " + base_name + @" Value;
                         public " + name + @"(" + base_name + @" value)
                         {
                             this.Value = value;
                         }
-                        public " + base_name + @" Value;
                     }
                     ");
             }}

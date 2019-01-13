@@ -38,18 +38,18 @@ template Funcs
     pass Functions {
         ( FunctionDecl SrcRange=$"{Funcs.limit}" Name=$"{Funcs.generate_for_only}"
             {{
-				var function_name = tree.Attr("Name");
-				var gt = details.Where(d => 
-					{
-						Regex regex = new Regex("(?<exp>" + d.name + ")");
+                var function_name = tree.Attr("Name");
+                var gt = details.Where(d => 
+                    {
+                        Regex regex = new Regex("(?<exp>" + d.name + ")");
                         var match = regex.Match(function_name);
-						if (match.Success)
-							return true;
-						else
-							return false;
-					}).First();
+                        if (match.Success)
+                            return true;
+                        else
+                            return false;
+                    }).First();
                 result.Append("[DllImport(\"" + dllname + "\","
-					+ " CallingConvention = CallingConvention." + gt.convention.ToString() + ", "
+                    + " CallingConvention = CallingConvention." + gt.convention.ToString() + ", "
                     + " EntryPoint=\"" + function_name + "\")]" + Environment.NewLine);
                 var scope = _stack.Peek();
                 var function_type = tree.Attr("Type");
