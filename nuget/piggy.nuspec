@@ -8,12 +8,12 @@
     <owners>Ken Domino</owners>
     <language>en-us</language>
     <projectUrl>https://github.com/kaby76/piggy</projectUrl>
-    <iconUrl>https://github.com/kaby76/Piggy/blob/master/piggy.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/kaby76/Piggy/master/piggy.png</iconUrl>
     <licenseUrl>https://github.com/kaby76/piggy/blob/master/license</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A PInvoke Generator.</description>
+    <description>Piggy is a transformation system for ASTs, including generation of p/invoke interfaces from C++ headers, with seamless integration with MSBuild. See https://raw.githubusercontent.com/kaby76/Piggy/master/piggy.png for further details.</description>
     <copyright>Copyright © Ken Domino 2019</copyright>
-    <tags>pinvoke generator</tags>
+    <tags>pinvoke generator ast clang C++ C# native</tags>
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
