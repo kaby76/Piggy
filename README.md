@@ -154,9 +154,13 @@ been done before, but I haven't had time to fully research the idea.
 ## Further notes from my blog
 
 [A quick note on Piggy patterns and comparison with XPath](http://codinggorilla.com/?p=1748)
+
 [Piggy as a build tool](http://codinggorilla.com/?p=1751)
+
 [Refinements to Piggy](http://codinggorilla.com/?p=1687)
+
 [This little piggy is not at the market yet](http://codinggorilla.com/?p=1664)
+
 [Re-inventing the p/invoke generator](http://codinggorilla.com/?p=1609)
 
 
