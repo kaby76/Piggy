@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -104,17 +105,29 @@ namespace Piggy.Build.Task
                 if (ClangOptions != null)
                 {
                     arguments.Add("-c");
-                    arguments.Add(ClangOptions);
+                    var str = ClangOptions;
+                    if (!Regex.IsMatch(str, @"^"".*""$"))
+                    {
+                        str = "\"" + str + "\"";
+                    }
+                    arguments.Add(str);
                 }
                 if (ClangSourceFile != null)
                 {
                     arguments.Add("-f");
-                    arguments.Add(ClangSourceFile);
+                    var str = ClangSourceFile;
+                    if (!Regex.IsMatch(str, @"^"".*""$"))
+                    {
+                        str = "\"" + str + "\"";
+                    }
+                    arguments.Add(str);
                 }
                 if (AstOutputFile != null)
                 {
                     arguments.Add("-o");
-                    string p = OutputPath + "\\" + AstOutputFile;
+                    var str1 = OutputPath;
+                    var str2 = AstOutputFile;
+                    string p = "\"" + str1 + "\\" + str2 + "\"";
                     arguments.Add(p);
                 }
 
@@ -171,7 +184,7 @@ namespace Piggy.Build.Task
 
                 {
                     arguments.Add("-o");
-                    var p = OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs";
+                    var p = "\"" + OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs" + "\"";
                     arguments.Add(p);
                 }
 
