@@ -2234,12 +2234,12 @@ void MyASTDumper::VisitObjCIvarRefExpr(const ObjCIvarRefExpr *Node) {
 
 void MyASTDumper::VisitPredefinedExpr(const PredefinedExpr *Node) {
 	VisitExpr(Node);
-	*OS << " " << PredefinedExpr::getIdentTypeName(Node->getIdentType());
+	*OS << " Value=\"" << PredefinedExpr::getIdentTypeName(Node->getIdentType()) << "\"";
 }
 
 void MyASTDumper::VisitCharacterLiteral(const CharacterLiteral *Node) {
 	VisitExpr(Node);
-	*OS << " " << Node->getValue();
+	*OS << " Value=\"" << Node->getValue() << "\"";
 }
 
 void MyASTDumper::VisitIntegerLiteral(const IntegerLiteral *Node) {
@@ -2252,12 +2252,12 @@ void MyASTDumper::VisitIntegerLiteral(const IntegerLiteral *Node) {
 void MyASTDumper::VisitFixedPointLiteral(const FixedPointLiteral *Node) {
 	VisitExpr(Node);
 
-	*OS << " " << Node->getValueAsString(/*Radix=*/10);
+	*OS << " Value=\"" << Node->getValueAsString(/*Radix=*/10) << "\"";
 }
 
 void MyASTDumper::VisitFloatingLiteral(const FloatingLiteral *Node) {
 	VisitExpr(Node);
-	*OS << " " << Node->getValueAsApproximateDouble();
+	*OS << " Value=\"" << Node->getValueAsApproximateDouble() << "\"";
 }
 
 void MyASTDumper::VisitStringLiteral(const StringLiteral *Str) {
@@ -2300,20 +2300,22 @@ void MyASTDumper::VisitUnaryOperator(const UnaryOperator *Node) {
 void MyASTDumper::VisitUnaryExprOrTypeTraitExpr(
 	const UnaryExprOrTypeTraitExpr *Node) {
 	VisitExpr(Node);
+	*OS << " Kind=\"";
 	switch (Node->getKind()) {
 	case UETT_SizeOf:
-		*OS << " sizeof";
+		*OS << "sizeof";
 		break;
 	case UETT_AlignOf:
-		*OS << " alignof";
+		*OS << "alignof";
 		break;
 	case UETT_VecStep:
-		*OS << " vec_step";
+		*OS << "vec_step";
 		break;
 	case UETT_OpenMPRequiredSimdAlign:
-		*OS << " __builtin_omp_required_simd_align";
+		*OS << "__builtin_omp_required_simd_align";
 		break;
 	}
+	*OS << "\"";
 	if (Node->isArgumentType())
 		dumpType(Node->getArgumentType());
 }
