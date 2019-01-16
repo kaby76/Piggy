@@ -76,6 +76,26 @@ template Typedefs
             }}
         ))))
 
+        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( ElaboratedType ( RecordType ( Record Name=*
+            {{
+                var scope = _stack.Peek();
+                var name = tree.Peek(3).Attr("Name");
+                var cxxrec_name = tree.Attr("Name");
+                cxxrec_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(cxxrec_name);
+                result.AppendLine(
+                    @"[StructLayout(LayoutKind.Sequential)]
+                    public partial struct " + name + @"
+                    {
+                        public " + cxxrec_name + @" Value;
+                        public " + name + @"(" + cxxrec_name + @" value)
+                        {
+                            this.Value = value;
+                        }
+                    }
+                    ");
+            }}
+        ))))
+
         ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( ElaboratedType ( EnumType ( Enum Name=*
             {{
                 var scope = _stack.Peek();
