@@ -11,9 +11,6 @@ template Enums
             {{
                 first = true;
                 string name = tree.Attr("Name");
-//                var scope = _stack.Peek();
-//                var typedef_name = scope.resolve(name, true);
-//                if (typedef_name != null) name = typedef_name.Name;
                 result.Append("public enum " + name + " {" + Environment.NewLine);
             }}
             (%
