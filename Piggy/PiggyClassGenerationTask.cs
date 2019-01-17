@@ -107,28 +107,46 @@ namespace Piggy.Build.Task
                 {
                     arguments.Add("-c");
                     var str = ClangOptions;
-                    if (!Regex.IsMatch(str, @"^"".*""$"))
+                    if (Regex.IsMatch(str, @"^"".*""$"))
                     {
-                        str = "\"" + str + "\"";
+                        // strip "".
+                        str = str.Substring(1);
+                        str = str.Substring(str.Length - 1);
                     }
+                    str = "\"" + str + "\"";
                     arguments.Add(str);
                 }
                 if (ClangSourceFile != null)
                 {
                     arguments.Add("-f");
                     var str = ClangSourceFile;
-                    if (!Regex.IsMatch(str, @"^"".*""$"))
+                    if (Regex.IsMatch(str, @"^"".*""$"))
                     {
-                        str = "\"" + str + "\"";
+                        // strip "".
+                        str = str.Substring(1);
+                        str = str.Substring(str.Length - 1);
                     }
+                    str = "\"" + str + "\"";
                     arguments.Add(str);
                 }
                 if (AstOutputFile != null)
                 {
                     arguments.Add("-o");
-                    var str1 = OutputPath;
-                    var str2 = AstOutputFile;
-                    string p = "\"" + str1 + "\\" + str2 + "\"";
+                    var ostr = OutputPath;
+                    if (Regex.IsMatch(ostr, @"^"".*""$"))
+                    {
+                        // strip "".
+                        ostr = ostr.Substring(1);
+                        ostr = ostr.Substring(ostr.Length - 1);
+                    }
+                    var astr = AstOutputFile;
+                    if (Regex.IsMatch(astr, @"^"".*""$"))
+                    {
+                        // strip "".
+                        astr = astr.Substring(1);
+                        astr = astr.Substring(astr.Length - 1);
+                    }
+                    string p = "\"" + ostr + "\\" + astr + "\"";
                     arguments.Add(p);
                 }
 
@@ -175,18 +193,38 @@ namespace Piggy.Build.Task
                     path = Path.GetFullPath(path + @"\..\..\");
                     path = path + @"\build\PiggyTool.dll";
                     arguments.Add("\"" + path + "\"");
-
                     if (AstOutputFile != null)
                     {
                         arguments.Add("-a");
-                        string p = OutputPath + "\\" + AstOutputFile;
+                        var ostr = OutputPath;
+                        if (Regex.IsMatch(ostr, @"^"".*""$"))
+                        {
+                            // strip "".
+                            ostr = ostr.Substring(1);
+                            ostr = ostr.Substring(ostr.Length - 1);
+                        }
+                        var astr = AstOutputFile;
+                        if (Regex.IsMatch(astr, @"^"".*""$"))
+                        {
+                            // strip "".
+                            astr = astr.Substring(1);
+                            astr = astr.Substring(astr.Length - 1);
+                        }
+                        string p = "\"" + ostr + "\\" + astr + "\"";
                         arguments.Add(p);
                     }
-
                     if (InitialTemplate != null)
                     {
                         arguments.Add("-s");
-                        arguments.Add(InitialTemplate);
+                        var str = InitialTemplate;
+                        if (Regex.IsMatch(str, @"^"".*""$"))
+                        {
+                            // strip "".
+                            str = str.Substring(1);
+                            str = str.Substring(str.Length - 1);
+                        }
+                        str = "\"" + str + "\"";
+                        arguments.Add(str);
                     }
 
                     {
@@ -200,7 +238,22 @@ namespace Piggy.Build.Task
 
                     {
                         arguments.Add("-o");
-                        var p = "\"" + OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs" + "\"";
+                        var ostr = OutputPath;
+                        if (Regex.IsMatch(ostr, @"^"".*""$"))
+                        {
+                            // strip "".
+                            ostr = ostr.Substring(1);
+                            ostr = ostr.Substring(ostr.Length - 1);
+                        }
+                        var astr = InitialTemplate;
+                        if (Regex.IsMatch(astr, @"^"".*""$"))
+                        {
+                            // strip "".
+                            astr = astr.Substring(1);
+                            astr = astr.Substring(astr.Length - 1);
+                        }
+
+                        string p = "\"" + ostr + "\\" + Path.GetFileName(astr) + ".cs" + "\"";
                         arguments.Add(p);
                     }
 

@@ -114,9 +114,16 @@ template ClangSupport
             return null;
         }
 
+		// These types are used to map return values from functions.
+		// These are not used for parameter types to functions.
+		// So, no "out", no "in", no "ref". Note also that C# kind of sucks
+		// in syntax here for marshalling. You cannot return a "string" unless
+		// you have a [return ...] attribute. I didn't invent C#'s syntax.
+		// For now, let's just return IntPtr for things like that.
+		// As far as I can tell, just return value types, no reference types--except as IntPtr.
+		// See https://limbioliong.wordpress.com/2011/06/16/returning-strings-from-a-c-api/
         public static Dictionary<string, string> _type_map =
             new Dictionary<string, string>() {
-            { "char *", "byte[]"},
             { "size_t", "SizeT" },
             { "int", "int"},
             { "uint", "uint"},
@@ -133,7 +140,8 @@ template ClangSupport
             { "double", "double"},
             { "bool", "bool"},
             { "char", "byte"},
-            { "const char *", "string" },
+            { "const char *", "IntPtr" }, // For now, don't do [return: MarshalAs(UnmanagedType.LPStr)] set up of function.
+			{ "char *", "IntPtr" },
             { "signed char", "sbyte" },
         };
 
