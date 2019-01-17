@@ -41,7 +41,7 @@ template Typedefs
                 var scope = _stack.Peek();
                 var name = tree.Peek(1).Attr("Name");
                 var baretype_name = tree.Attr("BareType");
-                baretype_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(baretype_name);
+                baretype_name = ClangSupport.ModNonParamUsageType(baretype_name);
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
@@ -61,7 +61,7 @@ template Typedefs
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
                 var cxxrec_name = tree.Attr("Name");
-                cxxrec_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(cxxrec_name);
+                cxxrec_name = ClangSupport.ModNonParamUsageType(cxxrec_name);
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
@@ -81,7 +81,7 @@ template Typedefs
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
                 var cxxrec_name = tree.Attr("Name");
-                cxxrec_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(cxxrec_name);
+                cxxrec_name = ClangSupport.ModNonParamUsageType(cxxrec_name);
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
@@ -101,7 +101,7 @@ template Typedefs
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
                 var base_name = tree.Attr("Name");
-                base_name = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(base_name);
+                base_name = ClangSupport.ModNonParamUsageType(base_name);
                 result.AppendLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"

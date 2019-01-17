@@ -33,9 +33,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClangSerializer", "ClangSer
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{0DEBEA44-0D5F-40B6-8F08-A2ED5E36367C}"
 	ProjectSection(SolutionItems) = preProject
+		Templates\ClangSupport.pig = Templates\ClangSupport.pig
 		Templates\cuda.pig = Templates\cuda.pig
 		Templates\Enums.pig = Templates\Enums.pig
 		Templates\Funcs.pig = Templates\Funcs.pig
+		Templates\lep.pig = Templates\lep.pig
 		Templates\Namespace.pig = Templates\Namespace.pig
 		Templates\Structs.pig = Templates\Structs.pig
 		Templates\Typedefs.pig = Templates\Typedefs.pig

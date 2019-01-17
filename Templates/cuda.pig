@@ -1,3 +1,4 @@
+using 'ClangSupport.pig';
 using 'Enums.pig';
 using 'Structs.pig';
 using 'Funcs.pig';
@@ -8,7 +9,7 @@ template CudaNamespace : Namespace
 {
     init {{
         namespace_name = "Cuda";
-        PiggyRuntime.TemplateHelpers.ModParamUsageType(
+        ClangSupport.ModParamUsageType(
             new Dictionary<string, string>() {
             { "const char **", "out IntPtr" },
             { "char *", "[Out] byte[]"},
@@ -19,7 +20,7 @@ template CudaNamespace : Namespace
             { "const void *", "IntPtr" },
             { "const <type> *", "in <type>"},
         });
-        PiggyRuntime.TemplateHelpers.ModNonParamUsageType(
+        ClangSupport.ModNonParamUsageType(
             new Dictionary<string, string>() {
             { "char *", "byte[]"},
             { "size_t", "SizeT" },

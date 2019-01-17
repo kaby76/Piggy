@@ -39,7 +39,7 @@ template Structs
                             {
                                 var num = Int32.Parse(ssize);
                                 var basetype = (string)match.Groups["basetype"].Value;
-                                var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
+                                var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
                                 for (int i = 0; i < num; ++i)
                                 {
                                     result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
@@ -48,7 +48,7 @@ template Structs
                         }
                         else
                         {
-                            var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+                            var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
                             if (tree.Peek(1).Attr("KindName") == "union")
                                 result.AppendLine(@"[FieldOffset(" + offset + ")]");
                             result.AppendLine("public " + postmod_type + " " + name + ";");
@@ -90,7 +90,7 @@ template Structs
                             {
                                 var num = Int32.Parse(ssize);
                                 var basetype = (string)match.Groups["basetype"].Value;
-                                var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
+                                var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
                                 for (int i = 0; i < num; ++i)
                                 {
                                     result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
@@ -99,7 +99,7 @@ template Structs
                         }
                         else
                         {
-                            var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+                            var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
                             if (tree.Peek(1).Attr("KindName") == "union")
                                 result.AppendLine(@"[FieldOffset(" + offset + ")]");
                             result.AppendLine("public " + postmod_type + " " + name + ";");

@@ -13,6 +13,7 @@ namespace Piggy.Build.Task
     public class PiggyClassGenerationTask : Microsoft.Build.Utilities.Task
     {
         private List<ITaskItem> _generatedCodeFiles = new List<ITaskItem>();
+        private List<BuildMessage> _buildMessages = new List<BuildMessage>();
 
         [Required]
         public string OutputPath
@@ -138,72 +139,108 @@ namespace Piggy.Build.Task
                     var a = String.Join(" ", arguments);
                     process.StartInfo.Arguments = a;
                     process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.RedirectStandardInput = true;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true;
+                    process.ErrorDataReceived += HandleErrorDataReceived;
+                    process.OutputDataReceived += HandleOutputDataReceived;
+                    _buildMessages.Add(new BuildMessage(TraceLevel.Info,
+                        "Executing command: \"" + process.StartInfo.FileName + "\" " + process.StartInfo.Arguments, "", 0, 0));
                     process.Start();
+                    process.BeginErrorReadLine();
+                    process.BeginOutputReadLine();
+                    process.StandardInput.Dispose();
                     process.WaitForExit();
                     if (process.ExitCode != 0) success = false;
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                if (e is TargetInvocationException && e.InnerException != null)
+                    e = e.InnerException;
+
+                _buildMessages.Add(new BuildMessage(TraceLevel.Error,
+                    e.Message, "", 0, 0));
                 success = false;
             }
 
-            if (!success) return success;
-
-            try
+            if (success)
             {
-                List<string> arguments = new List<string>();
-
-                string path = Assembly.GetAssembly(typeof(PiggyClassGenerationTask)).Location;
-                path = Path.GetDirectoryName(path);
-                path = Path.GetFullPath(path + @"\..\..\");
-                path = path + @"\build\PiggyTool.dll";
-                arguments.Add("\"" + path + "\"");
-
-                if (AstOutputFile != null)
+                try
                 {
-                    arguments.Add("-a");
-                    string p = OutputPath + "\\" + AstOutputFile;
-                    arguments.Add(p);
+                    List<string> arguments = new List<string>();
+
+                    string path = Assembly.GetAssembly(typeof(PiggyClassGenerationTask)).Location;
+                    path = Path.GetDirectoryName(path);
+                    path = Path.GetFullPath(path + @"\..\..\");
+                    path = path + @"\build\PiggyTool.dll";
+                    arguments.Add("\"" + path + "\"");
+
+                    if (AstOutputFile != null)
+                    {
+                        arguments.Add("-a");
+                        string p = OutputPath + "\\" + AstOutputFile;
+                        arguments.Add(p);
+                    }
+
+                    if (InitialTemplate != null)
+                    {
+                        arguments.Add("-s");
+                        arguments.Add(InitialTemplate);
+                    }
+
+                    {
+                        string tpath = Assembly.GetAssembly(typeof(PiggyClassGenerationTask)).Location;
+                        tpath = Path.GetDirectoryName(tpath);
+                        tpath = Path.GetFullPath(tpath + @"\..\..\");
+                        tpath = tpath + @"\Templates";
+                        arguments.Add("-t");
+                        arguments.Add("\"" + tpath + "\"");
+                    }
+
+                    {
+                        arguments.Add("-o");
+                        var p = "\"" + OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs" + "\"";
+                        arguments.Add(p);
+                    }
+
+                    using (Process process = new Process())
+                    {
+                        process.StartInfo.UseShellExecute = false;
+                        process.StartInfo.FileName = "dotnet.exe";
+                        var a = String.Join(" ", arguments);
+                        process.StartInfo.Arguments = a;
+                        process.StartInfo.CreateNoWindow = true;
+                        process.StartInfo.RedirectStandardInput = true;
+                        process.StartInfo.RedirectStandardOutput = true;
+                        process.StartInfo.RedirectStandardError = true;
+                        process.ErrorDataReceived += HandleErrorDataReceived;
+                        process.OutputDataReceived += HandleOutputDataReceived;
+                        _buildMessages.Add(new BuildMessage(TraceLevel.Info,
+                            "Executing command: \"" + process.StartInfo.FileName + "\" " + process.StartInfo.Arguments,
+                            "", 0, 0));
+                        process.Start();
+                        process.BeginErrorReadLine();
+                        process.BeginOutputReadLine();
+                        process.StandardInput.Dispose();
+                        process.WaitForExit();
+                        if (process.ExitCode != 0) success = false;
+                    }
                 }
-                if (InitialTemplate != null)
+                catch (Exception e)
                 {
-                    arguments.Add("-s");
-                    arguments.Add(InitialTemplate);
-                }
+                    if (e is TargetInvocationException && e.InnerException != null)
+                        e = e.InnerException;
 
-                {
-                    string tpath = Assembly.GetAssembly(typeof(PiggyClassGenerationTask)).Location;
-                    tpath = Path.GetDirectoryName(tpath);
-                    tpath = Path.GetFullPath(tpath + @"\..\..\");
-                    tpath = tpath + @"\Templates";
-                    arguments.Add("-t");
-                    arguments.Add("\"" + tpath + "\"");
-                }
-
-                {
-                    arguments.Add("-o");
-                    var p = "\"" + OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs" + "\"";
-                    arguments.Add(p);
-                }
-
-                using (Process process = new Process())
-                {
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.FileName = "dotnet.exe";
-                    var a = String.Join(" ", arguments);
-                    process.StartInfo.Arguments = a;
-                    process.StartInfo.CreateNoWindow = true;
-                    process.Start();
-                    process.WaitForExit();
-                    if (process.ExitCode != 0) success = false;
+                    _buildMessages.Add(new BuildMessage(TraceLevel.Error,
+                        e.Message, "", 0, 0));
+                    success = false;
                 }
             }
-            catch (Exception e)
+
+            foreach (BuildMessage message in _buildMessages)
             {
-                Console.WriteLine(e.Message);
-                success = false;
+                ProcessBuildMessage(message);
             }
 
             if (!success) return success;
@@ -212,5 +249,83 @@ namespace Piggy.Build.Task
 
             return success;
         }
+
+        private void ProcessBuildMessage(BuildMessage message)
+        {
+            string errorCode;
+            errorCode = Log.ExtractMessageCode(message.Message, out string logMessage);
+            if (string.IsNullOrEmpty(errorCode))
+            {
+                if (message.Message.StartsWith("Executing command:", StringComparison.Ordinal) && message.Severity == TraceLevel.Info)
+                {
+                    // This is a known informational message
+                    logMessage = message.Message;
+                }
+                else
+                {
+                    errorCode = "AC1000";
+                    logMessage = "Unknown build error: " + message.Message;
+                }
+            }
+            string subcategory = null;
+            string helpKeyword = null;
+
+            switch (message.Severity)
+            {
+                case TraceLevel.Error:
+                    this.Log.LogError(logMessage);
+                    break;
+                case TraceLevel.Warning:
+                    this.Log.LogWarning(logMessage);
+                    break;
+                case TraceLevel.Info:
+                    this.Log.LogMessage(MessageImportance.Normal, logMessage);
+                    break;
+                case TraceLevel.Verbose:
+                    this.Log.LogMessage(MessageImportance.Low, logMessage);
+                    break;
+            }
+        }
+
+        private void HandleErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            HandleErrorDataReceived(e.Data);
+        }
+
+        private void HandleErrorDataReceived(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+                return;
+            try
+            {
+                _buildMessages.Add(new BuildMessage(data));
+            }
+            catch (Exception ex)
+            {
+                _buildMessages.Add(new BuildMessage(ex.Message));
+            }
+        }
+
+        private void HandleOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            HandleOutputDataReceived(e.Data);
+        }
+
+        private void HandleOutputDataReceived(string data)
+        {
+            if (string.IsNullOrEmpty(data))
+                return;
+
+            try
+            {
+                _buildMessages.Add(new BuildMessage(data));
+                return;
+            }
+            catch (Exception ex)
+            {
+                _buildMessages.Add(new BuildMessage(ex.Message));
+            }
+        }
+
     }
 }

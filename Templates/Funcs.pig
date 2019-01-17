@@ -39,6 +39,7 @@ template Funcs
         ( FunctionDecl SrcRange=$"{Funcs.limit}" Name=$"{Funcs.generate_for_only}"
             {{
                 var function_name = tree.Attr("Name");
+                var patch_up_function_name = ClangSupport.EscapeCsharpNames(function_name);
                 var gt = details.Where(d => 
                     {
                         Regex regex = new Regex("(?<exp>" + d.name + ")");
@@ -53,13 +54,13 @@ template Funcs
                     + " EntryPoint=\"" + function_name + "\")]" + Environment.NewLine);
                 var scope = _stack.Peek();
                 var function_type = tree.Attr("Type");
-                var raw_return_type = PiggyRuntime.TemplateHelpers.GetFunctionReturn(function_type);
+                var raw_return_type = ClangSupport.GetFunctionReturn(function_type);
                 var premod_type = raw_return_type;
-                var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+                var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
                 var type = postmod_type;
                 result.Append("public static extern "
                    + type + " "
-                   + tree.Attr("Name") + "(");
+                   + patch_up_function_name + "(");
                 first = true;
             }}
             ( ParmVarDecl Name=* Type=*
@@ -69,8 +70,10 @@ template Funcs
                     else
                         result.Append(", ");
                     var premod_type = tree.Attr("Type");
-                    var postmod_type = PiggyRuntime.TemplateHelpers.ModParamUsageType(premod_type);
-                    result.Append(postmod_type + " " + tree.Attr("Name"));
+                    var postmod_type = ClangSupport.ModParamUsageType(premod_type);
+                    var param_name = tree.Attr("Name");
+                    var patch_up_param_name = ClangSupport.EscapeCsharpNames(param_name);
+                    result.Append(postmod_type + " " + patch_up_param_name);
                 }}
             )*
             [[);

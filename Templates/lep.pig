@@ -1,4 +1,5 @@
-﻿using 'Enums.pig';
+﻿using 'ClangSupport.pig';
+using 'Enums.pig';
 using 'Structs.pig';
 using 'Funcs.pig';
 using 'Namespace.pig';
@@ -8,39 +9,6 @@ template Project1Namespace : Namespace
 {
 	init {{
 		namespace_name = "Csharp";
-		PiggyRuntime.TemplateHelpers.ModParamUsageType(
-			new Dictionary<string, string>() {
-			{ "const char **", "out IntPtr" },
-			{ "char *", "[Out] byte[]"},
-			{ "unsigned int *", "out uint" },
-			{ "void **", "out IntPtr" },
-			{ "void *", "IntPtr" },
-			{ "const char *", "string" },
-			{ "const void *", "IntPtr" },
-			{ "const <type> *", "in <type>"},
-		});
-		PiggyRuntime.TemplateHelpers.ModNonParamUsageType(
-			new Dictionary<string, string>() {
-			{ "char *", "byte[]"},
-			{ "size_t", "SizeT" },
-			{ "int", "int"},
-			{ "uint", "uint"},
-			{ "short", "short"},
-			{ "ushort", "ushort"},
-			{ "long", "long"},
-			{ "unsigned char", "byte" },
-			{ "unsigned short", "UInt16"},
-			{ "unsigned int", "uint"},
-			{ "unsigned long", "ulong"},
-			{ "unsigned long long", "ulong"},
-			{ "long long", "long"},
-			{ "float", "float"},
-			{ "double", "double"},
-			{ "bool", "bool"},
-			{ "char", "byte"},
-			{ "const char *", "string" },
-			{ "signed char", "sbyte" },
-		});
 	}}
 }
 
@@ -48,7 +16,7 @@ template Project1Enums : Enums
 {
 	init {{
 		// Override limits in matching.
-		limit = "src";
+		limit = "[Ss]rc";
 	}}
 }
 
@@ -56,7 +24,7 @@ template Project1Structs : Structs
 {
 	init {{
 		// Override limits in matching.
-		limit = "src";
+		limit = "[Ss]rc";
 	}}
 }
 
@@ -64,7 +32,7 @@ template Project1Typedefs : Typedefs
 {
 	init {{
 		// Override limits in matching.
-		limit = "src";
+		limit = "[Ss]rc";
 	}}
 }
 
@@ -72,9 +40,9 @@ template Project1Typedefs : Typedefs
 template Project1Funcs : Funcs
 {
 	init {{
-		dllname = "Leptonica";
+		dllname = "leptonica-1.77.0d";
 		// Override limits in matching.
-		limit = "src";
+		limit = "[Ss]rc";
 	}}
 }
 
