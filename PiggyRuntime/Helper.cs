@@ -17,11 +17,18 @@
             string res = matches.Groups["ret"].Value;
             // Make sure it's trimmed.
             res = res.Trim();
+            var bs = res;
             // Next, C# doesn't like declaring functions as "extern struct foobar fun()".
             // So, remove the struct/class designations in front.
-            if (res.StartsWith("struct ")) res = res.Substring(7);
-            else if (res.StartsWith("class ")) res = res.Substring(7);
-            return res;
+            for (; ; )
+            {
+                if (bs.StartsWith("struct ")) bs = bs.Substring(7);
+                else if (bs.StartsWith("class ")) bs = bs.Substring(6);
+                else if (bs.StartsWith("union ")) bs = bs.Substring(6);
+                else if (bs.StartsWith("const ")) bs = bs.Substring(6);
+                break;
+            }
+            return bs;
         }
 
         private static Dictionary<string, string> _parm_type_map = new Dictionary<string, string>()
@@ -41,13 +48,26 @@
                 _type_map.TryGetValue(bs, out string result);
                 if (result != null) return "out " + result;
 
+                string use_out = "out ";
+                if (bs.StartsWith("const "))
+                {
+                    bs = bs.Substring(6);
+                    use_out = "";
+                }
+
                 // Apply some hacky surgery to get the type.
                 // C# doesn't like declaring functions as "extern struct foobar fun()".
                 // So, remove the struct/class designations in front.
-                if (bs.StartsWith("struct ")) bs = bs.Substring(7);
-                else if (bs.StartsWith("class ")) bs = bs.Substring(7);
+                for (; ; )
+                {
+                    if (bs.StartsWith("struct ")) bs = bs.Substring(7);
+                    else if (bs.StartsWith("class ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("union ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("const ")) bs = bs.Substring(6);
+                    break;
+                }
 
-                return "out " + bs;
+                return use_out + bs;
             }
             else if (pointers.Length == 1)
             {
@@ -58,8 +78,14 @@
                 // Apply some hacky surgery to get the type.
                 // C# doesn't like declaring functions as "extern struct foobar fun()".
                 // So, remove the struct/class designations in front.
-                if (bs.StartsWith("struct ")) bs = bs.Substring(7);
-                else if (bs.StartsWith("class ")) bs = bs.Substring(7);
+                for (;;)
+                {
+                    if (bs.StartsWith("struct ")) bs = bs.Substring(7);
+                    else if (bs.StartsWith("class ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("union ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("const ")) bs = bs.Substring(6);
+                    break;
+                }
 
                 return bs;
             }
@@ -94,16 +120,36 @@
         {
             type = type.Trim();
             type = type.Split(':')[0];
-            var pointers = type.Split('*');
+            _type_map.TryGetValue(type, out string r);
+            if (r != null) return r;
+
+            string[] pointers = type.Split('*');
             if (pointers.Length > 1)
             {
                 // Pointer type.
                 // Just make it IntPtr.
                 return "IntPtr";
             }
-            _type_map.TryGetValue(type, out string result);
-            if (result == null) return type;
-            return result;
+            else
+            {
+                _type_map.TryGetValue(type, out string result);
+                if (result != null) return result;
+
+                var bs = type;
+                // Apply some hacky surgery to get the type.
+                // C# doesn't like declaring functions as "extern struct foobar fun()".
+                // So, remove the struct/class designations in front.
+                for (; ; )
+                {
+                    if (bs.StartsWith("struct ")) bs = bs.Substring(7);
+                    else if (bs.StartsWith("class ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("union ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("const ")) bs = bs.Substring(6);
+                    break;
+                }
+
+                return bs;
+            }
         }
 
         public static string ModNonParamUsageType(Dictionary<string, string> additions)

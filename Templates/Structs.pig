@@ -4,7 +4,7 @@ template Structs
         protected bool first = true;
         protected string generate_for_only = ".*"; // everything.
         int generated = 0;
-	int offset;
+    int offset;
     }}
 
     pass GenerateStructs {
@@ -13,10 +13,10 @@ template Structs
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
-				var layout = tree.Attr("KindName") == "struct"
-					? @"[StructLayout(LayoutKind.Sequential)]"
-					: @"[StructLayout(LayoutKind.Explicit)]";
-				offset = 0;
+                var layout = tree.Attr("KindName") == "struct"
+                    ? @"[StructLayout(LayoutKind.Sequential)]"
+                    : @"[StructLayout(LayoutKind.Explicit)]";
+                offset = 0;
                 result.AppendLine(
                     layout + @"
                     public partial struct " + name + @"
@@ -26,24 +26,31 @@ template Structs
                     {{
                         var name = tree.Attr("Name");
                         var premod_type = tree.Attr("Type");
-                        var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
                         Regex regex = new Regex("(?<basetype>.*)[[](?<index>.*)[]]");
-                        var match = regex.Match(postmod_type);
+                        var match = regex.Match(premod_type);
                         if (match.Success)
                         {
                             var ssize = (string)match.Groups["index"].Value;
-                            var num = Int32.Parse(ssize);
-                            var basetype = (string)match.Groups["basetype"].Value;
-                            var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
-                            for (int i = 0; i < num; ++i)
+                            if (ssize == "")
                             {
-                                result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
+                                result.AppendLine("public " + "IntPtr" + " gen" + generated++ + ";");
+                            }
+                            else 
+                            {
+                                var num = Int32.Parse(ssize);
+                                var basetype = (string)match.Groups["basetype"].Value;
+                                var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
+                                for (int i = 0; i < num; ++i)
+                                {
+                                    result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
+                                }
                             }
                         }
                         else
                         {
-							if (tree.Peek(1).Attr("KindName") == "union")
-								result.AppendLine(@"[FieldOffset(" + offset + ")]");
+                            var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+                            if (tree.Peek(1).Attr("KindName") == "union")
+                                result.AppendLine(@"[FieldOffset(" + offset + ")]");
                             result.AppendLine("public " + postmod_type + " " + name + ";");
                         }
                     }}
@@ -57,10 +64,10 @@ template Structs
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
-				var layout = tree.Attr("KindName") == "struct"
-					? @"[StructLayout(LayoutKind.Sequential)]"
-					: @"[StructLayout(LayoutKind.Explicit)]";
-				offset = 0;
+                var layout = tree.Attr("KindName") == "struct"
+                    ? @"[StructLayout(LayoutKind.Sequential)]"
+                    : @"[StructLayout(LayoutKind.Explicit)]";
+                offset = 0;
                 result.AppendLine(
                     layout + @"
                     public partial struct " + name + @"
@@ -70,24 +77,31 @@ template Structs
                     {{
                         var name = tree.Attr("Name");
                         var premod_type = tree.Attr("Type");
-                        var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
                         Regex regex = new Regex("(?<basetype>.*)[[](?<index>.*)[]]");
-                        var match = regex.Match(postmod_type);
+                        var match = regex.Match(premod_type);
                         if (match.Success)
                         {
                             var ssize = (string)match.Groups["index"].Value;
-                            var num = Int32.Parse(ssize);
-                            var basetype = (string)match.Groups["basetype"].Value;
-                            var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
-                            for (int i = 0; i < num; ++i)
+                            if (ssize == "")
                             {
-                                result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
+                                result.AppendLine("public " + "IntPtr" + " gen" + generated++ + ";");
+                            }
+                            else 
+                            {
+                                var num = Int32.Parse(ssize);
+                                var basetype = (string)match.Groups["basetype"].Value;
+                                var base_postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(basetype);
+                                for (int i = 0; i < num; ++i)
+                                {
+                                    result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
+                                }
                             }
                         }
                         else
                         {
-							if (tree.Peek(1).Attr("KindName") == "union")
-								result.AppendLine(@"[FieldOffset(" + offset + ")]");
+                            var postmod_type = PiggyRuntime.TemplateHelpers.ModNonParamUsageType(premod_type);
+                            if (tree.Peek(1).Attr("KindName") == "union")
+                                result.AppendLine(@"[FieldOffset(" + offset + ")]");
                             result.AppendLine("public " + postmod_type + " " + name + ";");
                         }
                     }}
