@@ -107,13 +107,10 @@ namespace Piggy.Build.Task
                 {
                     arguments.Add("-c");
                     var str = ClangOptions;
-                    if (Regex.IsMatch(str, @"^"".*""$"))
+                    if (!Regex.IsMatch(str, @"^"".*""$"))
                     {
-                        // strip "".
-                        str = str.Substring(1);
-                        str = str.Substring(str.Length - 1);
+                        str = "\"" + str + "\"";
                     }
-                    str = "\"" + str + "\"";
                     arguments.Add(str);
                 }
                 if (ClangSourceFile != null)

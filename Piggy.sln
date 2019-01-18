@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiggyGenerator", "PiggyGene
 		{10BD2752-C671-4FED-84CE-5D4F951040B5} = {10BD2752-C671-4FED-84CE-5D4F951040B5}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF34E46F-4123-4ED4-B962-203502AAD343}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Miscellaneous", "Miscellaneous", "{EF34E46F-4123-4ED4-B962-203502AAD343}"
 	ProjectSection(SolutionItems) = preProject
 		.generated_cuda_ast = .generated_cuda_ast
 		cuda-includes.cpp = cuda-includes.cpp
@@ -44,6 +44,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Piggy", "Piggy\Piggy.csproj", "{2D4C7BA7-0EB1-4A6F-8435-DBDF1DD2EA89}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{00082383-92DF-4683-B3BF-1E767AE9225B}"
+	ProjectSection(SolutionItems) = preProject
+		nuget\pack.bat = nuget\pack.bat
+		nuget\piggy.nuspec = nuget\piggy.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

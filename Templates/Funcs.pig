@@ -3,7 +3,7 @@ template Funcs
 {
     header {{
         protected bool first = true;
-        protected string dllname = "";
+        protected string dllname = "need_to_set";
         protected struct generate_type {
             public string name;
             public System.Runtime.InteropServices.CallingConvention convention;
@@ -26,7 +26,8 @@ template Funcs
     pass Start {
         ( TranslationUnitDecl [[
         public class Functions {
-        ]])
+        ]]{{ result.Append("const string DllName = \"" + dllname + "\";" + Environment.NewLine); }}
+		)
     }
 
     pass End {
@@ -49,7 +50,7 @@ template Funcs
                         else
                             return false;
                     }).First();
-                result.Append("[DllImport(\"" + dllname + "\","
+                result.Append("[DllImport(DllName,"
                     + " CallingConvention = CallingConvention." + gt.convention.ToString() + ", "
                     + " EntryPoint=\"" + function_name + "\")]" + Environment.NewLine);
                 var scope = _stack.Peek();
