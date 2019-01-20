@@ -194,7 +194,7 @@ template ClangSupport
             return null;
         }
 
-        private static Dictionary<string, string> _name_map =
+        public static Dictionary<string, string> _name_map =
             new Dictionary<string, string>() {
             { "char", "@char" },
             { "int", "@int"},
