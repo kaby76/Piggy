@@ -3,11 +3,10 @@ template Enums
 {
     header {{
         protected bool first = true;
-        protected string generate_for_only = ".*"; // default to everything.
     }}
 
     pass GenerateEnums {
-        ( EnumDecl SrcRange=$"{Enums.limit}" Name=$"{Enums.generate_for_only}"
+        ( EnumDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}"
             {{
                 first = true;
                 string name = tree.Attr("Name");

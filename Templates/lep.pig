@@ -5,46 +5,24 @@ using 'Funcs.pig';
 using 'Namespace.pig';
 using 'Typedefs.pig';
 
-template Project1Namespace : Namespace
-{
+template Project1Support {
 	init {{
-		namespace_name = "Csharp";
+		ClangSupport.dllname = "leptonica-1.77.0d";
+		ClangSupport.namespace_name = "Csharp";
+		ClangSupport.limit = "[Ss]rc";
 	}}
 }
 
-template Project1Enums : Enums
-{
-	init {{
-		// Override limits in matching.
-		limit = "[Ss]rc";
-	}}
-}
+template Project1Namespace : Namespace { }
 
-template Project1Structs : Structs
-{
-	init {{
-		// Override limits in matching.
-		limit = "[Ss]rc";
-	}}
-}
+template Project1Enums : Enums { }
 
-template Project1Typedefs : Typedefs
-{
-	init {{
-		// Override limits in matching.
-		limit = "[Ss]rc";
-	}}
-}
+template Project1Structs : Structs { }
+
+template Project1Typedefs : Typedefs { }
 
 
-template Project1Funcs : Funcs
-{
-	init {{
-		dllname = "leptonica-1.77.0d";
-		// Override limits in matching.
-		limit = "[Ss]rc";
-	}}
-}
+template Project1Funcs : Funcs { }
 
 application
    Project1Namespace.GenerateStart

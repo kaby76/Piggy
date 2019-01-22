@@ -2,7 +2,6 @@ template Structs
 {
     header {{
         protected bool first = true;
-        protected string generate_for_only = ".*"; // everything.
         int generated = 0;
 		int offset;
     }}
@@ -19,12 +18,12 @@ template Structs
 				var k = t.Key;
 				sb.Append("(?!" + k + ")");
 			}
-			sb.Append(generate_for_only);
-			generate_for_only = sb.ToString();			
+			sb.Append(ClangSupport.generate_for_only);
+			ClangSupport.generate_for_only = sb.ToString();			
 		}}
 		)
 		
-		( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName=* Name=$"{Structs.generate_for_only}" Attrs="definition"
+		( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
@@ -75,7 +74,7 @@ template Structs
             ]]
         )
 
-        ( RecordDecl SrcRange=$"{Structs.limit}" KindName=* Name=$"{Structs.generate_for_only}" Attrs="definition"
+        ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
@@ -127,7 +126,7 @@ template Structs
         )
 
         // If no fields, make a struct for storing a pointer to the struct.
-        ( CXXRecordDecl SrcRange=$"{Structs.limit}" KindName=* Name=$"{Structs.generate_for_only}" Attrs="definition"
+        ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
@@ -145,7 +144,7 @@ template Structs
                     ");
             }}
         )
-        ( RecordDecl SrcRange=$"{Structs.limit}" KindName=* Name=$"{Structs.generate_for_only}" Attrs="definition"
+        ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();

@@ -3,13 +3,11 @@ template Funcs
 {
     header {{
         protected bool first = true;
-        protected string dllname = "need_to_set";
         protected struct generate_type {
             public string name;
             public System.Runtime.InteropServices.CallingConvention convention;
             public Dictionary<int, string> special_args;
         }
-        protected string generate_for_only = ".*";
         protected List<generate_type> details
             = new List<generate_type>()
             {
@@ -26,7 +24,7 @@ template Funcs
     pass Start {
         ( TranslationUnitDecl [[
         public class Functions {
-        ]]{{ result.Append("const string DllName = \"" + dllname + "\";" + Environment.NewLine); }}
+        ]]{{ result.Append("const string DllName = \"" + ClangSupport.dllname + "\";" + Environment.NewLine); }}
 		)
     }
 
@@ -37,7 +35,7 @@ template Funcs
     }
 
     pass Functions {
-        ( FunctionDecl SrcRange=$"{Funcs.limit}" Name=$"{Funcs.generate_for_only}"
+        ( FunctionDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}"
             {{
                 var function_name = tree.Attr("Name");
                 var patch_up_function_name = ClangSupport.EscapeCsharpNames(function_name);

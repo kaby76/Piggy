@@ -1,6 +1,11 @@
 template ClangSupport
 {
     header {{
+
+		public static string dllname = "need_to_set";
+		public static string namespace_name = "Just_a_Default_Name";
+		public static string generate_for_only = ".*"; // default to everything.
+
         // This is pretty much a hack to remove from Clang type strings the type of the function return.
         public static string GetFunctionReturn(string clang_reported_type)
         {

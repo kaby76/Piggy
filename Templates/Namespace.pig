@@ -1,9 +1,5 @@
 template Namespace
 {
-    header {{
-        protected string namespace_name = "Just_a_Default_Name";
-    }}
-
     pass GenerateStart {
         // Generate declarations at start of the file.
         ( TranslationUnitDecl

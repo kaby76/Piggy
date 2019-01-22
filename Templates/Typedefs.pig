@@ -1,17 +1,13 @@
 
 template Typedefs
 {
-    header {{
-        protected string generate_for_only = ".*"; // default to everything.
-    }}
-
     // The only mechanism to create an alias type in C# is to use a struct,
     // where there is one field of the type desired.
     //
     // There are so far the following cases:
 
     pass GeneratePointerTypes {
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( PointerType )
+        ( TypedefDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}" ( PointerType )
             {{
                 var scope = _stack.Peek();
                 var name = tree.Attr("Name");
@@ -36,7 +32,7 @@ template Typedefs
     }
 
     pass GenerateTypedefs {
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( BuiltinType BareType=*
+        ( TypedefDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}" ( BuiltinType BareType=*
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(1).Attr("Name");
@@ -56,7 +52,7 @@ template Typedefs
             }}
         ))
     
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( ElaboratedType ( RecordType ( CXXRecord Name=*
+        ( TypedefDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}" ( ElaboratedType ( RecordType ( CXXRecord Name=*
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
@@ -76,7 +72,7 @@ template Typedefs
             }}
         ))))
 
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( ElaboratedType ( RecordType ( Record Name=*
+        ( TypedefDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}" ( ElaboratedType ( RecordType ( Record Name=*
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
@@ -96,7 +92,7 @@ template Typedefs
             }}
         ))))
 
-        ( TypedefDecl SrcRange=$"{Typedefs.limit}" Name=$"{Typedefs.generate_for_only}" ( ElaboratedType ( EnumType ( Enum Name=*
+        ( TypedefDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}" ( ElaboratedType ( EnumType ( Enum Name=*
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
