@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="spec-20.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="spec-20.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
     <PackageReference Include="Antlr4BuildTasks" Version="1.0.4" />
   </ItemGroup>
