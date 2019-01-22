@@ -7,6 +7,23 @@ using Antlr4.Runtime.Tree;
 
 namespace CSharpSerializer
 {
+    static class Escapes
+    {
+        public static string provide_escapes(this string s)
+        {
+            StringBuilder new_s = new StringBuilder();
+            for (var i = 0; i != s.Length; ++i)
+            {
+                if (s[i] == '"' || s[i] == '\\')
+                {
+                    new_s.Append('\\');
+                }
+                new_s.Append(s[i]);
+            }
+            return new_s.ToString();
+        }
+    }
+
     class Program
     {
         public class ErrorListener<S> : Antlr4.Runtime.ConsoleErrorListener<S>
@@ -21,9 +38,21 @@ namespace CSharpSerializer
         }
 
         private static int changed = 0;
+        private static bool first_time = true;
 
         static void ParenthesizedAST(StringBuilder sb, IParseTree tree, int level = 0)
         {
+            if (changed - level >= 0)
+            {
+                if (!first_time)
+                {
+                    for (int j = 0; j < level; ++j) sb.Append("  ");
+                    for (int k = 0; k < 1 + changed - level; ++k) sb.Append(") ");
+                    sb.AppendLine();
+                }
+                changed = 0;
+                first_time = false;
+            }
             changed = level;
             for (int j = 0; j < level; ++j) sb.Append("  ");
             // Antlr always names a non-terminal with first letter lowercase,
@@ -32,7 +61,7 @@ namespace CSharpSerializer
             // the name. Saves big time on output!
             if (tree as TerminalNodeImpl != null)
             {
-                sb.AppendLine("( token " + tree.GetText());
+                sb.AppendLine("( TOKEN t=\"" + tree.GetText().provide_escapes() + "\"");
             }
             else
             {
@@ -50,21 +79,11 @@ namespace CSharpSerializer
             {
                 var c = tree.GetChild(i);
                 ParenthesizedAST(sb, c, level + 1);
-                if (changed > 0)
-                {
-                    for (int k = 0; k < level + 1; ++k)
-                        sb.Append("  ");
-                    for (int k = 0; k < changed - level; ++k)
-                        sb.Append(") ");
-                    sb.AppendLine();
-                    changed = 0;
-                }
             }
             if (level == 0)
             {
-                for (int k = 0; k < changed - level; ++k)
-                    sb.Append(") ");
-                sb.AppendLine(")");
+                for (int k = 0; k < 1 + changed - level; ++k) sb.Append(") ");
+                sb.AppendLine();
                 changed = 0;
             }
         }
@@ -105,13 +124,10 @@ namespace CSharpSerializer
             var listener = new ErrorListener<IToken>();
             parser.AddErrorListener(listener);
             CSharpParser.Compilation_unitContext tree = parser.compilation_unit();
-            System.Console.WriteLine(listener.had_error ? "Didn't work" : "Worked");
-            // Parenthesized tree expression output.
+            if (listener.had_error) return;
             var sb = new StringBuilder();
             ParenthesizedAST(sb, tree);
             System.Console.WriteLine(sb.ToString());
-            //Reconstruct(tree, tokens);
         }
-
     }
 }
