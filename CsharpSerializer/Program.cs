@@ -22,35 +22,37 @@ namespace CSharpSerializer
 
         private static int changed = 0;
 
-        static void ParenthesizedAST(IParseTree tree, int level = 0)
+        static void ParenthesizedAST(StringBuilder sb, IParseTree tree, int level = 0)
         {
             changed = level;
-            System.Console.WriteLine(Environment.NewLine);
-            for (int j = 0; j < level; ++j) System.Console.Write(" ");
-            var fixed_name = tree.GetType().ToString().Replace("Antlr4.Runtime.Tree.", "").Replace("generate_from_spec.CSharpParser+", "");
-            System.Console.Write("( " + fixed_name);
-            if (tree as TerminalNodeImpl != null) System.Console.WriteLine(" " + tree.GetText());
-            else System.Console.WriteLine();
+            for (int j = 0; j < level; ++j) sb.Append("  ");
+            var fixed_name = tree.GetType().ToString()
+                .Replace("Antlr4.Runtime.Tree.", "")
+                .Replace("generate_from_spec.CSharpParser+", "")
+                .Replace("CSharpSerializer.CSharpParser+", "");
+            sb.Append("( " + fixed_name);
+            if (tree as TerminalNodeImpl != null) sb.AppendLine(" " + tree.GetText());
+            else sb.AppendLine();
             for (int i = 0; i < tree.ChildCount; ++i)
             {
                 var c = tree.GetChild(i);
-                ParenthesizedAST(c, level + 1);
+                ParenthesizedAST(sb, c, level + 1);
                 if (changed > 0)
                 {
-                    for (int k = 0; k < changed - 1; ++k)
-                        System.Console.Write(") ");
-                    System.Console.Write(")");
+                    for (int k = 0; k < level + 1; ++k)
+                        sb.Append("  ");
+                    for (int k = 0; k < changed - level; ++k)
+                        sb.Append(") ");
+                    sb.AppendLine();
                     changed = 0;
-                    System.Console.WriteLine(Environment.NewLine);
                 }
             }
             if (level == 0)
             {
-                for (int k = 0; k < changed - 1; ++k)
-                    System.Console.Write(") ");
-                System.Console.Write(")");
+                for (int k = 0; k < changed - level; ++k)
+                    sb.Append(") ");
+                sb.AppendLine(")");
                 changed = 0;
-                System.Console.WriteLine(Environment.NewLine);
             }
         }
 
@@ -92,7 +94,9 @@ namespace CSharpSerializer
             CSharpParser.Compilation_unitContext tree = parser.compilation_unit();
             System.Console.WriteLine(listener.had_error ? "Didn't work" : "Worked");
             // Parenthesized tree expression output.
-            ParenthesizedAST(tree);
+            var sb = new StringBuilder();
+            ParenthesizedAST(sb, tree);
+            System.Console.WriteLine(sb.ToString());
             //Reconstruct(tree, tokens);
         }
 
