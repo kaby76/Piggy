@@ -26,13 +26,26 @@ namespace CSharpSerializer
         {
             changed = level;
             for (int j = 0; j < level; ++j) sb.Append("  ");
-            var fixed_name = tree.GetType().ToString()
-                .Replace("Antlr4.Runtime.Tree.", "")
-                .Replace("generate_from_spec.CSharpParser+", "")
-                .Replace("CSharpSerializer.CSharpParser+", "");
-            sb.Append("( " + fixed_name);
-            if (tree as TerminalNodeImpl != null) sb.AppendLine(" " + tree.GetText());
-            else sb.AppendLine();
+            // Antlr always names a non-terminal with first letter lowercase,
+            // but renames it when creating the type in C#. So, remove the prefix,
+            // lowercase the first letter, and remove the trailing "Context" part of
+            // the name. Saves big time on output!
+            if (tree as TerminalNodeImpl != null)
+            {
+                sb.AppendLine("( token " + tree.GetText());
+            }
+            else
+            {
+                var fixed_name = tree.GetType().ToString()
+                    .Replace("Antlr4.Runtime.Tree.", "")
+                    .Replace("generate_from_spec.CSharpParser+", "")
+                    .Replace("CSharpSerializer.CSharpParser+", "")
+                    ;
+                fixed_name = fixed_name.Substring(0, fixed_name.Length - "Context".Length);
+                fixed_name = fixed_name[0].ToString().ToLower()
+                             + fixed_name.Substring(1);
+                sb.AppendLine("( " + fixed_name);
+            }
             for (int i = 0; i < tree.ChildCount; ++i)
             {
                 var c = tree.GetChild(i);
