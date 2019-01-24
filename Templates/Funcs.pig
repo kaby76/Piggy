@@ -24,7 +24,7 @@ template Funcs
     pass Start {
         ( TranslationUnitDecl [[
         public class Functions {
-        ]]{{ result.Append("const string DllName = \"" + ClangSupport.dllname + "\";" + Environment.NewLine); }}
+        ]]{{ System.Console.Write("const string DllName = \"" + ClangSupport.dllname + "\";" + Environment.NewLine); }}
         )
     }
 
@@ -48,7 +48,7 @@ template Funcs
                         else
                             return false;
                     }).First();
-                result.Append("[DllImport(DllName,"
+                System.Console.Write("[DllImport(DllName,"
                     + " CallingConvention = CallingConvention." + gt.convention.ToString() + ", "
                     + " EntryPoint=\"" + function_name + "\")]" + Environment.NewLine);
                 var scope = _stack.Peek();
@@ -57,7 +57,7 @@ template Funcs
                 var premod_type = raw_return_type;
                 var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
                 var type = postmod_type;
-                result.Append("public static extern "
+                System.Console.Write("public static extern "
                    + type + " "
                    + patch_up_function_name + "(");
                 first = true;
@@ -67,12 +67,12 @@ template Funcs
                     if (first)
                         first = false;
                     else
-                        result.Append(", ");
+                        System.Console.Write(", ");
                     var premod_type = tree.Attr("Type");
                     var postmod_type = ClangSupport.ModParamUsageType(premod_type);
                     var param_name = tree.Attr("Name");
                     var patch_up_param_name = ClangSupport.EscapeCsharpNames(param_name);
-                    result.Append(postmod_type + " " + patch_up_param_name);
+                    System.Console.Write(postmod_type + " " + patch_up_param_name);
                 }}
             )*
             [[);

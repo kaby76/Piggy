@@ -16,7 +16,7 @@ template Typedefs
                 if (def != null) return;
                 def = new StructSymbol(name);
                 scope.define(def);
-                result.AppendLine(
+                System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
                     {
@@ -38,7 +38,7 @@ template Typedefs
                 var name = tree.Peek(1).Attr("Name");
                 var baretype_name = tree.Attr("BareType");
                 baretype_name = ClangSupport.ModNonParamUsageType(baretype_name);
-                result.AppendLine(
+                System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
                     {
@@ -58,7 +58,7 @@ template Typedefs
                 var name = tree.Peek(3).Attr("Name");
                 var cxxrec_name = tree.Attr("Name");
                 cxxrec_name = ClangSupport.ModNonParamUsageType(cxxrec_name);
-                result.AppendLine(
+                System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
                     {
@@ -78,7 +78,7 @@ template Typedefs
                 var name = tree.Peek(3).Attr("Name");
                 var cxxrec_name = tree.Attr("Name");
                 cxxrec_name = ClangSupport.ModNonParamUsageType(cxxrec_name);
-                result.AppendLine(
+                System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
                     {
@@ -98,7 +98,7 @@ template Typedefs
                 var name = tree.Peek(3).Attr("Name");
                 var base_name = tree.Attr("Name");
                 base_name = ClangSupport.ModNonParamUsageType(base_name);
-                result.AppendLine(
+                System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
                     {

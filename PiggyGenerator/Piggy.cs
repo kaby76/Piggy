@@ -19,7 +19,8 @@ namespace PiggyGenerator
         public string _specification = string.Empty;
         public string _expression = null;
         public string _template_directory = null;
-        public string _output_file = null;
+        public string _output_file_name = null;
+        public Redirect _redirect = null;
         public List<string> _clang_options = new List<string>();
         public List<Template> _templates = new List<Template>();
         public Application _application = new Application();
@@ -34,7 +35,9 @@ namespace PiggyGenerator
             _expression = expression;
             _specification = spec_file;
             _template_directory = template_directory;
-            _output_file = output_file;
+            _output_file_name = output_file;
+            if (output_file != null)
+                _redirect = new PiggyRuntime.Redirect(_output_file_name);
 
             // Parse ast using Antlr.
             // Get back AST as string.
@@ -71,7 +74,7 @@ namespace PiggyGenerator
                 SpecFileAndListener exp = new SpecFileAndListener(this);
                 exp.ParseExpressionPattern(expression);
                 var output_engine = new OutputEngine(this);
-                System.Console.WriteLine(output_engine.Run(true));
+                output_engine.Run(true);
             }
             else if (spec_file != null)
             {
@@ -80,17 +83,7 @@ namespace PiggyGenerator
                 SpecFileAndListener file = new SpecFileAndListener(this);
                 file.ParseSpecFile(_specification);
                 var output_engine = new OutputEngine(this);
-                var result = output_engine.Run(false);
-                if (output_file != null && output_file != "")
-                {
-                    StringBuilder sbb = new StringBuilder();
-                    using (StringWriter writer = new StringWriter(sbb))
-                    {
-                        System.IO.File.WriteAllText(output_file, result);
-                    }
-                }
-                else
-                    System.Console.WriteLine(result);
+                output_engine.Run(false);
             }
         }
     }

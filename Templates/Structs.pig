@@ -32,7 +32,7 @@ template Structs
                     ? @"[StructLayout(LayoutKind.Sequential)]"
                     : @"[StructLayout(LayoutKind.Explicit)]";
                 offset = 0;
-                result.AppendLine(
+                System.Console.WriteLine(
                     layout + @"
                     public partial struct " + name + @"
                     {");
@@ -48,7 +48,7 @@ template Structs
                             var ssize = (string)match.Groups["index"].Value;
                             if (ssize == "")
                             {
-                                result.AppendLine("public " + "IntPtr" + " gen" + generated++ + ";");
+                                System.Console.WriteLine("public " + "IntPtr" + " gen" + generated++ + ";");
                             }
                             else 
                             {
@@ -57,7 +57,7 @@ template Structs
                                 var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
                                 for (int i = 0; i < num; ++i)
                                 {
-                                    result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
+                                    System.Console.WriteLine("public " + base_postmod_type + " gen" + generated++ + ";");
                                 }
                             }
                         }
@@ -65,8 +65,8 @@ template Structs
                         {
                             var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
                             if (tree.Peek(1).Attr("KindName") == "union")
-                                result.AppendLine(@"[FieldOffset(" + offset + ")]");
-                            result.AppendLine("public " + postmod_type + " " + name + ";");
+                                System.Console.WriteLine(@"[FieldOffset(" + offset + ")]");
+                            System.Console.WriteLine("public " + postmod_type + " " + name + ";");
                         }
                     }}
                 )+
@@ -83,7 +83,7 @@ template Structs
                     ? @"[StructLayout(LayoutKind.Sequential)]"
                     : @"[StructLayout(LayoutKind.Explicit)]";
                 offset = 0;
-                result.AppendLine(
+                System.Console.WriteLine(
                     layout + @"
                     public partial struct " + name + @"
                     {");
@@ -99,7 +99,7 @@ template Structs
                             var ssize = (string)match.Groups["index"].Value;
                             if (ssize == "")
                             {
-                                result.AppendLine("public " + "IntPtr" + " gen" + generated++ + ";");
+                                System.Console.WriteLine("public " + "IntPtr" + " gen" + generated++ + ";");
                             }
                             else 
                             {
@@ -108,7 +108,7 @@ template Structs
                                 var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
                                 for (int i = 0; i < num; ++i)
                                 {
-                                    result.AppendLine("public " + base_postmod_type + " gen" + generated++ + ";");
+                                    System.Console.WriteLine("public " + base_postmod_type + " gen" + generated++ + ";");
                                 }
                             }
                         }
@@ -116,8 +116,8 @@ template Structs
                         {
                             var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
                             if (tree.Peek(1).Attr("KindName") == "union")
-                                result.AppendLine(@"[FieldOffset(" + offset + ")]");
-                            result.AppendLine("public " + postmod_type + " " + name + ";");
+                                System.Console.WriteLine(@"[FieldOffset(" + offset + ")]");
+                            System.Console.WriteLine("public " + postmod_type + " " + name + ";");
                         }
                     }}
                 )+
@@ -131,7 +131,7 @@ template Structs
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
-                result.AppendLine(
+                System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
                     {
@@ -149,7 +149,7 @@ template Structs
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
-                result.AppendLine(
+                System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
                     {

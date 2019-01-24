@@ -10,7 +10,7 @@ template Enums
             {{
                 first = true;
                 string name = tree.Attr("Name");
-                result.Append("public enum " + name + " {" + Environment.NewLine);
+                System.Console.Write("public enum " + name + " {" + Environment.NewLine);
             }}
             (%
                 ( EnumConstantDecl
@@ -19,8 +19,8 @@ template Enums
                             if (first)
                                 first = false;
                             else
-                                result.Append("," + Environment.NewLine);
-                            result.Append("" + tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value"));
+                                System.Console.Write("," + Environment.NewLine);
+                            System.Console.Write("" + tree.Peek(1).Attr("Name") + " = " + tree.Peek(0).Attr("Value"));
                         }}
                     )
                 )
@@ -30,8 +30,8 @@ template Enums
                         if (first)
                             first = false;
                         else
-                            result.Append("," + Environment.NewLine);
-                        result.Append("" + tree.Attr("Name"));
+                            System.Console.Write("," + Environment.NewLine);
+                        System.Console.Write("" + tree.Attr("Name"));
                     }}
                 )
             %)*

@@ -114,7 +114,7 @@
             }
         }
 
-        public void CompileTemplates()
+        public void GenerateAndCompileTemplates()
         {
             // Create one file containing all types and decls:
             //
@@ -144,6 +144,13 @@ using System.Runtime.InteropServices;
 using org.antlr.symtab;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Options;
+using Microsoft.CodeAnalysis.Text;
 
 
 namespace " + @namespace + @"
@@ -194,8 +201,7 @@ namespace " + @namespace + @"
                     var method_name = "Gen" + counter++;
                     gen_named_code_blocks[key] = method_name;
                     code.Append("public void " + method_name + @"(
-            PiggyRuntime.Tree tree,
-            StringBuilder result)
+            PiggyRuntime.Tree tree)
         {
 " + text + @"
         }
@@ -372,7 +378,7 @@ namespace " + @namespace + @"
 
         public static Dictionary<Type, object> _instances = new Dictionary<Type, object>();
 
-        public void PatternMatchingEngine(StringBuilder builder, TreeRegEx re)
+        public void PatternMatchingEngine(TreeRegEx re)
         {
             var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
@@ -453,7 +459,7 @@ namespace " + @namespace + @"
                         string s = TreeRegEx.sourceTextForContext(x);
                         string s2 = s.Substring(2);
                         string s3 = s2.Substring(0, s2.Length - 2);
-                        builder.Append(s3);
+                        System.Console.Write(s3);
                     }
                     else if (x as SpecParserParser.CodeContext != null)
                     {
@@ -482,7 +488,7 @@ namespace " + @namespace + @"
                             MethodInfo main = _piggy._code_blocks[x];
                             Type type = re._current_type;
                             object instance = re._instance;
-                            object[] a = new object[] { new Tree(re.parent, re._ast, con), builder };
+                            object[] a = new object[] { new Tree(re.parent, re._ast, con) };
                             var res = main.Invoke(instance, a);
                         }
                         finally
@@ -551,7 +557,7 @@ namespace " + @namespace + @"
             }
         }
 
-        public void OutputMatches(StringBuilder builder, TreeRegEx re)
+        public void OutputMatches(TreeRegEx re)
         {
             var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
@@ -600,12 +606,9 @@ namespace " + @namespace + @"
             }
             return collection;
         }
-
-        public string Run(bool just_find)
+        
+        private void CreateAllTemplateInstances()
         {
-            StringBuilder combined_result = new StringBuilder();
-            CompileTemplates();
-            // Create types for passes referenced.
             foreach (var full_pass_name in _piggy._application.OrderedPasses)
             {
                 var pass_name_regex = new Regex("^(?<template_name>[^.]+)[.](?<pass_name>.*)$");
@@ -626,8 +629,15 @@ namespace " + @namespace + @"
                     _instances[type] = Activator.CreateInstance(type);
                 }
             }
-            var app = _piggy._application;
-            foreach (var full_pass_name in app.OrderedPasses)
+        }
+
+        public void Run(bool grep_only)
+        {
+            GenerateAndCompileTemplates();
+
+            CreateAllTemplateInstances();
+
+            foreach (var full_pass_name in _piggy._application.OrderedPasses)
             {
                 // Separate the pass name into "template name" "." "pass name"
                 var pass_name_regex = new Regex("^(?<template_name>[^.]+)[.](?<pass_name>.*)$");
@@ -639,46 +649,8 @@ namespace " + @namespace + @"
                 List<Pass> passes = GetAllPassesNamed(template, pass_name);
                 TreeRegEx regex = new TreeRegEx(_piggy, passes, _instances[template.Type]);
                 regex.dfs_match();
-                if (just_find) OutputMatches(combined_result, regex);
-                else PatternMatchingEngine(combined_result, regex);
-            }
-
-            if (just_find)
-            {
-                return combined_result.ToString();
-            }
-            else
-            {
-                string sa = combined_result.ToString();
-                var workspace = new AdhocWorkspace();
-                string projectName = "HelloWorldProject";
-                ProjectId projectId = ProjectId.CreateNewId();
-                VersionStamp versionStamp = VersionStamp.Create();
-                ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName,
-                    LanguageNames.CSharp);
-                SourceText sourceText = SourceText.From(sa);
-                Project newProject = workspace.AddProject(helloWorldProject);
-                Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
-                OptionSet options = workspace.Options;
-                options = options
-                        .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
-                        .WithChangedOption(CSharpFormattingOptions.IndentBraces, false)
-                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
-                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
-                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
-                        .WithChangedOption(CSharpFormattingOptions.NewLineForElse, true)
-                        .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, true)
-                        .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, true)
-                    ;
-                var syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
-                SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
-                StringBuilder sb = new StringBuilder();
-                using (StringWriter writer = new StringWriter(sb))
-                {
-                    formattedNode.WriteTo(writer);
-                    var r = writer.ToString();
-                    return r;
-                }
+                if (grep_only) OutputMatches(regex);
+                else PatternMatchingEngine(regex);
             }
         }
     }
