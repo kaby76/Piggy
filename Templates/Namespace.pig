@@ -18,7 +18,7 @@ template Namespace
             using System.Text.RegularExpressions;
             using System.Linq;
 
-            namespace ]] {{ result.Append(namespace_name); }} [[ {
+            namespace ]] {{ result.Append(ClangSupport.namespace_name); }} [[ {
 
                 [StructLayout(LayoutKind.Sequential)]
                 public struct SizeT

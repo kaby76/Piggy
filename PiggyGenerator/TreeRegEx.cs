@@ -686,19 +686,22 @@
             return false;
         }
 
-        string ReplaceMacro(string value)
+        string ReplaceMacro(IParseTree p)
         {
-            Type current_type = _current_type;
-            object o = this._instance;
-            return Regex.Replace(value, @"{(?<exp>[^}]+)}", match =>
+            // Try in order current type, then all other types.
+            try
             {
-                ParameterExpression p = Expression.Parameter(
-                    current_type, current_type.Name);
-                string v = match.Groups["exp"].Value;
-                LambdaExpression e = System.Linq.Dynamic.Core.DynamicExpressionParser.ParseLambda(new[] { p }, null, v);
-                object r = e.Compile().DynamicInvoke(o);
-                return (r ?? "").ToString();
-            });
+                var main = _piggy._code_blocks[p];
+                Type current_type = _current_type;
+                object instance = this._instance;
+                object[] a = new object[] { };
+                var res = main.Invoke(instance, a);
+                return res as string;
+            }
+            catch (Exception e)
+            {
+            }
+            throw new Exception("Cannot eval expression.");
         }
 
         /*
@@ -748,7 +751,7 @@
                 pattern = pattern.Substring(0, pattern.Length - 1);
                 try
                 {
-                    pattern = ReplaceMacro(pattern);
+                    pattern = ReplaceMacro(p);
                 }
                 catch (Exception e)
                 {

@@ -30,7 +30,5 @@
         protected static SymbolTable _symbol_table = new SymbolTable();
 
         protected static Stack<Scope> _stack = new Stack<Scope>();
-
-        protected string limit = ""; // Context of what file can match.
     }
 }

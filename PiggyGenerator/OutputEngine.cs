@@ -117,10 +117,19 @@
         public void CompileTemplates()
         {
             // Create one file containing all types and decls:
+            //
             // 1) Create a class for each "template", subclassing based on extension if given
-            // in the spec.
-            // 2) All code block are place in separate methods, within the enclosing class/template.
-            // 3) Make sure to set up the constructor for the class if one.
+            //    in the spec.
+            //
+            // 2) Each code block is placed in a method of signature (PiggyRuntime.Tree tree, StringBuilder result) => {}.
+            //    within the enclosing class/template.
+            //
+            // 3) Code blocks which are "init" are generated into a parameterless constructor.
+            //
+            // 4) Each interprolated string in patterns of the class are placed in a
+            //    method of type () => string.
+            //
+            int counter = 0; // Every function name everywhere uniquely defined name with counter.
             string @namespace = "CompiledTemplates";
             StringBuilder code = new StringBuilder();
             code.Append(@"
@@ -160,20 +169,24 @@ namespace " + @namespace + @"
                     code.Append(c);
                 code.AppendLine("}");
 
+                // Find all code blocks. Find all interpolated string attribute values.
                 Dictionary<IParseTree, string> collected_code = new Dictionary<IParseTree, string>();
+                Dictionary<IParseTree, string> interpolated_string_attribute_values_code = new Dictionary<IParseTree, string>();
                 foreach (var p in template.Passes)
                 {
                     foreach (Pattern pt in p.Patterns)
                     {
                         Dictionary<IParseTree, string> c = pt.CollectCode();
                         foreach (var x in c) collected_code.Add(x.Key, x.Value);
+
+                        Dictionary<IParseTree, string> c2 = pt.CollectInterpolatedStringCode();
+                        foreach (var x in c2) interpolated_string_attribute_values_code.Add(x.Key, x.Value);
                     }
                 }
 
                 // So, for every damn code block, output a "Gen#()" method.
                 // And, make sure to associate the name of the method with the tree node
                 // so we can do fast look ups.
-                int counter = 0;
                 foreach (var t in collected_code)
                 {
                     var key = t.Key;
@@ -189,9 +202,29 @@ namespace " + @namespace + @"
 ");
                 }
 
+                // So, for every interpolated string code block, output a "Gen#()" method.
+                // And, make sure to associate the name of the method with the tree node
+                // so we can do fast look ups.
+                foreach (var t in interpolated_string_attribute_values_code)
+                {
+                    var key = t.Key;
+                    var text = t.Value;
+                    var method_name = "Gen" + counter++;
+                    gen_named_code_blocks[key] = method_name;
+                    code.Append("public string " + method_name + @"()
+        { return 
+" + text + @";
+        }
+");
+                }
+
+                // END OF TEMPLATE!
+
                 code.Append(@"
     }
 ");
+                // END OF TEMPLATE!
+
             }
 
             code.Append(@"
@@ -315,6 +348,17 @@ namespace " + @namespace + @"
                                         throw new Exception("Can't find method_info for " + class_name + "." + name);
                                     _piggy._code_blocks[key] = method_info;
                                 }
+                                Dictionary<IParseTree, string> y = pattern.CollectInterpolatedStringCode();
+                                foreach (KeyValuePair<IParseTree, string> kvp in y)
+                                {
+                                    IParseTree key = kvp.Key;
+                                    string name = gen_named_code_blocks[key];
+                                    MethodInfo method_info = template_type.GetMethod(name);
+                                    if (method_info == null)
+                                        throw new Exception("Can't find method_info for " + class_name + "." + name);
+                                    _piggy._code_blocks[key] = method_info;
+                                }
+
                             }
                         }
                     }
@@ -326,7 +370,7 @@ namespace " + @namespace + @"
             }
         }
 
-        static Dictionary<Type, object> _instances = new Dictionary<Type, object>();
+        public static Dictionary<Type, object> _instances = new Dictionary<Type, object>();
 
         public void PatternMatchingEngine(StringBuilder builder, TreeRegEx re)
         {
@@ -570,6 +614,11 @@ namespace " + @namespace + @"
                 var template_name = match.Groups["template_name"].Value;
                 var pass_name = match.Groups["pass_name"].Value;
                 var template = _piggy._templates.Find(t => t.TemplateName == template_name);
+                if (template == null)
+                {
+                    System.Console.WriteLine("Yo. You are looking for a template named '" + template_name + "' but it does not exist anywhere.");
+                    throw new Exception();
+                }
                 var type = template.Type;
                 _instances.TryGetValue(type, out object i);
                 if (i == null)

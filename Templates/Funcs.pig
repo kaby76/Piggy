@@ -25,7 +25,7 @@ template Funcs
         ( TranslationUnitDecl [[
         public class Functions {
         ]]{{ result.Append("const string DllName = \"" + ClangSupport.dllname + "\";" + Environment.NewLine); }}
-		)
+        )
     }
 
     pass End {
