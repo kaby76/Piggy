@@ -80,8 +80,17 @@ template Structs
                         }
                     }}
                 )+
-            [[}
+	           [[}
             ]]
+     		{{
+ 			if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+			{
+				// Create a new file for this struct.
+				System.Console.WriteLine("}");
+				PiggyRuntime.Tool.Redirect.Dispose();
+				PiggyRuntime.Tool.Redirect = null;
+			}
+			}}
         )
 
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
@@ -139,10 +148,21 @@ template Structs
                                 System.Console.WriteLine(@"[FieldOffset(" + offset + ")]");
                             System.Console.WriteLine("public " + postmod_type + " " + name + ";");
                         }
+
                     }}
                 )+
             [[}
             ]]
+			{{
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this struct.
+					System.Console.WriteLine("}");
+					PiggyRuntime.Tool.Redirect.Dispose();
+					PiggyRuntime.Tool.Redirect = null;
+				}
+
+			}}
         )
 
         // If no fields, make a struct for storing a pointer to the struct.
@@ -172,12 +192,13 @@ template Structs
                         public IntPtr Pointer;
                     }
                     ");
-					if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-					{
-						// Create a new file for this struct.
-						System.Console.WriteLine("}");
-					}
-
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this struct.
+					System.Console.WriteLine("}");
+					PiggyRuntime.Tool.Redirect.Dispose();
+					PiggyRuntime.Tool.Redirect = null;
+				}
             }}
         )
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
@@ -205,6 +226,14 @@ template Structs
                         public IntPtr Pointer;
                     }
                     ");
+
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this struct.
+					System.Console.WriteLine("}");
+					PiggyRuntime.Tool.Redirect.Dispose();
+					PiggyRuntime.Tool.Redirect = null;
+				}
             }}
         )
     }
