@@ -20,7 +20,6 @@ namespace PiggyGenerator
         public string _expression = null;
         public string _template_directory = null;
         public string _output_file_name = null;
-        public Redirect _redirect = null;
         public List<string> _clang_options = new List<string>();
         public List<Template> _templates = new List<Template>();
         public Application _application = new Application();
@@ -42,7 +41,7 @@ namespace PiggyGenerator
                 var is_file = File.Exists(_output_file_name);
                 var is_directory = Directory.Exists(_output_file_name);
                 if (is_file)
-                    _redirect = new PiggyRuntime.Redirect(_output_file_name);
+                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(_output_file_name);
             }
 
             // Parse ast using Antlr.

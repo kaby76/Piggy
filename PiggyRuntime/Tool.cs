@@ -20,5 +20,12 @@ namespace PiggyRuntime
             get;
             set;
         }
+
+        public static Redirect Redirect
+        {
+            get;
+            set;
+        }
+
     }
 }

@@ -25,13 +25,17 @@ template Structs
         
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+		        string name = tree.Attr("Name");
+
+		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
 				{
 					// Create a new file for this struct.
-
+					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+					System.Console.WriteLine("{");
 				}
 
-                string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
                 var layout = tree.Attr("KindName") == "struct"
@@ -82,13 +86,17 @@ template Structs
 
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+		        string name = tree.Attr("Name");
+
+		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
 				{
 					// Create a new file for this struct.
-
+					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+					System.Console.WriteLine("{");
 				}
 
-                string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
                 var layout = tree.Attr("KindName") == "struct"
@@ -140,13 +148,17 @@ template Structs
         // If no fields, make a struct for storing a pointer to the struct.
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+		        string name = tree.Attr("Name");
+
+		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
 				{
 					// Create a new file for this struct.
-
+					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+					System.Console.WriteLine("{");
 				}
 
-                string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
                 System.Console.WriteLine(
@@ -160,17 +172,26 @@ template Structs
                         public IntPtr Pointer;
                     }
                     ");
+					if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+					{
+						// Create a new file for this struct.
+						System.Console.WriteLine("}");
+					}
+
             }}
         )
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+		        string name = tree.Attr("Name");
+		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
 				{
 					// Create a new file for this struct.
-
+					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+					System.Console.WriteLine("{");
 				}
 
-                string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
                 System.Console.WriteLine(
