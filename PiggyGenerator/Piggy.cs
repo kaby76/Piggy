@@ -36,8 +36,14 @@ namespace PiggyGenerator
             _specification = spec_file;
             _template_directory = template_directory;
             _output_file_name = output_file;
-            if (output_file != null)
-                _redirect = new PiggyRuntime.Redirect(_output_file_name);
+            PiggyRuntime.Tool.OutputLocation = output_file;
+            if (_output_file_name != null)
+            {
+                var is_file = File.Exists(_output_file_name);
+                var is_directory = Directory.Exists(_output_file_name);
+                if (is_file)
+                    _redirect = new PiggyRuntime.Redirect(_output_file_name);
+            }
 
             // Parse ast using Antlr.
             // Get back AST as string.

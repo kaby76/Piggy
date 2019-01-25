@@ -25,6 +25,12 @@ template Structs
         
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this struct.
+
+				}
+
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
@@ -76,6 +82,12 @@ template Structs
 
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this struct.
+
+				}
+
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
@@ -128,6 +140,12 @@ template Structs
         // If no fields, make a struct for storing a pointer to the struct.
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this struct.
+
+				}
+
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;
@@ -146,6 +164,12 @@ template Structs
         )
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this struct.
+
+				}
+
                 string name = tree.Attr("Name");
                 var scope = _stack.Peek();
                 var typedef_name = name;

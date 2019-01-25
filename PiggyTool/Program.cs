@@ -55,6 +55,8 @@ namespace ConsoleApp1
                     System.Console.WriteLine(a);
                 });
 
+            PiggyRuntime.Tool.CommandLineArgs = args;
+
             p.Doit(ast_file, spec_file, keep_file, expression, template_directory, output_file);
         }
     }
