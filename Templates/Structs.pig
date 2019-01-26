@@ -92,6 +92,9 @@ template Structs
 				System.Console.WriteLine("}");
 				PiggyRuntime.Tool.Redirect.Dispose();
 				PiggyRuntime.Tool.Redirect = null;
+		        string name = tree.Attr("Name");
+				var output_file_name = "g-" + name + ".cs";
+				ClangSupport.FormatFile(output_file_name);
 			}
 			}}
         )
@@ -166,6 +169,9 @@ template Structs
 					System.Console.WriteLine("}");
 					PiggyRuntime.Tool.Redirect.Dispose();
 					PiggyRuntime.Tool.Redirect = null;
+					string name = tree.Attr("Name");
+					var output_file_name = "g-" + name + ".cs";
+					ClangSupport.FormatFile(output_file_name);
 				}
 
 			}}
@@ -207,6 +213,8 @@ template Structs
 					System.Console.WriteLine("}");
 					PiggyRuntime.Tool.Redirect.Dispose();
 					PiggyRuntime.Tool.Redirect = null;
+					var output_file_name = "g-" + name + ".cs";
+					ClangSupport.FormatFile(output_file_name);
 				}
             }}
         )
@@ -245,6 +253,8 @@ template Structs
 					System.Console.WriteLine("}");
 					PiggyRuntime.Tool.Redirect.Dispose();
 					PiggyRuntime.Tool.Redirect = null;
+					var output_file_name = "g-" + name + ".cs";
+					ClangSupport.FormatFile(output_file_name);
 				}
             }}
         )

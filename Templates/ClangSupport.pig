@@ -217,41 +217,38 @@ template ClangSupport
             return pre_name;
         }
 
-		public string FormatFile()
+		public static void FormatFile(string file_name)
 		{
+			string sa = System.IO.File.ReadAllText(file_name);
+			var workspace = new AdhocWorkspace();
+            string projectName = "HelloWorldProject";
+            ProjectId projectId = ProjectId.CreateNewId();
+            VersionStamp versionStamp = VersionStamp.Create();
+            ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName,
+                LanguageNames.CSharp);
+            SourceText sourceText = SourceText.From(sa);
+            Project newProject = workspace.AddProject(helloWorldProject);
+            Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
+            OptionSet options = workspace.Options;
+            options = options
+                    .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentBraces, false)
+                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
+                    .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
+                    .WithChangedOption(CSharpFormattingOptions.NewLineForElse, true)
+                    .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, true)
+                    .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, true)
+                ;
+            var syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+            SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
+            StringBuilder sb = new StringBuilder();
+            using (StringWriter writer = new StringWriter(sb))
             {
-                string sa = null;//combined_result.ToString();
-                var workspace = new AdhocWorkspace();
-                string projectName = "HelloWorldProject";
-                ProjectId projectId = ProjectId.CreateNewId();
-                VersionStamp versionStamp = VersionStamp.Create();
-                ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName, projectName,
-                    LanguageNames.CSharp);
-                SourceText sourceText = SourceText.From(sa);
-                Project newProject = workspace.AddProject(helloWorldProject);
-                Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
-                OptionSet options = workspace.Options;
-                options = options
-                        .WithChangedOption(CSharpFormattingOptions.IndentBlock, true)
-                        .WithChangedOption(CSharpFormattingOptions.IndentBraces, false)
-                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSection, true)
-                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchCaseSectionWhenBlock, true)
-                        .WithChangedOption(CSharpFormattingOptions.IndentSwitchSection, true)
-                        .WithChangedOption(CSharpFormattingOptions.NewLineForElse, true)
-                        .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, true)
-                        .WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, true)
-                    ;
-                var syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
-                SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
-                StringBuilder sb = new StringBuilder();
-                using (StringWriter writer = new StringWriter(sb))
-                {
-                    formattedNode.WriteTo(writer);
-                    var r = writer.ToString();
-                    return r;
-                }
+                formattedNode.WriteTo(writer);
+                var r = writer.ToString();
+				System.IO.File.WriteAllText(file_name, r);
             }
-
 		}
     }}
 

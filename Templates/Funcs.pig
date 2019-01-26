@@ -53,6 +53,8 @@ template Funcs
 					System.Console.WriteLine("}");
 					PiggyRuntime.Tool.Redirect.Dispose();
 					PiggyRuntime.Tool.Redirect = null;
+					var output_file_name = "g-functions.cs";
+					ClangSupport.FormatFile(output_file_name);
 				}
 			}}
 		)
