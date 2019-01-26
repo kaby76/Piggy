@@ -30,7 +30,7 @@ template Structs
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -50,52 +50,51 @@ template Structs
                     public partial struct " + name + @"
                     {");
             }}
-                ( FieldDecl
-                    {{
-                        var name = tree.Attr("Name");
-                        var premod_type = tree.Attr("Type");
-                        Regex regex = new Regex("(?<basetype>.*)[[](?<index>.*)[]]");
-                        var match = regex.Match(premod_type);
-                        if (match.Success)
+            ( FieldDecl
+                {{
+                    var name = tree.Attr("Name");
+                    var premod_type = tree.Attr("Type");
+                    Regex regex = new Regex("(?<basetype>.*)[[](?<index>.*)[]]");
+                    var match = regex.Match(premod_type);
+                    if (match.Success)
+                    {
+                        var ssize = (string)match.Groups["index"].Value;
+                        if (ssize == "")
                         {
-                            var ssize = (string)match.Groups["index"].Value;
-                            if (ssize == "")
+                            System.Console.WriteLine("public " + "IntPtr" + " gen" + generated++ + ";");
+                        }
+                        else 
+                        {
+                            var num = Int32.Parse(ssize);
+                            var basetype = (string)match.Groups["basetype"].Value;
+                            var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
+                            for (int i = 0; i < num; ++i)
                             {
-                                System.Console.WriteLine("public " + "IntPtr" + " gen" + generated++ + ";");
-                            }
-                            else 
-                            {
-                                var num = Int32.Parse(ssize);
-                                var basetype = (string)match.Groups["basetype"].Value;
-                                var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
-                                for (int i = 0; i < num; ++i)
-                                {
-                                    System.Console.WriteLine("public " + base_postmod_type + " gen" + generated++ + ";");
-                                }
+                                System.Console.WriteLine("public " + base_postmod_type + " gen" + generated++ + ";");
                             }
                         }
-                        else
-                        {
-                            var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
-                            if (tree.Peek(1).Attr("KindName") == "union")
-                                System.Console.WriteLine(@"[FieldOffset(" + offset + ")]");
-                            System.Console.WriteLine("public " + postmod_type + " " + name + ";");
-                        }
-                    }}
-                )+
-               [[}
-            ]]
+                    }
+                    else
+                    {
+                        var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
+                        if (tree.Peek(1).Attr("KindName") == "union")
+                            System.Console.WriteLine(@"[FieldOffset(" + offset + ")]");
+                        System.Console.WriteLine("public " + postmod_type + " " + name + ";");
+                    }
+                }}
+            )+
             {{
-            if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-            {
-                // Create a new file for this struct.
                 System.Console.WriteLine("}");
-                PiggyRuntime.Tool.Redirect.Dispose();
-                PiggyRuntime.Tool.Redirect = null;
-                string name = tree.Attr("Name");
-                var output_file_name = "g-" + name + ".cs";
-                ClangSupport.FormatFile(output_file_name);
-            }
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    System.Console.WriteLine("}");
+                    PiggyRuntime.Tool.Redirect.Dispose();
+                    PiggyRuntime.Tool.Redirect = null;
+                    string name = tree.Attr("Name");
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
+                    ClangSupport.FormatFile(output_file_name);
+                }
             }}
         )
 
@@ -106,7 +105,7 @@ template Structs
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -126,43 +125,42 @@ template Structs
                     public partial struct " + name + @"
                     {");
             }}
-                ( FieldDecl
-                    {{
-                        var name = tree.Attr("Name");
-                        var premod_type = tree.Attr("Type");
-                        Regex regex = new Regex("(?<basetype>.*)[[](?<index>.*)[]]");
-                        var match = regex.Match(premod_type);
-                        if (match.Success)
+            ( FieldDecl
+                {{
+                    var name = tree.Attr("Name");
+                    var premod_type = tree.Attr("Type");
+                    Regex regex = new Regex("(?<basetype>.*)[[](?<index>.*)[]]");
+                    var match = regex.Match(premod_type);
+                    if (match.Success)
+                    {
+                        var ssize = (string)match.Groups["index"].Value;
+                        if (ssize == "")
                         {
-                            var ssize = (string)match.Groups["index"].Value;
-                            if (ssize == "")
+                            System.Console.WriteLine("public " + "IntPtr" + " gen" + generated++ + ";");
+                        }
+                        else 
+                        {
+                            var num = Int32.Parse(ssize);
+                            var basetype = (string)match.Groups["basetype"].Value;
+                            var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
+                            for (int i = 0; i < num; ++i)
                             {
-                                System.Console.WriteLine("public " + "IntPtr" + " gen" + generated++ + ";");
-                            }
-                            else 
-                            {
-                                var num = Int32.Parse(ssize);
-                                var basetype = (string)match.Groups["basetype"].Value;
-                                var base_postmod_type = ClangSupport.ModNonParamUsageType(basetype);
-                                for (int i = 0; i < num; ++i)
-                                {
-                                    System.Console.WriteLine("public " + base_postmod_type + " gen" + generated++ + ";");
-                                }
+                                System.Console.WriteLine("public " + base_postmod_type + " gen" + generated++ + ";");
                             }
                         }
-                        else
-                        {
-                            var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
-                            if (tree.Peek(1).Attr("KindName") == "union")
-                                System.Console.WriteLine(@"[FieldOffset(" + offset + ")]");
-                            System.Console.WriteLine("public " + postmod_type + " " + name + ";");
-                        }
+                    }
+                    else
+                    {
+                        var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
+                        if (tree.Peek(1).Attr("KindName") == "union")
+                            System.Console.WriteLine(@"[FieldOffset(" + offset + ")]");
+                        System.Console.WriteLine("public " + postmod_type + " " + name + ";");
+                    }
 
-                    }}
-                )+
-            [[}
-            ]]
+                }}
+            )+
             {{
+                System.Console.WriteLine("}");
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
@@ -170,7 +168,7 @@ template Structs
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
                     string name = tree.Attr("Name");
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
 
@@ -185,7 +183,7 @@ template Structs
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -213,7 +211,7 @@ template Structs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}
@@ -224,7 +222,7 @@ template Structs
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -253,7 +251,7 @@ template Structs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}

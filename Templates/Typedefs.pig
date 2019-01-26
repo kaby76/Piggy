@@ -17,7 +17,7 @@ template Typedefs
 
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -45,7 +45,7 @@ template Typedefs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}
@@ -60,7 +60,7 @@ template Typedefs
 
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -88,7 +88,7 @@ template Typedefs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}
@@ -103,7 +103,7 @@ template Typedefs
 
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -129,7 +129,7 @@ template Typedefs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}
@@ -144,7 +144,7 @@ template Typedefs
 
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -170,7 +170,7 @@ template Typedefs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}
@@ -185,7 +185,7 @@ template Typedefs
 
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -211,7 +211,7 @@ template Typedefs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}

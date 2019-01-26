@@ -44,10 +44,8 @@ template Funcs
 
     pass End {
         ( TranslationUnitDecl
-            [[
-            }
-            ]]
             {{
+				System.Console.WriteLine("}");
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     System.Console.WriteLine("}");

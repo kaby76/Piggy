@@ -13,7 +13,7 @@ template Enums
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this declaration.
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
@@ -47,16 +47,15 @@ template Enums
                     }}
                 )
             %)*
-            [[}
-            ]]
             {{
+                System.Console.WriteLine("}");
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
                     string name = tree.Attr("Name");
-                    var output_file_name = "g-" + name + ".cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}
