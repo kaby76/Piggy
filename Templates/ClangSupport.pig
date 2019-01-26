@@ -5,8 +5,8 @@ template ClangSupport
         public static string dllname = "need_to_set"; // Name of dll to load.
         public static string namespace_name = "Just_a_Default_Name"; // Namespace of generated code.
         public static string generate_for_only = ".*"; // default to every function, enum, struct, etc.
-		public static string limit = ".*"; // default to every file.
-		public static string output_location = PiggyRuntime.Tool.OutputLocation;
+        public static string limit = ".*"; // default to every file.
+        public static string output_location = PiggyRuntime.Tool.OutputLocation;
 
         // This is pretty much a hack to remove from Clang type strings the type of the function return.
         public static string GetFunctionReturn(string clang_reported_type)
@@ -217,10 +217,10 @@ template ClangSupport
             return pre_name;
         }
 
-		public static void FormatFile(string file_name)
-		{
-			string sa = System.IO.File.ReadAllText(file_name);
-			var workspace = new AdhocWorkspace();
+        public static void FormatFile(string file_name)
+        {
+            string sa = System.IO.File.ReadAllText(file_name);
+            var workspace = new AdhocWorkspace();
             string projectName = "HelloWorldProject";
             ProjectId projectId = ProjectId.CreateNewId();
             VersionStamp versionStamp = VersionStamp.Create();
@@ -247,16 +247,16 @@ template ClangSupport
             {
                 formattedNode.WriteTo(writer);
                 var r = writer.ToString();
-				System.IO.File.WriteAllText(file_name, r);
+                System.IO.File.WriteAllText(file_name, r);
             }
-		}
+        }
     }}
 
-	pass Start {
+    pass Start {
         ( TranslationUnitDecl )
-	}
+    }
 
-	pass End {
+    pass End {
         ( TranslationUnitDecl )
-	}
+    }
 }

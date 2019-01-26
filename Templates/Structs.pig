@@ -25,19 +25,19 @@ template Structs
         
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-		        string name = tree.Attr("Name");
+                string name = tree.Attr("Name");
 
-		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-				{
-					// Create a new file for this struct.
-					var output_file_name = "g-" + name + ".cs";
-					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
-					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
-					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
-					System.Console.WriteLine("{");
-					System.Console.WriteLine("using System;");
-					System.Console.WriteLine("using System.Runtime.InteropServices;");
-				}
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    var output_file_name = "g-" + name + ".cs";
+                    PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
+                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+                    System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+                    System.Console.WriteLine("{");
+                    System.Console.WriteLine("using System;");
+                    System.Console.WriteLine("using System.Runtime.InteropServices;");
+                }
 
                 var scope = _stack.Peek();
                 var typedef_name = name;
@@ -83,37 +83,37 @@ template Structs
                         }
                     }}
                 )+
-	           [[}
+               [[}
             ]]
-     		{{
- 			if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-			{
-				// Create a new file for this struct.
-				System.Console.WriteLine("}");
-				PiggyRuntime.Tool.Redirect.Dispose();
-				PiggyRuntime.Tool.Redirect = null;
-		        string name = tree.Attr("Name");
-				var output_file_name = "g-" + name + ".cs";
-				ClangSupport.FormatFile(output_file_name);
-			}
-			}}
+            {{
+            if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+            {
+                // Create a new file for this struct.
+                System.Console.WriteLine("}");
+                PiggyRuntime.Tool.Redirect.Dispose();
+                PiggyRuntime.Tool.Redirect = null;
+                string name = tree.Attr("Name");
+                var output_file_name = "g-" + name + ".cs";
+                ClangSupport.FormatFile(output_file_name);
+            }
+            }}
         )
 
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-		        string name = tree.Attr("Name");
+                string name = tree.Attr("Name");
 
-		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-				{
-					// Create a new file for this struct.
-					var output_file_name = "g-" + name + ".cs";
-					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
-					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
-					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
-					System.Console.WriteLine("{");
-					System.Console.WriteLine("using System;");
-					System.Console.WriteLine("using System.Runtime.InteropServices;");
-				}
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    var output_file_name = "g-" + name + ".cs";
+                    PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
+                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+                    System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+                    System.Console.WriteLine("{");
+                    System.Console.WriteLine("using System;");
+                    System.Console.WriteLine("using System.Runtime.InteropServices;");
+                }
 
                 var scope = _stack.Peek();
                 var typedef_name = name;
@@ -162,37 +162,37 @@ template Structs
                 )+
             [[}
             ]]
-			{{
-				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-				{
-					// Create a new file for this struct.
-					System.Console.WriteLine("}");
-					PiggyRuntime.Tool.Redirect.Dispose();
-					PiggyRuntime.Tool.Redirect = null;
-					string name = tree.Attr("Name");
-					var output_file_name = "g-" + name + ".cs";
-					ClangSupport.FormatFile(output_file_name);
-				}
+            {{
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    System.Console.WriteLine("}");
+                    PiggyRuntime.Tool.Redirect.Dispose();
+                    PiggyRuntime.Tool.Redirect = null;
+                    string name = tree.Attr("Name");
+                    var output_file_name = "g-" + name + ".cs";
+                    ClangSupport.FormatFile(output_file_name);
+                }
 
-			}}
+            }}
         )
 
         // If no fields, make a struct for storing a pointer to the struct.
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-		        string name = tree.Attr("Name");
+                string name = tree.Attr("Name");
 
-		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-				{
-					// Create a new file for this struct.
-					var output_file_name = "g-" + name + ".cs";
-					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
-					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
-					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
-					System.Console.WriteLine("{");
-					System.Console.WriteLine("using System;");
-					System.Console.WriteLine("using System.Runtime.InteropServices;");
-				}
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    var output_file_name = "g-" + name + ".cs";
+                    PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
+                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+                    System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+                    System.Console.WriteLine("{");
+                    System.Console.WriteLine("using System;");
+                    System.Console.WriteLine("using System.Runtime.InteropServices;");
+                }
 
                 var scope = _stack.Peek();
                 var typedef_name = name;
@@ -207,31 +207,31 @@ template Structs
                         public IntPtr Pointer;
                     }
                     ");
-				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-				{
-					// Create a new file for this struct.
-					System.Console.WriteLine("}");
-					PiggyRuntime.Tool.Redirect.Dispose();
-					PiggyRuntime.Tool.Redirect = null;
-					var output_file_name = "g-" + name + ".cs";
-					ClangSupport.FormatFile(output_file_name);
-				}
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    System.Console.WriteLine("}");
+                    PiggyRuntime.Tool.Redirect.Dispose();
+                    PiggyRuntime.Tool.Redirect = null;
+                    var output_file_name = "g-" + name + ".cs";
+                    ClangSupport.FormatFile(output_file_name);
+                }
             }}
         )
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
-		        string name = tree.Attr("Name");
-		        if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-				{
-					// Create a new file for this struct.
-					var output_file_name = "g-" + name + ".cs";
-					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
-					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
-					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
-					System.Console.WriteLine("{");
-					System.Console.WriteLine("using System;");
-					System.Console.WriteLine("using System.Runtime.InteropServices;");
-				}
+                string name = tree.Attr("Name");
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    var output_file_name = "g-" + name + ".cs";
+                    PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
+                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+                    System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+                    System.Console.WriteLine("{");
+                    System.Console.WriteLine("using System;");
+                    System.Console.WriteLine("using System.Runtime.InteropServices;");
+                }
 
                 var scope = _stack.Peek();
                 var typedef_name = name;
@@ -247,15 +247,15 @@ template Structs
                     }
                     ");
 
-				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
-				{
-					// Create a new file for this struct.
-					System.Console.WriteLine("}");
-					PiggyRuntime.Tool.Redirect.Dispose();
-					PiggyRuntime.Tool.Redirect = null;
-					var output_file_name = "g-" + name + ".cs";
-					ClangSupport.FormatFile(output_file_name);
-				}
+                if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+                {
+                    // Create a new file for this struct.
+                    System.Console.WriteLine("}");
+                    PiggyRuntime.Tool.Redirect.Dispose();
+                    PiggyRuntime.Tool.Redirect = null;
+                    var output_file_name = "g-" + name + ".cs";
+                    ClangSupport.FormatFile(output_file_name);
+                }
             }}
         )
     }
