@@ -27,5 +27,10 @@ namespace PiggyRuntime
             set;
         }
 
+        public static List<string> GeneratedFiles
+        {
+            get;
+            set;
+        } = new List<string>();
     }
 }

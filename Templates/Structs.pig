@@ -31,9 +31,12 @@ template Structs
 				{
 					// Create a new file for this struct.
 					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
 					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
 					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
 					System.Console.WriteLine("{");
+					System.Console.WriteLine("using System;");
+					System.Console.WriteLine("using System.Runtime.InteropServices;");
 				}
 
                 var scope = _stack.Peek();
@@ -101,9 +104,12 @@ template Structs
 				{
 					// Create a new file for this struct.
 					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
 					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
 					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
 					System.Console.WriteLine("{");
+					System.Console.WriteLine("using System;");
+					System.Console.WriteLine("using System.Runtime.InteropServices;");
 				}
 
                 var scope = _stack.Peek();
@@ -174,9 +180,12 @@ template Structs
 				{
 					// Create a new file for this struct.
 					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
 					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
 					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
 					System.Console.WriteLine("{");
+					System.Console.WriteLine("using System;");
+					System.Console.WriteLine("using System.Runtime.InteropServices;");
 				}
 
                 var scope = _stack.Peek();
@@ -208,9 +217,12 @@ template Structs
 				{
 					// Create a new file for this struct.
 					var output_file_name = "g-" + name + ".cs";
+					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
 					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
 					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
 					System.Console.WriteLine("{");
+					System.Console.WriteLine("using System;");
+					System.Console.WriteLine("using System.Runtime.InteropServices;");
 				}
 
                 var scope = _stack.Peek();

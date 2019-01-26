@@ -33,8 +33,8 @@
     <file src="..\Piggy\bin\Debug\netstandard2.0\Piggy.pdb" target="lib\net461"/>
 
     <!-- Tools -->
-    <file src="..\PiggyTool\bin\Release\netcoreapp2.2\publish\**" target="build"/>
-    <file src="..\ClangSerializer\bin\Release\netcoreapp2.2\publish\**" target="build"/>
+    <file src="..\PiggyTool\bin\Release\netcoreapp2.1\publish\**" target="build"/>
+    <file src="..\ClangSerializer\bin\Release\netcoreapp2.1\publish\**" target="build"/>
 
     <!-- Templates -->
     <file src="..\Templates\**" target="Templates" />

@@ -22,16 +22,40 @@ template Funcs
     }}
 
     pass Start {
-        ( TranslationUnitDecl [[
+        ( TranslationUnitDecl
+			{{
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					// Create a new file for this declaration.
+					var output_file_name = "g-functions.cs";
+					PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
+					PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+					System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
+					System.Console.WriteLine("{");
+					System.Console.WriteLine("using System;");
+					System.Console.WriteLine("using System.Runtime.InteropServices;");
+				}
+			}}
+			[[
         public class Functions {
         ]]{{ System.Console.Write("const string DllName = \"" + ClangSupport.dllname + "\";" + Environment.NewLine); }}
         )
     }
 
     pass End {
-        ( TranslationUnitDecl [[
-        }
-        ]])
+        ( TranslationUnitDecl
+			[[
+			}
+			]]
+			{{
+				if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
+				{
+					System.Console.WriteLine("}");
+					PiggyRuntime.Tool.Redirect.Dispose();
+					PiggyRuntime.Tool.Redirect = null;
+				}
+			}}
+		)
     }
 
     pass Functions {

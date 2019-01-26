@@ -5,10 +5,10 @@
 # take precedence and pipes don't seem to work. For now, redirect to an
 # output file and use that on the second step.
 
-dotnet ./ClangSerializer/bin/Debug/netcoreapp2.2/ClangSerializer.dll \
+dotnet ./ClangSerializer/bin/Debug/netcoreapp2.1/ClangSerializer.dll \
   -c "Ic:\Users\Kenne\Documents\clang-llvm\llvm\include" \
   "Ic:\Users\Kenne\Documents\clang-llvm\build\include" \
   -f "llvm-includes.cpp" \
   > .generated_ast
 
-cat .generated_ast | dotnet ./Piggy/bin/Debug/netcoreapp2.2/Piggy.dll -s m.pig
+cat .generated_ast | dotnet ./Piggy/bin/Debug/netcoreapp2.1/Piggy.dll -s m.pig

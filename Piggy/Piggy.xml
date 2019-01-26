@@ -29,13 +29,13 @@ in conjunction with the PiggySchema.xml schema. -->
     Category="Clang"
     Name="AstOutputFile"
     DisplayName="Ast output file"
-    Default="generated_ast.txt"
+    Default="g-ast.txt"
     Description="Generated ast output placed in this file." />
   <StringProperty
     Category="Piggy"
     Name="OutputFile"
     DisplayName="Output file"
-    Default=""
+    Default="."
     Description="Generated output placed in this file." />
 
   <!--

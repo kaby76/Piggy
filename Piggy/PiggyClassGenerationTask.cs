@@ -250,7 +250,7 @@ namespace Piggy.Build.Task
                             astr = astr.Substring(0, astr.Length - 1);
                         }
 
-                        string p = "\"" + ostr + "\\" + Path.GetFileName(astr) + ".cs" + "\"";
+                        string p = "\"" + ostr + "\"";
                         arguments.Add(p);
                     }
 
@@ -295,7 +295,7 @@ namespace Piggy.Build.Task
 
             if (!success) return success;
 
-            _generatedCodeFiles.Add((ITaskItem)new TaskItem(OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs"));
+ //           _generatedCodeFiles.Add((ITaskItem)new TaskItem(OutputPath + "\\" + Path.GetFileName(InitialTemplate) + ".cs"));
 
             return success;
         }
