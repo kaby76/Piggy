@@ -1,12 +1,12 @@
 namespace PiggyGenerator
 {
-    using System.IO;
-    using System;
-    using System.Collections.Generic;
-    using Antlr4.Runtime;
     using Antlr4.Runtime.Tree;
-    using System.Reflection;
+    using Antlr4.Runtime;
     using PiggyRuntime;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Reflection;
+    using System;
 
     public class Piggy
     {
@@ -25,7 +25,7 @@ namespace PiggyGenerator
 
         public Piggy() { }
 
-        public void Doit(string ast_file, string spec_file, bool keep_file, string expression, string template_directory, string output_file)
+        public void RunTool(string ast_file, string spec_file, bool keep_file, string expression, string template_directory, string output_file)
         {
             _keep_file = keep_file;
             _expression = expression;
