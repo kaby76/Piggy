@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace PiggyRuntime
+﻿namespace PiggyRuntime
 {
     using Antlr4.Runtime.Tree;
 

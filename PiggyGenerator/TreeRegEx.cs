@@ -1,26 +1,25 @@
 ﻿namespace PiggyGenerator
 {
-    using System;
+    using Antlr4.Runtime.Tree;
+    using Antlr4.Runtime;
+    using PiggyRuntime;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
-    using Antlr4.Runtime;
-    using Antlr4.Runtime.Tree;
     using System.Text.RegularExpressions;
-    using PiggyRuntime;
+    using System;
 
     public class TreeRegEx
     {
-        public Piggy _piggy;
         public IParseTree _ast;
-        public List<Pass> _passes;
-        public Intercept<IParseTree, IParseTree> matches = new Intercept<IParseTree, IParseTree>();
-        public Dictionary<IParseTree, int> pre_order_number = new Dictionary<IParseTree, int>();
-        public List<IParseTree> pre_order = new List<IParseTree>();
-        public List<IParseTree> post_order = new List<IParseTree>();
-        public Dictionary<IParseTree, IParseTree> parent = new Dictionary<IParseTree, IParseTree>();
-        public object _instance;
         public Type _current_type;
+        public object _instance;
+        public Intercept<IParseTree, IParseTree> _matches = new Intercept<IParseTree, IParseTree>();
+        public Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
+        public List<Pass> _passes;
+        public Piggy _piggy;
+        public List<IParseTree> _post_order = new List<IParseTree>();
+        public List<IParseTree> _pre_order = new List<IParseTree>();
+        public Dictionary<IParseTree, int> _pre_order_number = new Dictionary<IParseTree, int>();
 
         public TreeRegEx(Piggy piggy, List<Pass> passes_with_common_name, object instance)
         {
@@ -32,7 +31,7 @@
             bool result = false;
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
-            parent = Parents.Compute(_ast);
+            _parent = Parents.Compute(_ast);
             foreach (var pass in _passes)
             {
                 foreach (var pattern in pass.Patterns)
@@ -47,7 +46,7 @@
                         for (int i = v.ChildCount - 1; i >= 0; --i)
                         {
                             var c = v.GetChild(i);
-                            parent[c] = v;
+                            _parent[c] = v;
                             if (!visited.Contains(c))
                                 stack.Push(c);
                         }
@@ -83,7 +82,7 @@
         {
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
-            pre_order = new List<IParseTree>();
+            _pre_order = new List<IParseTree>();
             stack.Push(_ast);
             int current_dfs_number = 0;
 
@@ -92,8 +91,8 @@
                 var v = stack.Pop();
                 if (visited.Contains(v)) continue;
                 visited.Add(v);
-                pre_order_number[v] = current_dfs_number;
-                pre_order.Add(v);
+                _pre_order_number[v] = current_dfs_number;
+                _pre_order.Add(v);
                 for (int i = v.ChildCount - 1; i >= 0; --i)
                 {
                     var c = v.GetChild(i);
@@ -103,15 +102,15 @@
             }
 
             // Do pre-order walk to find matches.
-            var copy = new Stack<IParseTree>(pre_order);
-            post_order = new List<IParseTree>();
+            var copy = new Stack<IParseTree>(_pre_order);
+            _post_order = new List<IParseTree>();
             while (copy.Any())
             {
                 var x = copy.Pop();
-                post_order.Add(x);
+                _post_order.Add(x);
             }
 
-            foreach (var v in pre_order)
+            foreach (var v in _pre_order)
             {
                 foreach (var pass in this._passes)
                 {
@@ -121,7 +120,7 @@
                         SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
                         _current_type = pattern.Owner.Owner.Type;
                         // Try matching at vertex, if the node hasn't been already matched.
-                        if (!matches.ContainsKey(v))
+                        if (!_matches.ContainsKey(v))
                         {
                             //System.Console.WriteLine("Trying match ");
                             //System.Console.WriteLine("Template " + sourceTextForContext(t));
@@ -160,7 +159,7 @@
                 var r = match_basic_simple(pstar, v, map);
                 if (r)
                 {
-                    if (map) matches.MyAdd(t, p);
+                    if (map) _matches.MyAdd(t, p);
                     return true;
                 }
                 for (int i = v.ChildCount - 1; i >= 0; --i)
@@ -183,7 +182,7 @@
             var re = p.GetChild(0);
             if (re == null) return false;
             bool result = match_basic(re, t, map);
-            if (result && map) matches.MyAdd(t, p);
+            if (result && map) _matches.MyAdd(t, p);
             return result;
         }
 
@@ -198,7 +197,7 @@
             int pos = 0;
             IParseTree start = re.GetChild(0);
             bool result = match_simple_re(start, t, map);
-            if (result && map) matches.MyAdd(t, p);
+            if (result && map) _matches.MyAdd(t, p);
             if (result) return true;
             for (; ; )
             {
@@ -206,7 +205,7 @@
                 start = re.GetChild(pos);
                 if (start == null) break;
                 result = match_simple_re(start, t, map);
-                if (result && map) matches.MyAdd(t, p);
+                if (result && map) _matches.MyAdd(t, p);
                 if (result) return true;
             }
             return false;
@@ -232,7 +231,7 @@
                 result = match_basic_re(start, t, map);
                 if (!result) return false; // If any non-match, the whole is non-match.
             }
-            if (map) matches.MyAdd(t, p);
+            if (map) _matches.MyAdd(t, p);
             return true;
         }
 
@@ -252,7 +251,7 @@
             if (star_rexp != null)
             {
                 var result = match_star_rexp(star_rexp, t, map);
-                if (result && map) matches.MyAdd(t, p);
+                if (result && map) _matches.MyAdd(t, p);
                 return result;
             }
             SpecParserParser.Plus_rexpContext plus_rexp =
@@ -260,12 +259,12 @@
             if (plus_rexp != null)
             {
                 var result = match_plus_rexp(plus_rexp, t, map);
-                if (result && map) matches.MyAdd(t, p);
+                if (result && map) _matches.MyAdd(t, p);
                 return result;
             }
             {
                 var result = match_elementary_rexp(child, t, map);
-                if (result && map) matches.MyAdd(t, p);
+                if (result && map) _matches.MyAdd(t, p);
                 return result;
             }
         }
@@ -285,13 +284,13 @@
             {
                 // It is possible that there are no children for AST.
                 // But, this is OK because it still matches.
-                if (map) matches.MyAdd(t, p);
+                if (map) _matches.MyAdd(t, p);
                 return true;
             }
             // Match zero or more of elementary. Note, we are matching
             // a elementary_rexp with a "more" type in the _display_ast.
             bool result = match_elementary_rexp(child, t, map);
-            if (result && map) matches.MyAdd(t, p);
+            if (result && map) _matches.MyAdd(t, p);
             return result;
         }
 
@@ -307,7 +306,7 @@
             var child = plus_rexp.GetChild(0);
             if (child == null) return false;
             bool result = match_elementary_rexp(child, t, map);
-            if (result && map) matches.MyAdd(t, p);
+            if (result && map) _matches.MyAdd(t, p);
             return result;
         }
 
@@ -327,14 +326,14 @@
             if (group_rexp != null)
             {
                 var result = match_group_rexp(group_rexp, t, map);
-                if (result && map) matches.MyAdd(t, p);
+                if (result && map) _matches.MyAdd(t, p);
                 return result;
             }
             SpecParserParser.BasicContext basic = child as SpecParserParser.BasicContext;
             if (basic != null)
             {
                 var result = match_basic(basic, t, map);
-                if (result && map) matches.MyAdd(t, p);
+                if (result && map) _matches.MyAdd(t, p);
                 return result;
             }
             return false;
@@ -353,7 +352,7 @@
             var child = group_rexp.GetChild(1);
             if (child == null) return false;
             var result = match_rexp(child, t, map);
-            if (result && map) matches.MyAdd(t, p);
+            if (result && map) _matches.MyAdd(t, p);
             return result;
         }
 
@@ -465,7 +464,7 @@
             {
                 result = match_kleene_star_node(q, t, map);
             }
-            if (result && map) matches.MyAdd(t, p);
+            if (result && map) _matches.MyAdd(t, p);
             return result;
         }
 
@@ -500,7 +499,7 @@
                     p_sym.Type == SpecParserParser.OPEN_KLEENE_STAR_PAREN))
                     return false;
 
-                if (map) matches.MyAdd(t_c, p_c);
+                if (map) _matches.MyAdd(t_c, p_c);
             }
 
             p_pos++;
@@ -525,7 +524,7 @@
             }
             else if (id.GetText() == "*")
             {
-                if (map) matches.MyAdd(id_tree, id);
+                if (map) _matches.MyAdd(id_tree, id);
                 p_pos++;
                 t_pos++;
             }
@@ -533,13 +532,13 @@
                 return false;
             else
             {
-                if (map) matches.MyAdd(id_tree, id);
+                if (map) _matches.MyAdd(id_tree, id);
                 t_pos++;
                 p_pos++;
             }
             if (map)
             {
-                matches.MyAdd(id_tree, id_or_star);
+                _matches.MyAdd(id_tree, id_or_star);
             }
 
             // We are now at "more" in both t and p.
@@ -638,10 +637,10 @@
                 if (!(p_sym.Type == SpecParserParser.CLOSE_PAREN
                       || p_sym.Type == SpecParserParser.CLOSE_KLEENE_STAR_PAREN))
                     return false;
-                if (map) matches.MyAdd(t_c, p_c);
+                if (map) _matches.MyAdd(t_c, p_c);
             }
 
-            if (true && map) matches.MyAdd(t, p);
+            if (true && map) _matches.MyAdd(t, p);
             return true;
         }
 
@@ -665,7 +664,7 @@
             if (p_child as SpecParserParser.CodeContext != null
                 || p_child as SpecParserParser.TextContext != null)
             {
-                if (map) matches.MyAdd(t, p);
+                if (map) _matches.MyAdd(t, p);
                 return true;
             }
             var t_child = t.GetChild(0);
@@ -673,14 +672,14 @@
             if (rexp != null)
             {
                 var res = match_rexp(p_child, t_child, map);
-                if (res && map) matches.MyAdd(t, p);
+                if (res && map) _matches.MyAdd(t, p);
                 return res;
             }
             SpecParserParser.AttrContext attr = p_child as SpecParserParser.AttrContext;
             if (attr != null)
             {
                 var res = match_attr(p_child, t_child, map);
-                if (res && map) matches.MyAdd(t, p);
+                if (res && map) _matches.MyAdd(t, p);
                 return res;
             }
             return false;
@@ -741,7 +740,7 @@
             string pattern = p_val.GetText();
             if (pattern == "*")
             {
-                if (map) matches.MyAdd(t, p);
+                if (map) _matches.MyAdd(t, p);
                 return true;
             }
 
@@ -775,7 +774,7 @@
             tvaltext = tvaltext.Substring(0, tvaltext.Length - 1);
             var matched = re.Match(tvaltext);
             var result = matched.Success;
-            if (result && map) matches.MyAdd(t, p);
+            if (result && map) _matches.MyAdd(t, p);
             return result;
         }
     }

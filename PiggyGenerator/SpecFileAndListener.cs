@@ -1,11 +1,11 @@
 ﻿namespace PiggyGenerator
 {
-    using System;
-    using Antlr4.Runtime;
     using Antlr4.Runtime.Misc;
     using Antlr4.Runtime.Tree;
+    using Antlr4.Runtime;
     using PiggyRuntime;
     using System.Collections.Generic;
+    using System;
 
     public class SpecFileAndListener : SpecParserBaseListener
     {

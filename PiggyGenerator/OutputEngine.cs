@@ -1,21 +1,21 @@
 ﻿namespace PiggyGenerator
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
-    using System.Text.RegularExpressions;
     using Antlr4.Runtime.Tree;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Formatting;
+    using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.Emit;
     using Microsoft.CodeAnalysis.Formatting;
     using Microsoft.CodeAnalysis.Options;
     using Microsoft.CodeAnalysis.Text;
+    using Microsoft.CodeAnalysis;
     using PiggyRuntime;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text.RegularExpressions;
+    using System.Text;
+    using System;
 
     public class OutputEngine
     {
@@ -394,7 +394,7 @@ namespace " + @namespace + @"
                     if (visited.Contains(x)) continue;
                     visited.Add(x);
 
-                    re.matches.TryGetValue(x, out HashSet<IParseTree> v);
+                    re._matches.TryGetValue(x, out HashSet<IParseTree> v);
                     IParseTree pattern = v?.FirstOrDefault();
                     int count = v == null ? 0 : v.Count;
                     int i = pattern == null ? 0 : pattern.ChildCount - 1;
@@ -405,7 +405,7 @@ namespace " + @namespace + @"
                     for (int ai = 0; ai < x.ChildCount; ++ai)
                     {
                         var c = x.GetChild(ai);
-                        re.matches.TryGetValue(c, out HashSet<IParseTree> vc);
+                        re._matches.TryGetValue(c, out HashSet<IParseTree> vc);
                         IParseTree pc = vc?.FirstOrDefault();
                         int countc = vc == null ? 0 : vc.Count;
                         int ic = pc == null ? 0 : pc.ChildCount - 1;
@@ -488,7 +488,7 @@ namespace " + @namespace + @"
                             MethodInfo main = _piggy._code_blocks[x];
                             Type type = re._current_type;
                             object instance = re._instance;
-                            object[] a = new object[] { new Tree(re.parent, re._ast, con) };
+                            object[] a = new object[] { new Tree(re._parent, re._ast, con) };
                             var res = main.Invoke(instance, a);
                         }
                         finally
@@ -501,7 +501,7 @@ namespace " + @namespace + @"
                         // This can be tricky because it's many to one AST to pattern.
                         // Find possible AST nodes in matches.
                         List<KeyValuePair<IParseTree, HashSet<IParseTree>>> found_ast_match =
-                            re.matches.Where(kvp =>
+                            re._matches.Where(kvp =>
                             {
                                 var y = kvp.Value;
                                 return y.Contains(x);
@@ -569,7 +569,7 @@ namespace " + @namespace + @"
                 {
                     if (visited.Contains(x)) continue;
                     visited.Add(x);
-                    re.matches.TryGetValue(x, out HashSet<IParseTree> v);
+                    re._matches.TryGetValue(x, out HashSet<IParseTree> v);
                     if (v != null)
                     {
                         System.Console.WriteLine(TreeRegEx.sourceTextForContext(x));

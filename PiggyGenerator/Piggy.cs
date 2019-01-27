@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace PiggyGenerator
 {
     using System.IO;
@@ -12,21 +10,20 @@ namespace PiggyGenerator
 
     public class Piggy
     {
-        public Piggy() { }
-
-        public static string _copyright = @"";
-        public List<string> _clang_files = new List<string>();
-        public string _specification = string.Empty;
-        public string _expression = null;
-        public string _template_directory = null;
-        public string _output_file_name = null;
-        public List<string> _clang_options = new List<string>();
-        public List<Template> _templates = new List<Template>();
         public Application _application = new Application();
         public IParseTree _ast;
-        public List<string> _passes = new List<string>();
+        public List<string> _clang_files = new List<string>();
+        public List<string> _clang_options = new List<string>();
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
+        public string _expression = null;
         public bool _keep_file;
+        public string _output_file_name = null;
+        public List<string> _passes = new List<string>();
+        public string _specification = string.Empty;
+        public List<Template> _templates = new List<Template>();
+        public string _template_directory = null;
+
+        public Piggy() { }
 
         public void Doit(string ast_file, string spec_file, bool keep_file, string expression, string template_directory, string output_file)
         {
@@ -43,9 +40,6 @@ namespace PiggyGenerator
                 if (is_file)
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(_output_file_name);
             }
-
-            // Parse ast using Antlr.
-            // Get back AST as string.
             string ast_string = null;
             if (ast_file == null || ast_file == "")
             {
@@ -73,7 +67,6 @@ namespace PiggyGenerator
             AstSymtabBuilderListener ast_listener = new AstSymtabBuilderListener(ast_tree);
             ParseTreeWalker.Default.Walk(ast_listener, ast_tree);
             _ast = ast_tree;
-
             if (spec_file == null && expression != null)
             {
                 SpecFileAndListener exp = new SpecFileAndListener(this);

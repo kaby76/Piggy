@@ -1,8 +1,8 @@
 ﻿namespace PiggyGenerator
 {
-    using System;
     using Antlr4.Runtime.Tree;
     using System.Collections.Generic;
+    using System;
 
     public class Intercept<K, V> : MultiMap<K, V>
     {

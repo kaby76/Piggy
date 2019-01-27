@@ -1,8 +1,8 @@
 ﻿namespace PiggyGenerator
 {
-    using System.Collections.Generic;
     using Antlr4.Runtime.Tree;
     using PiggyRuntime;
+    using System.Collections.Generic;
 
     public static class CodeHelper
     {

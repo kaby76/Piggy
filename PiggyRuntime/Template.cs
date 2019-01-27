@@ -1,8 +1,8 @@
 ﻿namespace PiggyRuntime
 {
+    using org.antlr.symtab;
     using System;
     using System.Collections.Generic;
-    using org.antlr.symtab;
 
     public class Template
     {

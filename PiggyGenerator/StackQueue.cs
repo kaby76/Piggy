@@ -2,17 +2,10 @@
 {
     using System.Collections.Generic;
 
-    /// <summary>
-    /// StackQueue - a data structure that has both Stack and Queue interfaces.
-    /// </summary>
-    /// <typeparam name="NAME"></typeparam>
     public class StackQueue<T>
     {
         private int _size;
         private int _top;
-
-        // Underlying the datatype, we need an array that resizes without changing it's
-        // reference. A straight array cannot work.
         private List<T> _items;
 
         public StackQueue()

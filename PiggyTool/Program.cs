@@ -1,9 +1,9 @@
-﻿using System;
-using PiggyGenerator;
-using CommandLine;
-
-namespace ConsoleApp1
+﻿namespace ConsoleApp1
 {
+    using CommandLine;
+    using PiggyGenerator;
+    using System;
+
     public class Program
     {
         class Options

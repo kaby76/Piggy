@@ -4,8 +4,8 @@
 
     public class Application
     {
-        public Application() { }
-
         public List<string> OrderedPasses { get; set; } = new List<string>();
+
+        public Application() { }
     }
 }

@@ -1,18 +1,13 @@
-﻿
-using Microsoft.Build.Tasks;
-
-namespace PiggyRuntime
+﻿namespace PiggyRuntime
 {
-    using System;
     using System.Collections.Generic;
-    using Antlr4.Runtime;
     using Antlr4.Runtime.Tree;
 
     public class Tree
     {
-        IParseTree _ast;
-        IParseTree _current;
-        Dictionary<IParseTree, IParseTree> _parent;
+        private IParseTree _ast;
+        private IParseTree _current;
+        private Dictionary<IParseTree, IParseTree> _parent;
 
         public Tree(Dictionary<IParseTree, IParseTree> parent, IParseTree ast, IParseTree current)
         {
