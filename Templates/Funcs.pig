@@ -28,7 +28,6 @@ template Funcs
                 {
                     // Create a new file for this declaration.
                     var output_file_name = "g-functions.cs";
-                    PiggyRuntime.Tool.GeneratedFiles.Add(output_file_name);
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
                     System.Console.WriteLine("{");

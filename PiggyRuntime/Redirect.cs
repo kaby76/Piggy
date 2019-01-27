@@ -10,6 +10,7 @@
 
         public Redirect(string file_name)
         {
+            PiggyRuntime.Tool.GeneratedFiles.Add(file_name);
             output_old = Console.Out;
             output = new StreamWriter(new FileStream(file_name, FileMode.Create));
             output.AutoFlush = true;

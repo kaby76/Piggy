@@ -242,14 +242,10 @@ namespace Piggy.Build.Task
                             ostr = ostr.Substring(1);
                             ostr = ostr.Substring(0, ostr.Length - 1);
                         }
-                        var astr = InitialTemplate;
-                        if (Regex.IsMatch(astr, @"^"".*""$"))
-                        {
-                            // strip "".
-                            astr = astr.Substring(1);
-                            astr = astr.Substring(0, astr.Length - 1);
-                        }
-
+                        if (ostr.EndsWith("\\")) ostr = ostr.Substring(0, ostr.Length - 1);
+                        if (ostr.EndsWith("\\")) ostr = ostr.Substring(0, ostr.Length - 1);
+                        if (ostr.EndsWith("\\")) ostr = ostr.Substring(0, ostr.Length - 1);
+                        if (ostr.EndsWith("\\")) ostr = ostr.Substring(0, ostr.Length - 1);
                         string p = "\"" + ostr + "\"";
                         arguments.Add(p);
                     }
@@ -306,10 +302,25 @@ namespace Piggy.Build.Task
             errorCode = Log.ExtractMessageCode(message.Message, out string logMessage);
             if (string.IsNullOrEmpty(errorCode))
             {
-                if (message.Message.StartsWith("Executing command:", StringComparison.Ordinal) && message.Severity == TraceLevel.Info)
+                if (message.Message.StartsWith("Executing command:"))
                 {
                     // This is a known informational message
                     logMessage = message.Message;
+                    message.Severity = TraceLevel.Info;
+                }
+                else if (message.Message.StartsWith("Info:"))
+                {
+                    // This is a known informational message
+                    logMessage = message.Message;
+                    message.Severity = TraceLevel.Info;
+                }
+                else if (message.Message.StartsWith("Generated "))
+                {
+                    // This is a known informational message
+                    logMessage = message.Message;
+                    message.Severity = TraceLevel.Info;
+                    string f = message.Message.Substring("Generated ".Length);
+                    _generatedCodeFiles.Add((ITaskItem)new TaskItem(f));
                 }
                 else
                 {

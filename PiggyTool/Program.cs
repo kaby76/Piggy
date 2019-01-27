@@ -56,8 +56,15 @@ namespace ConsoleApp1
                 });
 
             PiggyRuntime.Tool.CommandLineArgs = args;
-
+            System.Console.WriteLine("Info: Command line args " + args);
+            System.Console.WriteLine("Info: ast_file " + ast_file);
+            System.Console.WriteLine("Info: spec_file " + spec_file);
+            System.Console.WriteLine("Info: keep_file " + keep_file);
+            System.Console.WriteLine("Info: expression " + expression);
+            System.Console.WriteLine("Info: output_file " + output_file);
+            System.Console.WriteLine("Info: template_directory " + template_directory);
             p.Doit(ast_file, spec_file, keep_file, expression, template_directory, output_file);
+            foreach (var o in PiggyRuntime.Tool.GeneratedFiles) System.Console.WriteLine("Generated " + o);
         }
     }
 }
