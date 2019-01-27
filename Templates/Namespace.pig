@@ -1,5 +1,9 @@
 template Namespace
 {
+    header {{
+        protected string generated_file_name;
+    }}
+
     pass GenerateStart {
         // Generate declarations at start of the file.
         ( TranslationUnitDecl
@@ -7,8 +11,8 @@ template Namespace
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
-                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-sizet.cs";
-                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+                    generated_file_name = PiggyRuntime.Tool.MakeFileNameUnique(PiggyRuntime.Tool.OutputLocation + "g-sizet.cs");
+                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(generated_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
                     System.Console.WriteLine("{");
                     System.Console.WriteLine("using System;");
@@ -246,8 +250,7 @@ template Namespace
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-sizet.cs";
-                    ClangSupport.FormatFile(output_file_name);
+                    ClangSupport.FormatFile(generated_file_name);
                 }
             }}
         )

@@ -3,6 +3,7 @@ template Enums
 {
     header {{
         protected bool first = true;
+        protected string generated_file_name;
     }}
 
     pass GenerateEnums {
@@ -13,8 +14,8 @@ template Enums
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this declaration.
-                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
-                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
+                    generated_file_name = PiggyRuntime.Tool.MakeFileNameUnique(PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs");
+                    PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(generated_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
                     System.Console.WriteLine("{");
                     System.Console.WriteLine("using System;");
@@ -54,8 +55,7 @@ template Enums
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
                     string name = tree.Attr("Name");
-                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs";
-                    ClangSupport.FormatFile(output_file_name);
+                    ClangSupport.FormatFile(generated_file_name);
                 }
             }}
         )

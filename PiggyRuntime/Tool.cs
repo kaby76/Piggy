@@ -1,6 +1,7 @@
 ﻿namespace PiggyRuntime
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     public class Tool
     {
@@ -32,10 +33,31 @@
             set;
         }
 
-        public static List<string> GeneratedFiles
+        static int counter = 1;
+        public static string MakeFileNameUnique(string name)
+        {
+            string path = System.IO.Path.GetDirectoryName(name);
+            string file_name = System.IO.Path.GetFileName(name);
+            string file_name_wo_suffix = System.IO.Path.GetFileNameWithoutExtension(file_name);
+            string ext = System.IO.Path.GetExtension(file_name);
+            bool found = GeneratedFiles.Any(s => string.Equals(s, name, System.StringComparison.OrdinalIgnoreCase));
+            if (found)
+            {
+                for (;;)
+                {
+                    string alt = path + System.IO.Path.PathSeparator + file_name_wo_suffix + "-" + counter++ + ext;
+                    if (!GeneratedFiles.Any(s => string.Equals(s, alt, System.StringComparison.OrdinalIgnoreCase)))
+                        return alt;
+                    counter++;
+                }
+            }
+            return name;
+        }
+    
+        public static HashSet<string> GeneratedFiles
         {
             get;
             set;
-        } = new List<string>();
+        } = new HashSet<string>();
     }
 }
