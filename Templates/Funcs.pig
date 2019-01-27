@@ -27,7 +27,7 @@ template Funcs
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this declaration.
-                    var output_file_name = "g-functions.cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-functions.cs";
                     PiggyRuntime.Tool.Redirect = new PiggyRuntime.Redirect(output_file_name);
                     System.Console.WriteLine("namespace " + ClangSupport.namespace_name);
                     System.Console.WriteLine("{");
@@ -50,7 +50,7 @@ template Funcs
                     System.Console.WriteLine("}");
                     PiggyRuntime.Tool.Redirect.Dispose();
                     PiggyRuntime.Tool.Redirect = null;
-                    var output_file_name = "g-functions.cs";
+                    var output_file_name = PiggyRuntime.Tool.OutputLocation + "g-functions.cs";
                     ClangSupport.FormatFile(output_file_name);
                 }
             }}
