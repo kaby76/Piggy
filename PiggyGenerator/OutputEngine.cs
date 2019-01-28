@@ -444,7 +444,6 @@ namespace " + @namespace + @"
 
                         after.Insert(0, c);
                     }
-
                     foreach (var al in after)
                     {
                         stack.Push(al);

@@ -27,7 +27,7 @@ template Structs
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
-
+				// wxyz
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
@@ -84,8 +84,8 @@ template Structs
                     }
                 }}
             )+
+			[[} ]]
             {{
-                System.Console.WriteLine("}");
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
@@ -101,7 +101,7 @@ template Structs
         ( RecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
                 string name = tree.Attr("Name");
-
+				// wxyz
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
@@ -159,8 +159,8 @@ template Structs
 
                 }}
             )+
-            {{
-                System.Console.WriteLine("}");
+ 			[[} ]]
+           {{
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     // Create a new file for this struct.
