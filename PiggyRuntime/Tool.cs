@@ -45,7 +45,7 @@
             {
                 for (;;)
                 {
-                    string alt = path + System.IO.Path.PathSeparator + file_name_wo_suffix + "-" + counter++ + ext;
+                    string alt = path + System.IO.Path.DirectorySeparatorChar + file_name_wo_suffix + "-" + counter++ + ext;
                     if (!GeneratedFiles.Any(s => string.Equals(s, alt, System.StringComparison.OrdinalIgnoreCase)))
                         return alt;
                     counter++;
