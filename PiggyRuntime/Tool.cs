@@ -33,7 +33,6 @@
             set;
         }
 
-        static int counter = 1;
         public static string MakeFileNameUnique(string name)
         {
             string path = System.IO.Path.GetDirectoryName(name);
@@ -43,6 +42,7 @@
             bool found = GeneratedFiles.Any(s => string.Equals(s, name, System.StringComparison.OrdinalIgnoreCase));
             if (found)
             {
+                int counter = 1;
                 for (;;)
                 {
                     string alt = path + System.IO.Path.DirectorySeparatorChar + file_name_wo_suffix + "-" + counter++ + ext;
