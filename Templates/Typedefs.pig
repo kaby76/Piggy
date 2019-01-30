@@ -15,6 +15,9 @@ template Typedefs
             {{
                 var scope = _stack.Peek();
                 var name = tree.Attr("Name");
+                bool is_rewrite = ClangSupport.IsAppliedOccurrenceRewrite(false, name);
+                // If name is part of rewrite, then we don't create typedef struct.
+                if (is_rewrite) return;
                 var baretype_name = "IntPtr";
                 var def = scope.getSymbol(name);
                 if (def != null) return;
@@ -29,7 +32,6 @@ template Typedefs
                     System.Console.WriteLine("using System;");
                     System.Console.WriteLine("using System.Runtime.InteropServices;");
                 }
-
                 def = new StructSymbol(name);
                 scope.define(def);
                 System.Console.WriteLine(
@@ -59,7 +61,10 @@ template Typedefs
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(1).Attr("Name");
-
+                string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
+                bool is_rewrite = ClangSupport.IsAppliedOccurrenceRewrite(false, name);
+                // If name is part of rewrite, then we don't create typedef struct.
+                if (is_rewrite) return;
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     generated_file_name = PiggyRuntime.Tool.MakeFileNameUnique(PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs");
@@ -70,9 +75,8 @@ template Typedefs
                     System.Console.WriteLine("using System;");
                     System.Console.WriteLine("using System.Runtime.InteropServices;");
                 }
-
                 var baretype_name = tree.Attr("BareType");
-                baretype_name = ClangSupport.ModNonParamUsageType(baretype_name);
+                baretype_name = ClangSupport.RewriteAppliedOccurrence(false, baretype_name);
                 System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
@@ -98,8 +102,12 @@ template Typedefs
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
+                string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
+                bool is_rewrite = ClangSupport.IsAppliedOccurrenceRewrite(false, name);
+                // If name is part of rewrite, then we don't create typedef struct.
+                if (is_rewrite) return;
                 var cxxrec_name = tree.Attr("Name");
-                cxxrec_name = ClangSupport.ModNonParamUsageType(cxxrec_name);
+                cxxrec_name = ClangSupport.RewriteAppliedOccurrence(false, cxxrec_name);
 
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
@@ -111,7 +119,6 @@ template Typedefs
                     System.Console.WriteLine("using System;");
                     System.Console.WriteLine("using System.Runtime.InteropServices;");
                 }
-
                 System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
@@ -137,9 +144,12 @@ template Typedefs
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
+                string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
+                bool is_rewrite = ClangSupport.IsAppliedOccurrenceRewrite(false, name);
+                // If name is part of rewrite, then we don't create typedef struct.
+                if (is_rewrite) return;
                 var cxxrec_name = tree.Attr("Name");
-                cxxrec_name = ClangSupport.ModNonParamUsageType(cxxrec_name);
-
+                cxxrec_name = ClangSupport.RewriteAppliedOccurrence(false, cxxrec_name);
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     generated_file_name = PiggyRuntime.Tool.MakeFileNameUnique(PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs");
@@ -150,7 +160,6 @@ template Typedefs
                     System.Console.WriteLine("using System;");
                     System.Console.WriteLine("using System.Runtime.InteropServices;");
                 }
-
                 System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"
@@ -176,9 +185,12 @@ template Typedefs
             {{
                 var scope = _stack.Peek();
                 var name = tree.Peek(3).Attr("Name");
+                string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
+                bool is_rewrite = ClangSupport.IsAppliedOccurrenceRewrite(false, name);
+                // If name is part of rewrite, then we don't create typedef struct.
+                if (is_rewrite) return;
                 var base_name = tree.Attr("Name");
-                base_name = ClangSupport.ModNonParamUsageType(base_name);
-
+                base_name = ClangSupport.RewriteAppliedOccurrence(false, base_name);
                 if (PiggyRuntime.Tool.OutputLocation != null && Directory.Exists(PiggyRuntime.Tool.OutputLocation))
                 {
                     generated_file_name = PiggyRuntime.Tool.MakeFileNameUnique(PiggyRuntime.Tool.OutputLocation + "g-" + name + ".cs");
@@ -189,7 +201,6 @@ template Typedefs
                     System.Console.WriteLine("using System;");
                     System.Console.WriteLine("using System.Runtime.InteropServices;");
                 }
-
                 System.Console.WriteLine(
                     @"[StructLayout(LayoutKind.Sequential)]
                     public partial struct " + name + @"

@@ -2,8 +2,8 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "-a \"obj\\Debug\\netstandard2.0\\\\generated.txt\" -s \"C:\\Users\\Kenne\\Documents\\Campy2\\Campy.Utils\\cuda.pig\" -t \"C:\\Users\\Kenne\\documents\\piggy3\\templates\" -o \"obj\\Debug\\netstandard2.0\"",
-      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Campy2\\Campy.Utils"
+      "commandLineArgs": "-a \"obj\\Debug\\netcoreapp2.1\\ast.txt\" -s \"C:\\Users\\Kenne\\Downloads\\leptonica-1.77.0\\ConsoleApp1\\lep.pig\" -t \"C:\\Users\\Kenne\\documents\\piggy3\\Templates\" -o \"obj\\Debug\\netcoreapp2.1\"",
+      "workingDirectory": "c:\\Users\\Kenne\\Downloads\\leptonica-1.77.0\\ConsoleApp1"
     }
   }
 }

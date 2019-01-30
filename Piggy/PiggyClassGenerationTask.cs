@@ -314,12 +314,12 @@ namespace Piggy.Build.Task
                     logMessage = message.Message;
                     message.Severity = TraceLevel.Info;
                 }
-                else if (message.Message.StartsWith("Generated "))
+                else if (message.Message.StartsWith("Generated: "))
                 {
                     // This is a known informational message
                     logMessage = message.Message;
                     message.Severity = TraceLevel.Info;
-                    string f = message.Message.Substring("Generated ".Length);
+                    string f = message.Message.Substring("Generated: ".Length);
                     _generatedCodeFiles.Add((ITaskItem)new TaskItem(f));
                 }
                 else

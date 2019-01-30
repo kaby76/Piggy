@@ -43,84 +43,7 @@ template ClangSupport
             { "const void *", "IntPtr" },
             { "const <type> *", "in <type>"},
         };
-
-        public static string ModParamUsageType(string type)
-        {
-            type = type.Trim();
-            type = type.Split(':')[0];
-            _parm_type_map.TryGetValue(type, out string r);
-            if (r != null) return r;
-            string[] pointers = type.Split('*');
-            if (pointers.Length == 2)
-            {
-                var bs = pointers[0].Trim();
-                _type_map.TryGetValue(bs, out string result);
-                if (result != null) return "out " + result;
-
-                string use_out = "out ";
-                if (bs.StartsWith("const "))
-                {
-                    bs = bs.Substring(6);
-                    use_out = "";
-                }
-
-                // Apply some hacky surgery to get the type.
-                // C# doesn't like declaring functions as "extern struct foobar fun()".
-                // So, remove the struct/class designations in front.
-                for (; ; )
-                {
-                    if (bs.StartsWith("struct ")) bs = bs.Substring(7);
-                    else if (bs.StartsWith("class ")) bs = bs.Substring(6);
-                    else if (bs.StartsWith("union ")) bs = bs.Substring(6);
-                    else if (bs.StartsWith("const ")) bs = bs.Substring(6);
-                    break;
-                }
-
-                return use_out + bs;
-            }
-            else if (pointers.Length == 1)
-            {
-                var bs = pointers[0].Trim();
-                _type_map.TryGetValue(bs, out string result);
-                if (result != null) return result;
-
-                // Apply some hacky surgery to get the type.
-                // C# doesn't like declaring functions as "extern struct foobar fun()".
-                // So, remove the struct/class designations in front.
-                for (;;)
-                {
-                    if (bs.StartsWith("struct ")) bs = bs.Substring(7);
-                    else if (bs.StartsWith("class ")) bs = bs.Substring(6);
-                    else if (bs.StartsWith("union ")) bs = bs.Substring(6);
-                    else if (bs.StartsWith("const ")) bs = bs.Substring(6);
-                    break;
-                }
-
-                return bs;
-            }
-            else
-            {
-                var bs = pointers[0].Trim();
-                _type_map.TryGetValue(bs, out string result);
-                if (result != null) return result;
-
-                return "out IntPtr";
-            }
-        }
-
-        public static string ModParamUsageType(Dictionary<string, string> additions)
-        {
-            foreach (var kvp in additions)
-            {
-                var type = kvp.Key;
-                var rewrite = kvp.Value;
-                type = type.Trim();
-                type = type.Split(':')[0];
-                _parm_type_map[type] = rewrite;
-            }
-            return null;
-        }
-
+        
         // These types are used to map return values from functions.
         // These are not used for parameter types to functions.
         // So, no "out", no "in", no "ref". Note also that C# kind of sucks
@@ -152,26 +75,29 @@ template ClangSupport
             { "signed char", "sbyte" },
         };
 
-        public static string ModNonParamUsageType(string type)
+        public static string RewriteAppliedOccurrence(bool is_param, string type)
         {
+            // Note, this routine should be following the recommendations in
+            // https://docs.microsoft.com/en-us/dotnet/framework/interop/passing-structures
             type = type.Trim();
             type = type.Split(':')[0];
-            _type_map.TryGetValue(type, out string r);
-            if (r != null) return r;
-
-            string[] pointers = type.Split('*');
-            if (pointers.Length > 1)
+            string r;
+            if (is_param)
             {
-                // Pointer type.
-                // Just make it IntPtr.
-                return "IntPtr";
+                _parm_type_map.TryGetValue(type, out string r2);
+                r = r2;
             }
             else
             {
-                _type_map.TryGetValue(type, out string result);
-                if (result != null) return result;
+                _type_map.TryGetValue(type, out string r3);
+                r = r3;
+            }
+            if (r != null) return r;
+            string[] pointers = type.Split('*');
+            if (is_param && pointers.Length == 2)
+            {
+                var bs = pointers[0].Trim();
 
-                var bs = type;
                 // Apply some hacky surgery to get the type.
                 // C# doesn't like declaring functions as "extern struct foobar fun()".
                 // So, remove the struct/class designations in front.
@@ -184,11 +110,63 @@ template ClangSupport
                     break;
                 }
 
+                string result;
+                if (is_param)
+                {
+                    _parm_type_map.TryGetValue(bs, out string r2);
+                    result = r2;
+                }
+                else
+                {
+                    _type_map.TryGetValue(bs, out string r3);
+                    result = r3;
+                }
+                if (result != null) return "ref " + result;
+
+                return "ref " + bs;
+            }
+            else if (pointers.Length == 1)
+            {
+                var bs = pointers[0].Trim();
+
+                // Apply some hacky surgery to get the type.
+                // C# doesn't like declaring functions as "extern struct foobar fun()".
+                // So, remove the struct/class designations in front.
+                for (;;)
+                {
+                    if (bs.StartsWith("struct ")) bs = bs.Substring(7);
+                    else if (bs.StartsWith("class ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("union ")) bs = bs.Substring(6);
+                    else if (bs.StartsWith("const ")) bs = bs.Substring(6);
+                    break;
+                }
+
+                string result;
+                if (is_param)
+                {
+                    _parm_type_map.TryGetValue(bs, out string r2);
+                    result = r2;
+                }
+                else
+                {
+                    _type_map.TryGetValue(bs, out string r3);
+                    result = r3;
+                }
+                if (result != null) return result;
+
                 return bs;
+            }
+            else
+            {
+                // Here we assume two levels of indirection is meant to be a in/out pointer.
+                if (is_param)
+                    return "ref IntPtr";
+                else
+                    return "IntPtr";
             }
         }
 
-        public static string ModNonParamUsageType(Dictionary<string, string> additions)
+        public static void AddAppliedOccurrenceRewrites(bool is_param, Dictionary<string, string> additions)
         {
             foreach (var kvp in additions)
             {
@@ -196,9 +174,30 @@ template ClangSupport
                 var rewrite = kvp.Value;
                 type = type.Trim();
                 type = type.Split(':')[0];
-                _type_map[type] = rewrite;
+                if (is_param)
+                    _parm_type_map[type] = rewrite;
+                else
+                    _type_map[type] = rewrite;
             }
-            return null;
+        }
+
+
+        public static bool IsAppliedOccurrenceRewrite(bool is_param, string type)
+        {
+            type = type.Trim();
+            type = type.Split(':')[0];
+            if (is_param)
+                return _parm_type_map.ContainsKey(type) || _type_map.ContainsValue(type);
+            else
+                return _type_map.ContainsKey(type) || _type_map.ContainsValue(type);
+        }
+
+        public static bool IsAppliedOccurrencePointerType(string type)
+        {
+            type = type.Trim();
+            type = type.Split(':')[0];
+            string[] pointers = type.Split('*');
+            return pointers.Length > 1;
         }
 
         public static Dictionary<string, string> _name_map =

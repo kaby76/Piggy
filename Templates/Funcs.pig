@@ -78,7 +78,7 @@ template Funcs
                 var function_type = tree.Attr("Type");
                 var raw_return_type = ClangSupport.GetFunctionReturn(function_type);
                 var premod_type = raw_return_type;
-                var postmod_type = ClangSupport.ModNonParamUsageType(premod_type);
+                var postmod_type = ClangSupport.RewriteAppliedOccurrence(false, premod_type);
                 var type = postmod_type;
                 System.Console.Write("public static extern "
                    + type + " "
@@ -92,7 +92,7 @@ template Funcs
                     else
                         System.Console.Write(", ");
                     var premod_type = tree.Attr("Type");
-                    var postmod_type = ClangSupport.ModParamUsageType(premod_type);
+                    var postmod_type = ClangSupport.RewriteAppliedOccurrence(true, premod_type);
                     var param_name = tree.Attr("Name");
                     var patch_up_param_name = ClangSupport.EscapeCsharpNames(param_name);
                     System.Console.Write(postmod_type + " " + patch_up_param_name);
