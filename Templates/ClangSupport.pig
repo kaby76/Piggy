@@ -34,14 +34,30 @@ template ClangSupport
 
         public static Dictionary<string, string> _parm_type_map =
             new Dictionary<string, string>() {
-            { "const char **", "out IntPtr" },
-            { "char *", "[Out] byte[]"},
-            { "unsigned int *", "out uint" },
-            { "void **", "out IntPtr" },
             { "void *", "IntPtr" },
-            { "const char *", "string" },
-            { "const void *", "IntPtr" },
-            { "const <type> *", "in <type>"},
+            { "size_t", "SizeT" },
+            { "int", "int"},
+            { "uint", "uint"},
+            { "short", "short"},
+            { "ushort", "ushort"},
+            { "long", "long"},
+            { "unsigned char", "byte" },
+            { "unsigned short", "UInt16"},
+            { "unsigned int", "uint"},
+            { "unsigned long", "ulong"},
+            { "unsigned long long", "ulong"},
+            { "signed char", "sbyte" },
+            { "signed short", "Int16" },
+            { "signed int", "int" },
+            { "signed long", "long" },
+            { "signed long long", "long" },
+            { "long long", "long"},
+            { "float", "float"},
+            { "double", "double"},
+            { "bool", "bool"},
+            { "char", "byte"},
+            { "const char *", "IntPtr" }, // For now, don't do [return: MarshalAs(UnmanagedType.LPStr)] set up of function.
+            { "char *", "IntPtr" },
         };
         
         // These types are used to map return values from functions.
@@ -54,6 +70,7 @@ template ClangSupport
         // See https://limbioliong.wordpress.com/2011/06/16/returning-strings-from-a-c-api/
         public static Dictionary<string, string> _type_map =
             new Dictionary<string, string>() {
+            { "void *", "IntPtr" },
             { "size_t", "SizeT" },
             { "int", "int"},
             { "uint", "uint"},
@@ -65,6 +82,11 @@ template ClangSupport
             { "unsigned int", "uint"},
             { "unsigned long", "ulong"},
             { "unsigned long long", "ulong"},
+            { "signed char", "sbyte" },
+            { "signed short", "Int16" },
+            { "signed int", "int" },
+            { "signed long", "long" },
+            { "signed long long", "long" },
             { "long long", "long"},
             { "float", "float"},
             { "double", "double"},
@@ -72,7 +94,6 @@ template ClangSupport
             { "char", "byte"},
             { "const char *", "IntPtr" }, // For now, don't do [return: MarshalAs(UnmanagedType.LPStr)] set up of function.
             { "char *", "IntPtr" },
-            { "signed char", "sbyte" },
         };
 
         public static string RewriteAppliedOccurrence(bool is_param, string type)
@@ -110,18 +131,18 @@ template ClangSupport
                     break;
                 }
 
+				// Recompose pointer without "const" and try again.
+				var alt = bs + " *";
+
                 string result;
-                if (is_param)
-                {
-                    _parm_type_map.TryGetValue(bs, out string r2);
-                    result = r2;
-                }
-                else
-                {
-                    _type_map.TryGetValue(bs, out string r3);
-                    result = r3;
-                }
-                if (result != null) return "ref " + result;
+                _parm_type_map.TryGetValue(alt, out string r2);
+                result = r2;
+
+                if (result != null) return result;
+
+                _parm_type_map.TryGetValue(bs, out string r3);
+                result = r3;
+                if (result != null) return result;
 
                 return "ref " + bs;
             }
