@@ -137,12 +137,12 @@ template ClangSupport
                 string result;
                 _parm_type_map.TryGetValue(alt, out string r2);
                 result = r2;
-
                 if (result != null) return result;
 
+				// Rewrite type without '*', then add in ref.
                 _parm_type_map.TryGetValue(bs, out string r3);
                 result = r3;
-                if (result != null) return result;
+                if (result != null) bs = result;
 
                 return "ref " + bs;
             }
