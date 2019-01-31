@@ -3,6 +3,7 @@
     using Antlr4.Runtime.Misc;
     using Antlr4.Runtime.Tree;
     using Antlr4.Runtime;
+    using PiggyRuntime;
     using CommandLine;
     using System.Collections.Generic;
     using System.IO;
@@ -61,7 +62,7 @@
                 CSharpParser.Compilation_unitContext tree = parser.compilation_unit();
                 if (listener.had_error) return;
                 var sb = new StringBuilder();
-                PiggyRuntime.AstHelpers.ParenthesizedAST(sb, tree);
+                PiggyRuntime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
                 System.Console.WriteLine(sb.ToString());
             }
             r.Dispose();

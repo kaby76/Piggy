@@ -151,7 +151,9 @@ using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Options;
 using Microsoft.CodeAnalysis.Text;
-
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
+using Antlr4.Runtime;
 
 namespace " + @namespace + @"
 {

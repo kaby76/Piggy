@@ -1,9 +1,10 @@
-﻿namespace PiggyRuntime
+﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
+using Antlr4.Runtime;
+using System.Text;
+
+namespace PiggyRuntime
 {
-    using Antlr4.Runtime.Misc;
-    using Antlr4.Runtime.Tree;
-    using Antlr4.Runtime;
-    using System.Text;
 
     public static class Escapes
     {
@@ -26,7 +27,7 @@
     {
         private static int changed = 0;
         private static bool first_time = true;
-        public static void ParenthesizedAST(StringBuilder sb, IParseTree tree, int level = 0)
+        public static void ParenthesizedAST(StringBuilder sb, string file_name, IParseTree tree, int level = 0)
         {
             if (changed - level >= 0)
             {
@@ -47,24 +48,28 @@
             // the name. Saves big time on output!
             if (tree as TerminalNodeImpl != null)
             {
-                sb.AppendLine("( TOKEN t=\"" + tree.GetText().provide_escapes() + "\"");
+                sb.AppendLine("( TOKEN i=\"" + tree.SourceInterval.a 
+                    + "\" t=\"" + tree.GetText().provide_escapes() + "\"");
             }
             else
             {
                 var fixed_name = tree.GetType().ToString()
                     .Replace("Antlr4.Runtime.Tree.", "")
-                    .Replace("generate_from_spec.CSharpParser+", "")
-                    .Replace("CSharpSerializer.CSharpParser+", "")
+                    .Replace("PiggyRuntime.CSharpParser+", "")
                     ;
                 fixed_name = fixed_name.Substring(0, fixed_name.Length - "Context".Length);
                 fixed_name = fixed_name[0].ToString().ToLower()
                              + fixed_name.Substring(1);
-                sb.AppendLine("( " + fixed_name);
+                sb.Append("( " + fixed_name);
+                if (level == 0) sb.Append(" File=\""
+                    + file_name
+                    + "\"");
+                sb.AppendLine();
             }
             for (int i = 0; i < tree.ChildCount; ++i)
             {
                 var c = tree.GetChild(i);
-                ParenthesizedAST(sb, c, level + 1);
+                ParenthesizedAST(sb, file_name, c, level + 1);
             }
             if (level == 0)
             {
@@ -97,6 +102,28 @@
                     Reconstruct(c, stream);
                 }
             }
+        }
+
+        private static CommonTokenStream tokens;
+        public static void OpenTokenStream(string file_name)
+        {
+            var code_as_string = System.IO.File.ReadAllText(file_name);
+            var input = new AntlrInputStream(code_as_string);
+            var lexer = new CSharpLexer(input);
+            tokens = new CommonTokenStream(lexer);
+            tokens.Fill();
+        }
+
+        public static string GetLeftOfToken(int index)
+        {
+            StringBuilder sb = new StringBuilder();
+            var inter = tokens.GetHiddenTokensToLeft(index);
+            if (inter != null)
+                foreach (var t in inter)
+                {
+                    sb.Append(t.Text);
+                }
+            return sb.ToString();
         }
     }
 }
