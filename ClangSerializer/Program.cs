@@ -25,10 +25,10 @@
             [Option('c', "clang-option", Required = false, HelpText = "Clang option.")]
             public IEnumerable<string> ClangOptions { get; set; }
 
-            [Option('f', "clang-file", Required = false, HelpText = "Clang C input file.")]
+            [Option('f', "clang-files", Required = false, HelpText = "Clang C input files.")]
             public IEnumerable<string> ClangFiles { get; set; }
 
-            [Option('o', "clang-file", Required = false, HelpText = "AST output file.")]
+            [Option('o', "ast-out-file", Required = false, HelpText = "AST output file.")]
             public string AstOutFile { get; set; }
         }
 
