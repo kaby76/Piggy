@@ -74,7 +74,7 @@
             }
         }
 
-        static void Reconstruct(IParseTree tree, CommonTokenStream stream)
+        public static void Reconstruct(IParseTree tree, CommonTokenStream stream)
         {
             if (tree as TerminalNodeImpl != null)
             {

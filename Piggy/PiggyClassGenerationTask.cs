@@ -75,16 +75,6 @@ namespace Piggy.Build.Task
                     builder.Append(argument);
                     continue;
                 }
-
-                continue;
-
-                // escape a backslash appearing before a quote
-                string arg = argument.Replace("\\\"", "\\\\\"");
-                // escape double quotes
-                arg = arg.Replace("\"", "\\\"");
-
-                // wrap the argument in outer quotes
-                builder.Append('"').Append(arg).Append('"');
             }
 
             return builder.ToString();

@@ -12,6 +12,7 @@ namespace PiggyGenerator
     {
         public Application _application = new Application();
         public IParseTree _ast;
+        public CommonTokenStream _common_token_stream;
         public List<string> _clang_files = new List<string>();
         public List<string> _clang_options = new List<string>();
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
@@ -57,7 +58,7 @@ namespace PiggyGenerator
             }
             ICharStream ast_stream = CharStreams.fromstring(ast_string);
             ITokenSource ast_lexer = new AstLexer(ast_stream);
-            ITokenStream ast_tokens = new CommonTokenStream(ast_lexer);
+            var ast_tokens = new CommonTokenStream(ast_lexer);
             AstParserParser ast_parser = new AstParserParser(ast_tokens);
             ast_parser.BuildParseTree = true;
             ErrorListener<IToken> listener = new ErrorListener<IToken>();
@@ -66,7 +67,8 @@ namespace PiggyGenerator
             if (listener.had_error) throw new Exception();
             AstSymtabBuilderListener ast_listener = new AstSymtabBuilderListener(ast_tree);
             ParseTreeWalker.Default.Walk(ast_listener, ast_tree);
-            _ast = ast_tree;
+            this._ast = ast_tree;
+            this._common_token_stream = ast_tokens;
             if (spec_file == null && expression != null)
             {
                 SpecFileAndListener exp = new SpecFileAndListener(this);

@@ -487,7 +487,7 @@ namespace " + @namespace + @"
                             MethodInfo main = _piggy._code_blocks[x];
                             Type type = re._current_type;
                             object instance = re._instance;
-                            object[] a = new object[] { new Tree(re._parent, re._ast, con) };
+                            object[] a = new object[] { new Tree(re._parent, re._ast, con, re._common_token_stream) };
                             var res = main.Invoke(instance, a);
                         }
                         finally

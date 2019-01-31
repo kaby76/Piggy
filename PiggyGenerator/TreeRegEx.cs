@@ -13,6 +13,7 @@
         public IParseTree _ast;
         public Type _current_type;
         public object _instance;
+        public CommonTokenStream _common_token_stream;
         public Intercept<IParseTree, IParseTree> _matches = new Intercept<IParseTree, IParseTree>();
         public Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
         public List<Pass> _passes;
@@ -27,6 +28,7 @@
             _ast = _piggy._ast.GetChild(0);
             _passes = passes_with_common_name;
             _instance = instance;
+            _common_token_stream = _piggy._common_token_stream;
 
             bool result = false;
             var visited = new HashSet<IParseTree>();

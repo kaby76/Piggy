@@ -116,7 +116,7 @@
     </PropertyGroup>
 
     <PiggyClassGenerationTask
-      OutputPath="$(IntermediateOutputPath)"
+      OutputPath="%(Piggy.OutputFile)"
       ClangOptions="%(Piggy.ClangOptions)"
       ClangSourceFile="%(Piggy.ClangSourceFile)"
       AstOutputFile="%(Piggy.AstOutputFile)"

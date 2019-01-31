@@ -1,6 +1,7 @@
 ﻿namespace PiggyRuntime
 {
     using System.Collections.Generic;
+    using Antlr4.Runtime;
     using Antlr4.Runtime.Tree;
 
     public class Tree
@@ -8,12 +9,14 @@
         private IParseTree _ast;
         private IParseTree _current;
         private Dictionary<IParseTree, IParseTree> _parent;
+        private CommonTokenStream _common_token_stream;
 
-        public Tree(Dictionary<IParseTree, IParseTree> parent, IParseTree ast, IParseTree current)
+        public Tree(Dictionary<IParseTree, IParseTree> parent, IParseTree ast, IParseTree current, CommonTokenStream common_token_stream)
         {
             _parent = parent;
             _ast = ast;
             _current = current;
+            _common_token_stream = common_token_stream;
         }
 
         public Tree Peek(int level)
@@ -39,13 +42,18 @@
                     v = par;
                 }
             }
-            Tree t = new Tree(_parent, _ast, v);
+            Tree t = new Tree(_parent, _ast, v, _common_token_stream);
             return t;
         }
 
         public IParseTree Current
         {
             get { return _current; }
+        }
+
+        public CommonTokenStream CommonTokenStream
+        {
+            get { return _common_token_stream; }
         }
 
         public string Attr(string name)
