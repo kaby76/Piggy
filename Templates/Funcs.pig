@@ -62,9 +62,6 @@ template Funcs
             {{
                 var function_name = tree.Attr("Name");
                 var patch_up_function_name = ClangSupport.EscapeCsharpNames(function_name);
-				if (patch_up_function_name == "cuDeviceGetCount")
-				{
-				}
                 var gt = details.Where(d => 
                     {
                         Regex regex = new Regex("(?<exp>" + d.name + ")");

@@ -131,15 +131,15 @@ template ClangSupport
                     break;
                 }
 
-				// Recompose pointer without "const" and try again.
-				var alt = bs + " *";
+                // Recompose pointer without "const" and try again.
+                var alt = bs + " *";
 
                 string result;
                 _parm_type_map.TryGetValue(alt, out string r2);
                 result = r2;
                 if (result != null) return result;
 
-				// Rewrite type without '*', then add in ref.
+                // Rewrite type without '*', then add in ref.
                 _parm_type_map.TryGetValue(bs, out string r3);
                 result = r3;
                 if (result != null) bs = result;
@@ -271,33 +271,33 @@ template ClangSupport
             }
         }
 
-		public class CommonStringPrefix
-		{
-			public static string Of(IEnumerable<string> strings)
-			{
-				var commonPrefix = strings.FirstOrDefault() ?? "";
+        public class CommonStringPrefix
+        {
+            public static string Of(IEnumerable<string> strings)
+            {
+                var commonPrefix = strings.FirstOrDefault() ?? "";
 
-				foreach (var s in strings)
-				{
-					var potentialMatchLength = (s.Length < commonPrefix.Length)
-						? s.Length : commonPrefix.Length;
+                foreach (var s in strings)
+                {
+                    var potentialMatchLength = (s.Length < commonPrefix.Length)
+                        ? s.Length : commonPrefix.Length;
 
-					if (potentialMatchLength < commonPrefix.Length)
-						commonPrefix = commonPrefix.Substring(0, potentialMatchLength);
+                    if (potentialMatchLength < commonPrefix.Length)
+                        commonPrefix = commonPrefix.Substring(0, potentialMatchLength);
 
-					for (var i = 0; i < potentialMatchLength; i++)
-					{
-						if (s[i] != commonPrefix[i])
-						{
-							commonPrefix = commonPrefix.Substring(0, i);
-							break;
-						}
-					}
-				}
+                    for (var i = 0; i < potentialMatchLength; i++)
+                    {
+                        if (s[i] != commonPrefix[i])
+                        {
+                            commonPrefix = commonPrefix.Substring(0, i);
+                            break;
+                        }
+                    }
+                }
 
-				return commonPrefix;
-			}
-		}
+                return commonPrefix;
+            }
+        }
     }}
 
     pass Start {
