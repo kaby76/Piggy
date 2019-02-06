@@ -8,12 +8,12 @@
     {
         private IParseTree _ast;
         private IParseTree _current;
-        private Dictionary<IParseTree, IParseTree> _parent;
+        private Dictionary<IParseTree, IParseTree> _parent_map;
         private CommonTokenStream _common_token_stream;
 
-        public Tree(Dictionary<IParseTree, IParseTree> parent, IParseTree ast, IParseTree current, CommonTokenStream common_token_stream)
+        public Tree(Dictionary<IParseTree, IParseTree> parent_map, IParseTree ast, IParseTree current, CommonTokenStream common_token_stream)
         {
-            _parent = parent;
+            _parent_map = parent_map;
             _ast = ast;
             _current = current;
             _common_token_stream = common_token_stream;
@@ -26,7 +26,7 @@
             {
                 while (v != null)
                 {
-                    _parent.TryGetValue(v, out IParseTree par);
+                    _parent_map.TryGetValue(v, out IParseTree par);
                     if (par == null)
                     {
                         v = null;
@@ -42,7 +42,7 @@
                     v = par;
                 }
             }
-            Tree t = new Tree(_parent, _ast, v, _common_token_stream);
+            Tree t = new Tree(_parent_map, _ast, v, _common_token_stream);
             return t;
         }
 
@@ -79,9 +79,9 @@
             return "";
         }
 
-        public IParseTree Child(int index)
+        public Tree Child(int index)
         {
-            IParseTree result = null;
+            Tree result = null;
             // Walk forward until next tree node found.
             int n = _current.ChildCount;
             for (int i = 0; i < n; ++i)
@@ -90,12 +90,45 @@
                 AstParserParser.DeclContext decl = t.GetChild(0) as AstParserParser.DeclContext;
                 var is_decl = decl != null;
                 if (!is_decl) continue;
-                if (index > 0) continue;
-                return decl;
+                if (index > 0)
+                {
+                    index--;
+                    continue;
+                }
+                Tree tt = new Tree(_parent_map, _ast, decl, _common_token_stream);
+                return tt;
             }
             return result;
         }
 
+        public string Type()
+        {
+            string result = "";
+            int n = _current.ChildCount;
+            if (n < 1) return result;
+            var t = _current.GetChild(1);
+            return t.GetText();
+        }
+
+        public List<Tree> Children(string name)
+        {
+            List<Tree> result = new List<Tree>();
+            // Walk forward until next tree node found.
+            int n = _current.ChildCount;
+            for (int i = 0; i < n; ++i)
+            {
+                var t = _current.GetChild(i);
+                AstParserParser.DeclContext decl = t.GetChild(0) as AstParserParser.DeclContext;
+                var is_decl = decl != null;
+                if (!is_decl) continue;
+                var u = decl.GetChild(1);
+                string v = u.GetText();
+                if (v != name) continue;
+                Tree tt = new Tree(_parent_map, _ast, decl, _common_token_stream);
+                result.Add(tt);
+            }
+            return result;
+        }
 
         public string ChildrenOutput()
         {

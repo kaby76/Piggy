@@ -59,6 +59,7 @@
                     pos++;
                     pos++;
                     var p_val = p_attr.GetChild(pos);
+                    if (p_val == null) continue;
                     string pp = p_val.GetText();
                     if (pp.StartsWith("$\"{"))
                     {

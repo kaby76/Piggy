@@ -2,8 +2,7 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "-a \"obj\\Debug\\netcoreapp2.1\\ast.txt\" -s ser.pig -t \"C:\\Users\\Kenne\\documents\\piggy3\\templates\"",
-      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\CsharpSerializer"
-    }
+      "commandLineArgs": "-a \"obj\\Debug\\netcoreapp2.1\\ast.txt\" -s \"C:\\Users\\Kenne\\Downloads\\leptonica-1.77.0\\ConsoleApp1\\lep.pig\" -t \"C:\\Users\\Kenne\\documents\\piggy3\\Templates\" -o \"obj\\Debug\\netcoreapp2.1\"",
+      "workingDirectory": "c:\\Users\\Kenne\\Downloads\\leptonica-1.77.0\\ConsoleApp1"    }
   }
 }
