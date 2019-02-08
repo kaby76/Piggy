@@ -65,46 +65,68 @@ template Enums
             {{
                 // Anonymous enum type. Several ways to deal with this.
                 string name = null;
-                // Check if the declaration contains a comment description.
-                for (;;)
+                // Check if an EnumConstantDecl child named is in the rewrite table
+                // for anonymous types. If so, use that name and proceed.
+                if (name == null)
                 {
-                    var c1 = tree.Child(0);
-                    if (c1 == null) break;
-                    var t1 = c1.Type();
-                    if (t1 != "FullComment") break;
-                    var c2 = c1.Child(0);
-                    if (c2 == null) break;
-                    var t2 = c2.Type();
-                    if (t2 != "ParagraphComment") break;
-                    var c3 = c2.Child(0);
-                    if (c3 == null) break;
-                    var t3 = c3.Type();
-                    if (t3 != "TextComment") break;
-                    var comment = c3.Attr("Text");
-                    comment = comment.Trim();
-                    comment = comment
-                        .Replace(",", " ")
-                        .Replace("("," ")
-                        .Replace(")"," ")
-                        .Replace("-"," ")
-                        .Replace("\\"," ")
-                        .Replace("#"," ")
-                        .Replace(";"," ")
-                        .Replace("/"," ")
-                        .Replace("_"," ")
-                        .Replace(":"," ")
-                        .Replace("<"," ")
-                        .Replace(">"," ")
-                        .Replace("{"," ")
-                        .Replace("}"," ")
-                        .Replace("@"," ")
-                        .Replace("."," ")
-                        ;
-                    comment = Regex.Replace(comment, @"(^\w)|(\s\w)", w => w.Value.ToUpper());
-                    comment = comment.Replace(" ", "");
-                    comment = Regex.Replace(comment, @"(^\d+)", w => "_" + w.Value);
-                    name = comment;
-                    break;
+                    int pos = 0;
+                    for (;;)
+                    {
+                        var c1 = tree.Child(pos++);
+                        if (c1 == null) break;
+                        var t1 = c1.Type();
+                        if (t1 != "EnumConstantDecl") continue;
+                        var s = c1.Attr("Name");
+                        s = s.Trim();
+                        ClangSupport._anonymous_enum_map.TryGetValue(s, out string v);
+                        if (v == null) continue;
+                        name = v;
+                        break;
+                    }
+                }
+                // Check if the declaration contains a comment description.
+                if (name == null)
+                {
+                    for (;;)
+                    {
+                        var c1 = tree.Child(0);
+                        if (c1 == null) break;
+                        var t1 = c1.Type();
+                        if (t1 != "FullComment") break;
+                        var c2 = c1.Child(0);
+                        if (c2 == null) break;
+                        var t2 = c2.Type();
+                        if (t2 != "ParagraphComment") break;
+                        var c3 = c2.Child(0);
+                        if (c3 == null) break;
+                        var t3 = c3.Type();
+                        if (t3 != "TextComment") break;
+                        var comment = c3.Attr("Text");
+                        comment = comment.Trim();
+                        comment = comment
+                            .Replace(",", " ")
+                            .Replace("("," ")
+                            .Replace(")"," ")
+                            .Replace("-"," ")
+                            .Replace("\\"," ")
+                            .Replace("#"," ")
+                            .Replace(";"," ")
+                            .Replace("/"," ")
+                            .Replace("_"," ")
+                            .Replace(":"," ")
+                            .Replace("<"," ")
+                            .Replace(">"," ")
+                            .Replace("{"," ")
+                            .Replace("}"," ")
+                            .Replace("@"," ")
+                            .Replace("."," ")
+                            ;
+                        comment = Regex.Replace(comment, @"(^\w)|(\s\w)", w => w.Value.ToUpper());
+                        comment = comment.Replace(" ", "");
+                        comment = Regex.Replace(comment, @"(^\d+)", w => "_" + w.Value);
+                        name = comment;
+                        break;
+                    }
                 }
                 if (name == null)
                 {

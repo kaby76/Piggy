@@ -96,6 +96,11 @@ template ClangSupport
             { "char *", "IntPtr" },
         };
 
+        public static Dictionary<string, string> _anonymous_enum_map =
+            new Dictionary<string, string>() {
+        };
+
+
         public static string RewriteAppliedOccurrence(bool is_param, string type)
         {
             // Note, this routine should be following the recommendations in
