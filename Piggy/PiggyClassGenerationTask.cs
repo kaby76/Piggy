@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -39,6 +40,12 @@ namespace Piggy.Build.Task
             get;
             set;
         }
+
+	public bool PackedAst
+	{
+		get;
+		set;
+	}
 
         public string InitialTemplate
         {
@@ -93,15 +100,31 @@ namespace Piggy.Build.Task
                 path = path + @"\build\ClangSerializer.dll";
                 arguments.Add("\"" + path + "\"");
 
-                if (ClangOptions != null)
+                if (ClangOptions != null && ClangOptions != "")
                 {
                     arguments.Add("-c");
                     var str = ClangOptions;
-                    if (!Regex.IsMatch(str, @"^"".*""$"))
+                    // Apply surgery to clang options to convert each option into
+                    // a string that Piggy can accept. The problem is that Piggy uses
+                    // CommandLineParser which coallesces options.
+                    // First, split this by spaces, observing double or single quotes.
+                    var re = new Regex("(?<=\")[^\"]*(?=\")|[^\" ]+");
+                    string[] strings = re.Matches(str).Cast<Match>().Select(m => m.Value).ToArray();
+                    // Strip quotes. Convert '-' to '-c'. Add quotes.
+                    List<string> new_strings = new List<string>();
+                    foreach (var s in strings)
                     {
-                        str = "\"" + str + "\"";
+                        var ns = s;
+                        if (Regex.IsMatch(ns, @"^""[ ]+""$")) continue;
+                        if (Regex.IsMatch(ns, @"^[ ]+$")) continue;
+                        if (Regex.IsMatch(ns, @"^"".*""$"))
+                        {
+                            ns = ns.Substring(1).Substring(0, ns.Length - 1);
+                        }
+                        if (ns[0] == '-') ns = ns.Substring(1);
+                        ns = "\"" + ns + "\"";
+                        arguments.Add(ns);
                     }
-                    arguments.Add(str);
                 }
                 if (ClangSourceFile != null)
                 {
@@ -135,8 +158,12 @@ namespace Piggy.Build.Task
                     }
                     string p = "\"" + ostr + "\\" + astr + "\"";
                     arguments.Add(p);
-                }
-
+		}
+		if (PackedAst != false)
+		{
+		    arguments.Add("-p");
+		}
+		
                 using (Process process = new Process())
                 {
                     process.StartInfo.UseShellExecute = false;

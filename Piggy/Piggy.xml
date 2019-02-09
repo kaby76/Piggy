@@ -31,6 +31,12 @@ in conjunction with the PiggySchema.xml schema. -->
     DisplayName="Ast output file"
     Default="g-ast.txt"
     Description="Generated ast output placed in this file." />
+  <BoolProperty
+    Category="Clang"
+    Name="PackedAst"
+    DisplayName="Packed Ast"
+    Default="true"
+    Description="Generate packed ast output." />
   <StringProperty
     Category="Piggy"
     Name="OutputFile"

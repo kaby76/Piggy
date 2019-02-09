@@ -120,6 +120,7 @@
       ClangOptions="%(Piggy.ClangOptions)"
       ClangSourceFile="%(Piggy.ClangSourceFile)"
       AstOutputFile="%(Piggy.AstOutputFile)"
+      PackedAst="%(Piggy.PackedAst)"
       InitialTemplate="%(FullPath)"
       >
 

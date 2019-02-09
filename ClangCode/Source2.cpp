@@ -18,6 +18,17 @@
 #include <experimental/filesystem>
 #include <string.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern bool _packed_ast;
+
+#ifdef __cplusplus
+}
+#endif
+
 using namespace clang;
 using namespace clang::comments;
 
@@ -97,18 +108,18 @@ namespace {
 			const FullComment *OrigFC = FC;
 			auto dumpWithIndent = [this, doDumpChild, OrigFC](bool isLastChild) {
 				{
-					*OS << '\n';
+					if (!_packed_ast) *OS << '\n';
 					// Add in closing parentheses.
 					if (this->changed > 0)
 					{
-						*OS << Prefix << "  ";
+						if (!_packed_ast) *OS << Prefix << "  ";
 						for (int i = 0; i < this->changed-1; ++i)
 							*OS << ") ";
 						*OS << ")";
 						this->changed = 0;
-						*OS << '\n';
+						if (!_packed_ast) *OS << '\n';
 					}
-					*OS << Prefix << "  ";
+					if (!_packed_ast) *OS << Prefix << "  ";
 					*OS << "( ";
 					this->Prefix.push_back(' ');
 					this->Prefix.push_back(' ');
@@ -2342,11 +2353,15 @@ void MyASTDumper::VisitBinaryOperator(const BinaryOperator *Node) {
 void MyASTDumper::VisitCompoundAssignOperator(
 	const CompoundAssignOperator *Node) {
 	VisitExpr(Node);
-	*OS << " '" << BinaryOperator::getOpcodeStr(Node->getOpcode())
-		<< "' ComputeLHSTy=";
+	*OS << " Operator=\"" << BinaryOperator::getOpcodeStr(Node->getOpcode())
+		<< "\" ComputeLHSTy=";
+	*OS << "\"";
 	dumpBareType(Node->getComputationLHSType());
+	*OS << "\"";
 	*OS << " ComputeResultTy=";
+	*OS << "\"";
 	dumpBareType(Node->getComputationResultType());
+	*OS << "\"";
 }
 
 void MyASTDumper::VisitBlockExpr(const BlockExpr *Node) {
@@ -2419,7 +2434,7 @@ void MyASTDumper::VisitCXXBoolLiteralExpr(const CXXBoolLiteralExpr *Node) {
 
 void MyASTDumper::VisitCXXThisExpr(const CXXThisExpr *Node) {
 	VisitExpr(Node);
-	*OS << " this";
+	*OS << " This=\"this\"";
 }
 
 void MyASTDumper::VisitCXXFunctionalCastExpr(const CXXFunctionalCastExpr *Node) {

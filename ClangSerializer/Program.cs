@@ -20,6 +20,9 @@
         [DllImport("ClangCode", EntryPoint = "ClangSerializeAst", CallingConvention = CallingConvention.StdCall)]
         private static unsafe extern IntPtr ClangSerializeAst();
 
+        [DllImport("ClangCode", EntryPoint = "ClangSetPackedAst", CallingConvention = CallingConvention.StdCall)]
+        private static unsafe extern void ClangSetPackedAst(bool packed_ast);
+
         class Options
         {
             [Option('c', "clang-option", Required = false, HelpText = "Clang option.")]
@@ -30,6 +33,9 @@
 
             [Option('o', "ast-out-file", Required = false, HelpText = "AST output file.")]
             public string AstOutFile { get; set; }
+
+            [Option('p', "packed-ast", Required = false, HelpText = "Set for tightly packed/terse representation of AST.")]
+            public bool PackedAst { get; set; }
         }
 
         static void Main(string[] args)
@@ -37,6 +43,7 @@
             List<string> options = new List<string>();
             List<string> arguments = new List<string>();
             string ast_output_file = null;
+            bool packed_ast = false;
 
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed<Options>(o =>
@@ -44,6 +51,7 @@
                     options = o.ClangOptions.Select(t => "-" + t).ToList();
                     arguments = o.ClangFiles.ToList();
                     ast_output_file = o.AstOutFile;
+                    packed_ast = o.PackedAst;
                 })
                 .WithNotParsed(a =>
                 {
@@ -55,6 +63,8 @@
 
             // Set up clang options.
             foreach (var opt in options) ClangAddOption(opt);
+
+            ClangSetPackedAst(packed_ast);
 
             // serialize the AST for the desired input header files.
             IntPtr v = ClangSerializeAst();

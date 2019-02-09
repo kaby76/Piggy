@@ -94,6 +94,8 @@ extern "C" {
 
 	extern std::string RunTheDamnThing(clang::ASTContext &Context);
 
+	bool _packed_ast;
+
 	EXPORT char * ClangSerializeAst()
 	{
 		int count = 3 + search->compiler_option.size() + search->include_files.size();
@@ -129,6 +131,11 @@ extern "C" {
 			scratch.append(r);
 		}
 		return strdup(scratch.c_str());
+	}
+
+	EXPORT void ClangSetPackedAst(bool packed_ast)
+	{
+		_packed_ast = packed_ast;
 	}
 
 	EXPORT char * Name(clang::ast_type_traits::DynTypedNode* p)
