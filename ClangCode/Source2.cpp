@@ -975,7 +975,7 @@ void MyASTDumper::dumpTemplateArgument(const TemplateArgument &A, SourceRange R)
 			dumpType(A.getAsType());
 			break;
 		case TemplateArgument::Declaration:
-			*OS << "decl";
+			*OS << "decl ";
 			*OS << "\"";
 			dumpDeclRef(A.getAsDecl());
 			break;
@@ -989,13 +989,13 @@ void MyASTDumper::dumpTemplateArgument(const TemplateArgument &A, SourceRange R)
 			break;
 		case TemplateArgument::Template:
 			*OS << "template ";
-			*OS << "\"";
 			A.getAsTemplate().dump(*OS);
+			*OS << "\"";
 			break;
 		case TemplateArgument::TemplateExpansion:
-			*OS << "template expansion";
-			*OS << "\"";
+			*OS << "template expansion ";
 			A.getAsTemplateOrTemplatePattern().dump(*OS);
+			*OS << "\"";
 			break;
 		case TemplateArgument::Expression:
 			*OS << "expr";
@@ -1394,8 +1394,21 @@ void MyASTDumper::VisitNamespaceDecl(const NamespaceDecl *D) {
 }
 
 void MyASTDumper::VisitUsingDirectiveDecl(const UsingDirectiveDecl *D) {
-	*OS << ' ';
+	*OS << " BareDeclRef=\"";
+
+	std::string str;
+	llvm::raw_string_ostream f(str);
+	auto save = OS;
+	OS = &f;
+
 	dumpBareDeclRef(D->getNominatedNamespace());
+
+	f.flush();
+	str = provide_escapes(str);
+	OS = save;
+
+	*OS << "\"";
+
 }
 
 void MyASTDumper::VisitNamespaceAliasDecl(const NamespaceAliasDecl *D) {
@@ -1716,9 +1729,10 @@ void MyASTDumper::VisitNonTypeTemplateParmDecl(const NonTypeTemplateParmDecl *D)
 
 void MyASTDumper::VisitTemplateTemplateParmDecl(
 	const TemplateTemplateParmDecl *D) {
-	*OS << " depth " << D->getDepth() << " index " << D->getIndex();
+	*OS << " Depth=\"" << D->getDepth() << "\"";
+	*OS << " Index=\"" << D->getIndex() << "\"";
 	if (D->isParameterPack())
-		*OS << " ...";
+		*OS << " More=\"...\"";
 	dumpName(D);
 	dumpTemplateParameters(D->getTemplateParameters());
 	if (D->hasDefaultArgument())
