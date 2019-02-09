@@ -2038,7 +2038,7 @@ void MyASTDumper::dumpStmt(const Stmt *S) {
 
 void MyASTDumper::VisitStmt(const Stmt *Node) {
 	{
-		*OS << Node->getStmtClassName();
+		*OS << " StmtClassName=\"" << Node->getStmtClassName() << "\"";
 	}
 	dumpPointer(Node);
 	dumpSourceRange(Node->getSourceRange());
@@ -2527,7 +2527,7 @@ void MyASTDumper::VisitExprWithCleanups(const ExprWithCleanups *Node) {
 }
 
 void MyASTDumper::dumpCXXTemporary(const CXXTemporary *Temporary) {
-	*OS << "(CXXTemporary";
+	*OS << "( CXXTemporary";
 	dumpPointer(Temporary);
 	*OS << ")";
 }
