@@ -1236,14 +1236,14 @@ void MyASTDumper::VisitFunctionDecl(const FunctionDecl *D) {
 
 			dumpChild([=] {
 				auto Overrides = MD->overridden_methods();
-				*OS << "Overrides: [ ";
+				*OS << "Overrides Overrides=\"[ ";
 				dumpOverride(*Overrides.begin());
 				for (const auto *Override :
 					llvm::make_range(Overrides.begin() + 1, Overrides.end())) {
 					*OS << ", ";
 					dumpOverride(Override);
 				}
-				*OS << " ]";
+				*OS << " ]\"";
 			});
 		}
 	}
@@ -2038,7 +2038,8 @@ void MyASTDumper::dumpStmt(const Stmt *S) {
 
 void MyASTDumper::VisitStmt(const Stmt *Node) {
 	{
-		*OS << " StmtClassName=\"" << Node->getStmtClassName() << "\"";
+		//*OS << " StmtClassName=\"" << Node->getStmtClassName() << "\"";
+		*OS << Node->getStmtClassName();
 	}
 	dumpPointer(Node);
 	dumpSourceRange(Node->getSourceRange());
@@ -2062,12 +2063,12 @@ void MyASTDumper::VisitAttributedStmt(const AttributedStmt *Node) {
 
 void MyASTDumper::VisitLabelStmt(const LabelStmt *Node) {
 	VisitStmt(Node);
-	*OS << " '" << Node->getName() << "'";
+	*OS << " Label=\"" << Node->getName() << "\"";
 }
 
 void MyASTDumper::VisitGotoStmt(const GotoStmt *Node) {
 	VisitStmt(Node);
-	*OS << " '" << Node->getLabel()->getName() << "'";
+	*OS << " Label=\"" << Node->getLabel()->getName() << "\"";
 	dumpPointer(Node->getLabel());
 }
 
@@ -2488,12 +2489,19 @@ void MyASTDumper::VisitCXXBindTemporaryExpr(const CXXBindTemporaryExpr *Node) {
 void MyASTDumper::VisitCXXNewExpr(const CXXNewExpr *Node) {
 	VisitExpr(Node);
 	if (Node->isGlobalNew())
-		*OS << " global";
+		*OS << " IsGlobal=\"true\"";
 	if (Node->isArray())
-		*OS << " array";
+		*OS << " IsArray=\"true\"";
 	if (Node->getOperatorNew()) {
-		*OS << ' ';
+		std::string str;
+		llvm::raw_string_ostream f(str);
+		auto save = OS;
+		OS = &f;
 		dumpBareDeclRef(Node->getOperatorNew());
+		f.flush();
+		str = provide_escapes(str);
+		OS = save;
+		*OS << " DeclRef=\"" << str << "\"";
 	}
 	// We could dump the deallocation function used in case of error, but it's
 	// usually not that interesting.
@@ -2502,12 +2510,19 @@ void MyASTDumper::VisitCXXNewExpr(const CXXNewExpr *Node) {
 void MyASTDumper::VisitCXXDeleteExpr(const CXXDeleteExpr *Node) {
 	VisitExpr(Node);
 	if (Node->isGlobalDelete())
-		*OS << " global";
+		*OS << " IsGlobal=\"true\"";
 	if (Node->isArrayForm())
-		*OS << " array";
+		*OS << " IsArray=\"true\"";
 	if (Node->getOperatorDelete()) {
-		*OS << ' ';
+		std::string str;
+		llvm::raw_string_ostream f(str);
+		auto save = OS;
+		OS = &f;
 		dumpBareDeclRef(Node->getOperatorDelete());
+		f.flush();
+		str = provide_escapes(str);
+		OS = save;
+		*OS << " DeclRef=\"" << str << "\"";
 	}
 }
 
