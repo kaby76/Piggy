@@ -234,7 +234,7 @@ namespace {
 			dumpTypeAsChild(T->getElementType());
 		}
 		void VisitConstantArrayType(const ConstantArrayType *T) {
-			*OS << " " << T->getSize();
+			*OS << " Size=\"" << T->getSize() << "\"";
 			VisitArrayType(T);
 		}
 		void VisitVariableArrayType(const VariableArrayType *T) {
@@ -1255,11 +1255,12 @@ void MyASTDumper::VisitFunctionDecl(const FunctionDecl *D) {
 void MyASTDumper::VisitFieldDecl(const FieldDecl *D) {
 	dumpName(D);
 	dumpType(D->getType());
+	*OS << " Modifiers=\"";
 	if (D->isMutable())
 		*OS << " mutable";
 	if (D->isModulePrivate())
 		*OS << " __module_private__";
-
+	*OS << "\"";
 	if (D->isBitField())
 		dumpStmt(D->getBitWidth());
 	if (Expr *Init = D->getInClassInitializer())
@@ -2274,8 +2275,19 @@ void MyASTDumper::VisitFloatingLiteral(const FloatingLiteral *Node) {
 void MyASTDumper::VisitStringLiteral(const StringLiteral *Str) {
 	VisitExpr(Str);
 	*OS << " ";
-	*OS << "Value=";
+	*OS << "Value=\"";
+
+	std::string str;
+	llvm::raw_string_ostream f(str);
+	auto save = OS;
+	OS = &f;
 	Str->outputString(*OS);
+	f.flush();
+
+	str = provide_escapes(str);
+	OS = save;
+
+	*OS << "\"";
 }
 
 void MyASTDumper::VisitInitListExpr(const InitListExpr *ILE) {
@@ -2439,8 +2451,8 @@ void MyASTDumper::VisitCXXThisExpr(const CXXThisExpr *Node) {
 
 void MyASTDumper::VisitCXXFunctionalCastExpr(const CXXFunctionalCastExpr *Node) {
 	VisitExpr(Node);
-	*OS << " functional cast to " << Node->getTypeAsWritten().getAsString()
-		<< " <" << Node->getCastKindName() << ">";
+	*OS << " CastTo=\"functional cast to " << Node->getTypeAsWritten().getAsString()
+		<< " <" << Node->getCastKindName() << ">\"";
 }
 
 void MyASTDumper::VisitCXXUnresolvedConstructExpr(
@@ -2532,7 +2544,7 @@ void MyASTDumper::VisitSizeOfPackExpr(const SizeOfPackExpr *Node) {
 void MyASTDumper::VisitCXXDependentScopeMemberExpr(
 	const CXXDependentScopeMemberExpr *Node) {
 	VisitExpr(Node);
-	*OS << " " << (Node->isArrow() ? "->" : ".") << Node->getMember();
+	*OS << " Accessing=\"" << (Node->isArrow() ? "->" : ".") << Node->getMember() << "\"";
 }
 
 //===----------------------------------------------------------------------===//
