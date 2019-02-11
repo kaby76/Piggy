@@ -5,7 +5,7 @@ options { tokenVocab = SpecLexer; }
 
 spec : clang* using* template* (application|) EOF ;
 
-application: APPLICATION apply_pass+ SEMI ;
+application: APPLICATION apply_pass* SEMI ;
 apply_pass: ID DOT ID ;
 
 clang: clang_file | clang_option;

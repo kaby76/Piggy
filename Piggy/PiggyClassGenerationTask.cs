@@ -13,6 +13,9 @@ namespace Piggy.Build.Task
 {
     public class PiggyClassGenerationTask : Microsoft.Build.Utilities.Task
     {
+
+        public PiggyClassGenerationTask() { }
+
         private List<ITaskItem> _generatedCodeFiles = new List<ITaskItem>();
         private List<BuildMessage> _buildMessages = new List<BuildMessage>();
 

@@ -35,6 +35,40 @@ using namespace clang::comments;
 //===----------------------------------------------------------------------===//
 // ASTDumper Visitor
 //===----------------------------------------------------------------------===//
+static void dumpPreviousDeclImpl(raw_ostream &OS, ...) {}
+
+template<typename T>
+static void dumpPreviousDeclImpl(raw_ostream *OS, const Mergeable<T> *D) {
+	const T *First = D->getFirstDecl();
+	if (First != D)
+	{
+		*OS << "First=\"" << First << "\"";
+	}
+}
+
+template<typename T>
+static void dumpPreviousDeclImpl(raw_ostream *OS, const Redeclarable<T> *D) {
+	const T *Prev = D->getPreviousDecl();
+	if (Prev)
+	{
+		*OS << " Prev=\"" << Prev << "\"";
+	}
+}
+
+/// Dump the previous declaration in the redeclaration chain for a declaration,
+/// if any.
+static void dumpPreviousDecl(raw_ostream &OS, const Decl *D) {
+
+	switch (D->getKind()) {
+#define DECL(DERIVED, BASE) \
+  case Decl::DERIVED: \
+    return dumpPreviousDeclImpl(OS, cast<DERIVED##Decl>(D));
+#define ABSTRACT_DECL(DECL)
+#include "clang/AST/DeclNodes.inc"
+	}
+	llvm_unreachable("Decl that isn't part of DeclNodes.inc!");
+}
+
 
 namespace {
 
@@ -52,10 +86,10 @@ namespace {
 		return new_s;
 	}
 
-
 	class MyASTDumper
 		: public ConstDeclVisitor<MyASTDumper>, public ConstStmtVisitor<MyASTDumper>,
-		public ConstCommentVisitor<MyASTDumper>, public TypeVisitor<MyASTDumper> {
+		public ConstCommentVisitor<MyASTDumper>, public TypeVisitor<MyASTDumper>
+	{
 		raw_ostream *OS;
 		const CommandTraits *Traits;
 		const SourceManager *SM;
@@ -89,7 +123,8 @@ namespace {
 		const FullComment *FC = nullptr;
 
 		/// Dump a child of the current node.
-		template<typename Fn> void dumpChild(Fn doDumpChild) {
+		template<typename Fn> void dumpChild(Fn doDumpChild)
+		{
 			// If we're at the top level, there's nothing interesting to do; just
 			// run the dumper.
 			if (TopLevel) {
@@ -167,14 +202,97 @@ namespace {
 
 		void setDeserialize(bool D) { Deserialize = D; }
 
-		void start();
-		void complete();
-		void dumpDecl(const Decl *D);
+		void start()
+		{
+			*OS << "( ";
+		}
+
+		void complete()
+		{
+			*OS << '\n';
+			// Add in closing parentheses.
+			if (this->changed > 0)
+			{
+				for (int i = 0; i < this->changed; ++i)
+					*OS << ") ";
+				*OS << ")";
+				this->changed = 0;
+				*OS << '\n';
+			}
+		}
+
+		void dumpDecl(const Decl *D)
+		{
+			dumpChild([=] {
+				if (!D) {
+					*OS << "NullNode";
+					return;
+				}
+
+				{
+					*OS << D->getDeclKindName() << "Decl";
+				}
+				dumpPointer(D);
+				if (D->getLexicalDeclContext() != D->getDeclContext())
+					*OS << "Parent=\"" << cast<Decl>(D->getDeclContext()) << "\"";
+				dumpPreviousDecl(*OS, D);
+				dumpSourceRange(D->getSourceRange());
+				*OS << ' ';
+				*OS << " SrcLoc=\"";
+				dumpLocation(D->getLocation());
+				*OS << "\"";
+				if (D->isFromASTFile())
+					*OS << " imported";
+				if (Module *M = D->getOwningModule())
+					*OS << " in " << M->getFullModuleName();
+				if (auto *ND = dyn_cast<NamedDecl>(D))
+					for (Module *M : D->getASTContext().getModulesWithMergedDefinition(
+						const_cast<NamedDecl *>(ND)))
+						dumpChild([=] { *OS << "also in " << M->getFullModuleName(); });
+
+				int attrs = 0;
+				if (const NamedDecl *ND = dyn_cast<NamedDecl>(D))
+					if (ND->isHidden())
+						*OS << (attrs++ ? "," : " Attrs=\"") << "hidden";
+				if (D->isImplicit())
+					*OS << (attrs++ ? "," : " Attrs=\"") << "implicit";
+				if (D->isUsed())
+					*OS << (attrs++ ? "," : " Attrs=\"") << "used";
+				else if (D->isThisDeclarationReferenced())
+					*OS << (attrs++ ? "," : " Attrs=\"") << "referenced";
+				if (D->isInvalidDecl())
+					*OS << (attrs++ ? "," : " Attrs=\"") << "invalid";
+				if (const FunctionDecl *FD = dyn_cast<FunctionDecl>(D))
+					if (FD->isConstexpr())
+						*OS << (attrs++ ? "," : " Attrs=\"") << "constexpr";
+				if (attrs)
+					*OS << "\"";
+
+				ConstDeclVisitor<MyASTDumper>::Visit(D);
+
+				for (Decl::attr_iterator I = D->attr_begin(), E = D->attr_end(); I != E;
+					++I)
+					dumpAttr(*I);
+
+				if (const FullComment *Comment =
+					D->getASTContext().getLocalCommentForDeclUncached(D))
+					dumpFullComment(Comment);
+
+				// Decls within functions are visited by the body.
+				if (!isa<FunctionDecl>(*D) && !isa<ObjCMethodDecl>(*D) &&
+					hasNodes(dyn_cast<DeclContext>(D)))
+					dumpDeclContext(cast<DeclContext>(D));
+			});
+		}
+
 		void dumpStmt(const Stmt *S);
 		void dumpFullComment(const FullComment *C);
 
 		// Utilities
-		void dumpPointer(const void *Ptr);
+		void dumpPointer(const void *Ptr) {
+			*OS << ' ' << "Pointer=\"" << Ptr << "\"";
+		}
+
 		void dumpSourceRange(SourceRange R);
 		void dumpLocation(SourceLocation Loc);
 		void dumpBareType(QualType T, bool Desugar = true);
@@ -552,9 +670,6 @@ namespace {
 //  Utilities
 //===----------------------------------------------------------------------===//
 
-void MyASTDumper::dumpPointer(const void *Ptr) {
-	*OS << ' ' << "Pointer=\"" << Ptr << "\"";
-}
 
 void MyASTDumper::dumpLocation(SourceLocation Loc) {
 	if (!SM)
@@ -859,40 +974,6 @@ void MyASTDumper::dumpAttr(const Attr *A) {
 	});
 }
 
-static void dumpPreviousDeclImpl(raw_ostream &OS, ...) {}
-
-template<typename T>
-static void dumpPreviousDeclImpl(raw_ostream *OS, const Mergeable<T> *D) {
-	const T *First = D->getFirstDecl();
-	if (First != D)
-	{
-		*OS << "First=\"" << First << "\"";
-	}
-}
-
-template<typename T>
-static void dumpPreviousDeclImpl(raw_ostream *OS, const Redeclarable<T> *D) {
-	const T *Prev = D->getPreviousDecl();
-	if (Prev)
-	{
-		*OS << " Prev=\"" << Prev << "\"";
-	}
-}
-
-/// Dump the previous declaration in the redeclaration chain for a declaration,
-/// if any.
-static void dumpPreviousDecl(raw_ostream &OS, const Decl *D) {
-	
-	switch (D->getKind()) {
-#define DECL(DERIVED, BASE) \
-  case Decl::DERIVED: \
-    return dumpPreviousDeclImpl(OS, cast<DERIVED##Decl>(D));
-#define ABSTRACT_DECL(DECL)
-#include "clang/AST/DeclNodes.inc"
-	}
-	llvm_unreachable("Decl that isn't part of DeclNodes.inc!");
-}
-
 //===----------------------------------------------------------------------===//
 //  C++ Utilities
 //===----------------------------------------------------------------------===//
@@ -1028,87 +1109,6 @@ void MyASTDumper::dumpObjCTypeParamList(const ObjCTypeParamList *typeParams) {
 //===----------------------------------------------------------------------===//
 //  Decl dumping methods.
 //===----------------------------------------------------------------------===//
-void MyASTDumper::start()
-{
-	*OS << "( ";
-}
-
-void MyASTDumper::complete()
-{
-	*OS << '\n';
-	// Add in closing parentheses.
-	if (this->changed > 0)
-	{
-		for (int i = 0; i < this->changed; ++i)
-			*OS << ") ";
-		*OS << ")";
-		this->changed = 0;
-		*OS << '\n';
-	}
-}
-
-void MyASTDumper::dumpDecl(const Decl *D) {
-	dumpChild([=] {
-		if (!D) {
-			*OS << "NullNode";
-			return;
-		}
-
-		{
-			*OS << D->getDeclKindName() << "Decl";
-		}
-		dumpPointer(D);
-		if (D->getLexicalDeclContext() != D->getDeclContext())
-			*OS << "Parent=\"" << cast<Decl>(D->getDeclContext()) << "\"";
-		dumpPreviousDecl(*OS, D);
-		dumpSourceRange(D->getSourceRange());
-		*OS << ' ';
-		*OS << " SrcLoc=\"";
-		dumpLocation(D->getLocation());
-		*OS << "\"";
-		if (D->isFromASTFile())
-			*OS << " imported";
-		if (Module *M = D->getOwningModule())
-			*OS << " in " << M->getFullModuleName();
-		if (auto *ND = dyn_cast<NamedDecl>(D))
-			for (Module *M : D->getASTContext().getModulesWithMergedDefinition(
-				const_cast<NamedDecl *>(ND)))
-				dumpChild([=] { *OS << "also in " << M->getFullModuleName(); });
-
-		int attrs = 0;
-		if (const NamedDecl *ND = dyn_cast<NamedDecl>(D))
-			if (ND->isHidden())
-				*OS << (attrs++ ? "," : " Attrs=\"") << "hidden";
-		if (D->isImplicit())
-			*OS << (attrs++ ? "," : " Attrs=\"") << "implicit";
-		if (D->isUsed())
-			*OS << (attrs++ ? "," : " Attrs=\"") << "used";
-		else if (D->isThisDeclarationReferenced())
-			*OS << (attrs++ ? "," : " Attrs=\"") << "referenced";
-		if (D->isInvalidDecl())
-			*OS << (attrs++ ? "," : " Attrs=\"") << "invalid";
-		if (const FunctionDecl *FD = dyn_cast<FunctionDecl>(D))
-			if (FD->isConstexpr())
-				*OS << (attrs++ ? "," : " Attrs=\"") << "constexpr";
-		if (attrs)
-			*OS << "\"";
-
-		ConstDeclVisitor<MyASTDumper>::Visit(D);
-
-		for (Decl::attr_iterator I = D->attr_begin(), E = D->attr_end(); I != E;
-			++I)
-			dumpAttr(*I);
-
-		if (const FullComment *Comment =
-			D->getASTContext().getLocalCommentForDeclUncached(D))
-			dumpFullComment(Comment);
-
-		// Decls within functions are visited by the body.
-		if (!isa<FunctionDecl>(*D) && !isa<ObjCMethodDecl>(*D) &&
-			hasNodes(dyn_cast<DeclContext>(D)))
-			dumpDeclContext(cast<DeclContext>(D));
-	});
-}
 
 void MyASTDumper::VisitLabelDecl(const LabelDecl *D) {
 	dumpName(D);

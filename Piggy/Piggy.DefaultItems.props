@@ -3,7 +3,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
-  <ItemGroup Condition="'$(PiggyIsSdkProject)' == 'True' AND '$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultPiggyItems)' == 'True'">
+  <ItemGroup Condition="'$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultPiggyItems)' == 'True'">
     <Piggy Include="**/*.pig" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
   </ItemGroup>
 

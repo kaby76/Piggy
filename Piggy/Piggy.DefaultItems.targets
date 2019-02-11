@@ -13,10 +13,4 @@
     <None Remove="**/*.pig" />
   </ItemGroup>
 
-  <!-- Modify the CustomToolNamespace based on the directory location of the grammar -->
-  <ItemGroup>
-    <Piggy Update="@(Piggy)" DefaultCustomToolNamespace="$([MSBuild]::ValueOrDefault(%(RelativeDir), '').Replace('\', '.').Replace('/', '.').TrimEnd('.'))" />
-    <Piggy Update="@(Piggy)" Condition="'$(RootNamespace)' != ''" DefaultCustomToolNamespace="$([MSBuild]::ValueOrDefault('$(RootNamespace).%(DefaultCustomToolNamespace)', '').TrimEnd('.'))" />
-    <Piggy Update="@(Piggy)" CustomToolNamespace="$([MSBuild]::ValueOrDefault(%(CustomToolNamespace), %(DefaultCustomToolNamespace)))" />
-  </ItemGroup>
 </Project>
