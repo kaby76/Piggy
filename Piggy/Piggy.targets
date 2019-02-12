@@ -7,24 +7,11 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <PiggyGenCodeFileNames Condition="'$(PiggyGenCodeFileNames)'==''">$(MSBuildProjectFile).PiggyGeneratedCodeFileListAbsolute.txt</PiggyGenCodeFileNames>
+    <PiggyGenCodeFileNames>$(MSBuildProjectFile).PiggyGeneratedCodeFileListAbsolute.txt</PiggyGenCodeFileNames>
   </PropertyGroup>
 
   <UsingTask Condition="'$(PiggyBuildTaskPath)'!=''" TaskName="Piggy.Build.Task.PiggyClassGenerationTask" AssemblyFile="$(PiggyBuildTaskPath)\Piggy.dll" />
-
-  <PropertyGroup>
-    <PrepareResourcesDependsOn>
-      PiggyCompile;
-      PiggyCompileAddFilesGenerated;
-      $(PrepareResourcesDependsOn)
-    </PrepareResourcesDependsOn>
-    <SourceFilesProjectOutputGroupDependsOn>
-      PiggyCompile;
-      PiggyCompileAddFilesGenerated;
-      $(SourceFilesProjectOutputGroupDependsOn)
-    </SourceFilesProjectOutputGroupDependsOn>
-  </PropertyGroup>
-
+  
   <PropertyGroup>
     <PiggyCompileDependsOn>
       PiggyCompileReadGeneratedFileList
@@ -51,8 +38,6 @@
   </Target>
 
   <PropertyGroup>
-    <!-- Add grammar compilation to the CoreCompileDependsOn so that the IDE inproc compilers (particularly VB)
-         can "see" the generated source files. -->
     <CoreCompileDependsOn Condition="'$(BuildingInsideVisualStudio)' == 'true' ">
       PiggyDesignTimeGrammarCompilation;
       $(CoreCompileDependsOn)
@@ -61,12 +46,9 @@
 
   <Target Name="PiggyDesignTimeGrammarCompilation">
     <PropertyGroup>
-      <PiggyDesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</PiggyDesignTimeBuild>
+      <PiggyDesignTimeBuild Condition="'$(BuildingProject)' == 'true'">true</PiggyDesignTimeBuild>
     </PropertyGroup>
-
-    <!-- Only if we are not actually performing a compile i.e. we are in design mode -->
-    <CallTarget Condition="'$(PiggyDesignTimeBuild)' == 'true'"
-                Targets="PiggyCompile" />
+    <CallTarget Condition="'$(PiggyDesignTimeBuild)' == 'true'" Targets="PiggyCompile" />
   </Target>
 
   <Target Name="PiggyCompile"
@@ -75,28 +57,22 @@
           Inputs="@(Piggy);@(PiggyTokens);@(PiggyAbstractGrammar)"
           Outputs="@(PiggyOutputCodeFilesList);
                   $(IntermediateOutputPath)$(PiggyGenCodeFileNames);">
-
     <ItemGroup>
       <PiggyGeneratedCodeFiles Remove="@(PiggyGeneratedCodeFiles)" />
     </ItemGroup>
-
     <PropertyGroup>
       <PiggyDesignTimeBuild>false</PiggyDesignTimeBuild>
-      <PiggyDesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true' OR '$(BuildingProject)' != 'true'">true</PiggyDesignTimeBuild>
+      <PiggyDesignTimeBuild Condition="'$(BuildingProject)' != 'true'">true</PiggyDesignTimeBuild>
     </PropertyGroup>
-
     <PiggyClassGenerationTask
       OutputPath="%(Piggy.OutputFile)"
       ClangOptions="%(Piggy.ClangOptions)"
       ClangSourceFile="%(Piggy.ClangSourceFile)"
       AstOutputFile="%(Piggy.AstOutputFile)"
       PackedAst="%(Piggy.PackedAst)"
-      InitialTemplate="%(FullPath)"
-      >
-
+      InitialTemplate="%(FullPath)" >
       <Output ItemName="PiggyGeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
     </PiggyClassGenerationTask>
-
     <WriteLinesToFile
       Condition="'$(PiggyDesignTimeBuild)' != 'true'"
       File="$(IntermediateOutputPath)$(PiggyGenCodeFileNames)"
@@ -107,22 +83,18 @@
   <Target Name="PiggyCompileAddFilesGenerated"
           AfterTargets="PiggyCompile"
           Condition="'@(Piggy)' != ''">
-
     <ItemGroup>
       <PiggyGeneratedCodeFiles Condition="'@(PiggyGeneratedCodeFiles)' == ''" Include="@(PiggyOutputCodeFilesList)" />
     </ItemGroup>
-
     <ItemGroup>
       <FileWrites Include="@(PiggyGeneratedCodeFiles);
                            $(IntermediateOutputPath)$(PiggyGenCodeFileNames);" />
     </ItemGroup>
-
     <ItemGroup>
       <Compile Include="@(PiggyGeneratedCodeFiles)" />
       <!-- The WinFX "GenerateTemporaryTargetAssembly" target requires generated code files be added here. -->
       <_GeneratedCodeFiles Include="@(PiggyGeneratedCodeFiles)" />
     </ItemGroup>
-
   </Target>
 
   <ItemGroup>
@@ -135,4 +107,5 @@
   </ItemGroup>
 
   <Import Project="Piggy.DefaultItems.targets" />
+
 </Project>
