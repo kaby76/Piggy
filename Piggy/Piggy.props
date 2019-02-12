@@ -8,5 +8,13 @@
     <PiggyBuildTaskPath>$(MSBuildThisFileDirectory)..\lib\netstandard2.0</PiggyBuildTaskPath>
   </PropertyGroup>
 
-  <Import Project="Piggy.DefaultItems.props" />
+<!--  <Import Project="Piggy.DefaultItems.props" /> -->
+
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultPiggyItems)' == 'True'">
+    <Piggy Include="**/*.pig" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
+
 </Project>

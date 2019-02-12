@@ -20,8 +20,10 @@
     <!-- Build Configuration -->
     <file src="..\Piggy\Piggy.props" target="build"/>
     <file src="..\Piggy\Piggy.targets" target="build"/>
-    <file src="..\Piggy\Piggy.DefaultItems.props" target="build"/>
-    <file src="..\Piggy\Piggy.DefaultItems.targets" target="build"/>
+<!--    <file src="..\Piggy\Piggy.DefaultItems.props" target="build"/>
+    -->
+<!--    <file src="..\Piggy\Piggy.DefaultItems.targets"
+    target="build"/> -->
     <file src="..\Piggy\PiggySchema.xml" target="build"/>
     <file src="..\Piggy\Piggy.xml" target="build"/>
 

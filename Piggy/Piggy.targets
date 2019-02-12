@@ -10,14 +10,14 @@
     <PiggyGenCodeFileNames>$(MSBuildProjectFile).PiggyGeneratedCodeFileListAbsolute.txt</PiggyGenCodeFileNames>
   </PropertyGroup>
 
-  <UsingTask Condition="'$(PiggyBuildTaskPath)'!=''" TaskName="Piggy.Build.Task.PiggyClassGenerationTask" AssemblyFile="$(PiggyBuildTaskPath)\Piggy.dll" />
-  
   <PropertyGroup>
     <PiggyCompileDependsOn>
       PiggyCompileReadGeneratedFileList
     </PiggyCompileDependsOn>
   </PropertyGroup>
 
+  <UsingTask TaskName="Piggy.Build.Task.PiggyClassGenerationTask" AssemblyFile="$(PiggyBuildTaskPath)\Piggy.dll" />
+  
   <ItemGroup Condition="'$(BuildingInsideVisualStudio)'=='true'">
     <AvailableItemName Include="Piggy" />
   </ItemGroup>
@@ -106,6 +106,18 @@
     </PropertyPageSchema>
   </ItemGroup>
 
-  <Import Project="Piggy.DefaultItems.targets" />
+<!--  <Import Project="Piggy.DefaultItems.targets" /> -->
+
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableDefaultPiggyItems Condition="'$(EnableDefaultPiggyItems)' == ''">True</EnableDefaultPiggyItems>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(EnableDefaultItems)' == 'True' AND '$(EnableDefaultNoneItems)' == 'True' AND '$(EnableDefaultPiggyItems)' == 'True'">
+    <None Remove="**/*.pig" />
+  </ItemGroup>
 
 </Project>
