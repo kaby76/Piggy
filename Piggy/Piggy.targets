@@ -45,10 +45,7 @@
   </PropertyGroup>
 
   <Target Name="PiggyDesignTimeGrammarCompilation">
-    <PropertyGroup>
-      <PiggyDesignTimeBuild Condition="'$(BuildingProject)' == 'true'">true</PiggyDesignTimeBuild>
-    </PropertyGroup>
-    <CallTarget Condition="'$(PiggyDesignTimeBuild)' == 'true'" Targets="PiggyCompile" />
+    <CallTarget Targets="PiggyCompile" />
   </Target>
 
   <Target Name="PiggyCompile"
@@ -62,15 +59,17 @@
     </ItemGroup>
     <PropertyGroup>
       <PiggyDesignTimeBuild>false</PiggyDesignTimeBuild>
-      <PiggyDesignTimeBuild Condition="'$(BuildingProject)' != 'true'">true</PiggyDesignTimeBuild>
+      <PiggyDesignTimeBuild Condition="'$(DesignTimeBuild)' == 'true'">true</PiggyDesignTimeBuild>
     </PropertyGroup>
     <PiggyClassGenerationTask
+      DesignTimeBuild="$(PiggyDesignTimeBuild)"
       OutputPath="%(Piggy.OutputFile)"
       ClangOptions="%(Piggy.ClangOptions)"
       ClangSourceFile="%(Piggy.ClangSourceFile)"
       AstOutputFile="%(Piggy.AstOutputFile)"
       PackedAst="%(Piggy.PackedAst)"
-      InitialTemplate="%(FullPath)" >
+      InitialTemplate="%(FullPath)"
+      FileNameForListOfGeneratedFiles="$(IntermediateOutputPath)$(PiggyGenCodeFileNames)" >
       <Output ItemName="PiggyGeneratedCodeFiles" TaskParameter="GeneratedCodeFiles" />
     </PiggyClassGenerationTask>
     <WriteLinesToFile
@@ -92,7 +91,6 @@
     </ItemGroup>
     <ItemGroup>
       <Compile Include="@(PiggyGeneratedCodeFiles)" />
-      <!-- The WinFX "GenerateTemporaryTargetAssembly" target requires generated code files be added here. -->
       <_GeneratedCodeFiles Include="@(PiggyGeneratedCodeFiles)" />
     </ItemGroup>
   </Target>

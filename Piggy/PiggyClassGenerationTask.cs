@@ -19,6 +19,19 @@ namespace Piggy.Build.Task
         private List<ITaskItem> _generatedCodeFiles = new List<ITaskItem>();
         private List<BuildMessage> _buildMessages = new List<BuildMessage>();
 
+        public string DesignTimeBuild
+        {
+            get;
+            set;
+        }
+
+        [Required]
+        public string FileNameForListOfGeneratedFiles
+        {
+            get;
+            set;
+        }
+
         [Required]
         public string OutputPath
         {
@@ -44,11 +57,11 @@ namespace Piggy.Build.Task
             set;
         }
 
-	public bool PackedAst
-	{
-		get;
-		set;
-	}
+	    public bool PackedAst
+	    {
+		    get;
+		    set;
+	    }
 
         public string InitialTemplate
         {
@@ -93,6 +106,10 @@ namespace Piggy.Build.Task
         public override bool Execute()
         {
             bool success = true;
+
+            if (DesignTimeBuild == "true")
+                return success;
+
             try
             {
                 List<string> arguments = new List<string>();
