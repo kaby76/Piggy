@@ -92,7 +92,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>clangAnalysis.lib;clangAST.lib;clangASTMatchers.lib;clangBasic.lib;clangDriver.lib;clangDynamicASTMatchers.lib;clangEdit.lib;clangFormat.lib;clangFrontend.lib;clangLex.lib;clangParse.lib;clangQuery.lib;clangRewrite.lib;clangSema.lib;clangSerialization.lib;clangTooling.lib;clangToolingCore.lib;clangToolingInclusions.lib;LLVMBinaryFormat.lib;LLVMBitReader.lib;LLVMCore.lib;LLVMDebugInfoCodeView.lib;LLVMDebugInfoMSF.lib;LLVMDemangle.lib;LLVMLineEditor.lib;LLVMMC.lib;LLVMMCParser.lib;LLVMOption.lib;LLVMProfileData.lib;LLVMSupport.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>e:\clang-llvm\build\Debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>e:\clang-llvm\build\Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

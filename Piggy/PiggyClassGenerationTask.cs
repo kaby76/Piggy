@@ -178,11 +178,11 @@ namespace Piggy.Build.Task
                     }
                     string p = "\"" + ostr + "\\" + astr + "\"";
                     arguments.Add(p);
-		}
-		if (PackedAst != false)
-		{
-		    arguments.Add("-p");
-		}
+		        }
+		        if (PackedAst != false)
+		        {
+		            arguments.Add("-p");
+		        }
 		
                 using (Process process = new Process())
                 {

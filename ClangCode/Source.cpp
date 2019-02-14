@@ -1,4 +1,6 @@
 #include "clang/ASTMatchers/Dynamic/VariantValue.h"
+#include "clang/Frontend/TextDiagnosticPrinter.h"
+#include "clang/Basic/DiagnosticOptions.h"
 #include "llvm/ADT/StringRef.h"
 #include "clang/Tooling/CommonOptionsParser.h"
 #include "clang/ASTMatchers/Dynamic/Parser.h"
@@ -118,7 +120,23 @@ extern "C" {
 		search->options_parser = new clang::tooling::CommonOptionsParser(argc, (const char **)argv, ClangQueryCategory);
 		search->tool = new clang::tooling::ClangTool(search->options_parser->getCompilations(),
 			search->options_parser->getSourcePathList());
-		if (search->tool->buildASTs(search->ASTs) != 0)
+
+		clang::IntrusiveRefCntPtr<clang::DiagnosticOptions> DiagOpts = new clang::DiagnosticOptions();
+		clang::TextDiagnosticPrinter * diagnostic_consumer = new clang::TextDiagnosticPrinter(llvm::errs(), &*DiagOpts);
+
+		search->tool->setDiagnosticConsumer(diagnostic_consumer);
+		
+		int r = search->tool->buildASTs(search->ASTs);
+		int s = diagnostic_consumer->getNumErrors();
+		delete diagnostic_consumer;
+
+		std::cout.flush();
+		std::cerr.flush();
+
+		if (r != 0)
+			return nullptr;
+
+		if (s > 0)
 			return nullptr;
 
 		// Let's try tree walking.

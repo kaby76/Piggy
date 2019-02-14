@@ -58,6 +58,7 @@
                     System.Console.WriteLine(a);
                 });
 
+
             // Set up Clang front-end compilations in native code project "ClangCode".
             foreach (var opt in arguments) ClangAddFile(opt);
 
@@ -69,6 +70,17 @@
             // serialize the AST for the desired input header files.
             IntPtr v = ClangSerializeAst();
 
+            System.Console.WriteLine("Info: Command line args " + string.Join(" ", args));
+            System.Console.WriteLine("Info: arguments " + string.Join(" ", arguments));
+            System.Console.WriteLine("Info: options " + string.Join(" ", options));
+            System.Console.WriteLine("Info: ast_output_file " + ast_output_file);
+            System.Console.WriteLine("Info: packed_ast " + packed_ast);
+
+            if (v == IntPtr.Zero)
+            {
+                Environment.ExitCode = 1;
+                return;
+            }
             string ast_result = Marshal.PtrToStringAnsi(v);
 
             string re2 = Regex.Replace(ast_result.ToString(), "\r([^\n])", "\r\n$1");
