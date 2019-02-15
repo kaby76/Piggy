@@ -81,6 +81,7 @@ extern "C" {
 		std::vector<clang::ast_matchers::BoundNodes>::iterator ME;
 	};
 	static SearchingAst * search = new SearchingAst();
+#define _strdup strdup
 
 	EXPORT void ClangAddOption(char * i)
 	{
