@@ -59,9 +59,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -74,26 +76,26 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>
-    </IncludePath>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <RemoteCCompileToolExe>clang</RemoteCCompileToolExe>
+    <RemoteCppCompileToolExe>clang++</RemoteCppCompileToolExe>
+    <RemoteLdToolExe>c++</RemoteLdToolExe>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="..\ClangCode\Source.cpp">
-      <RemoteCopyFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</RemoteCopyFile>
-    </ClCompile>
+    <ClCompile Include="..\ClangCode\Source.cpp" />
     <ClCompile Include="..\ClangCode\Source2.cpp" />
   </ItemGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile />
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>/mnt/c/Users/Kenne/Documents/clang-llvm/llvm/tools/clang/include;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/tools/clang/include;/mnt/c/Users/Kenne/Documents/clang-llvm/llvm/include;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo Condition="'$(Platform)'=='x64'">false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangAnalysis.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangAST.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangASTMatchers.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangBasic.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangDriver.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangDynamicASTMatchers.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangEdit.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangFormat.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangFrontend.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangLex.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangParse.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangQuery.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangRewrite.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangSema.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangSerialization.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangTooling.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangToolingCore.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangToolingInclusions.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMBinaryFormat.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMBitReader.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMCore.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMDebugInfoCodeView.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMDebugInfoMSF.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMDemangle.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMLineEditor.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMMC.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMMCParser.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMOption.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMProfileData.a;/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libLLVMSupport.a;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <FunctionBinding Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</FunctionBinding>
+      <NoExecStackRequired Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</NoExecStackRequired>
+      <UnresolvedSymbolReferences Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</UnresolvedSymbolReferences>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
