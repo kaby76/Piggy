@@ -64,21 +64,11 @@ extern "C" {
 	class SearchingAst
 	{
 	public:
-		char * search_pattern;
 		std::list<char*> compiler_option;
 		std::list<char*> include_files;
-		std::vector<std::unique_ptr<clang::ASTUnit>>::iterator cur_ast;
 		clang::tooling::CommonOptionsParser * options_parser;
 		clang::tooling::ClangTool * tool;
 		std::vector<std::unique_ptr<clang::ASTUnit>> ASTs;
-		clang::ast_matchers::dynamic::Diagnostics Diag;
-		llvm::StringMap<clang::ast_matchers::dynamic::VariantValue> NamedValues;
-		llvm::Optional<clang::ast_matchers::internal::DynTypedMatcher> Matcher;
-		clang::ast_matchers::MatchFinder Finder;
-		std::vector<clang::ast_matchers::BoundNodes> Matches;
-		CollectBoundNodes * Collect;
-		std::vector<clang::ast_matchers::BoundNodes>::iterator MI;
-		std::vector<clang::ast_matchers::BoundNodes>::iterator ME;
 	};
 	static SearchingAst * search = new SearchingAst();
 #define _strdup strdup
@@ -202,34 +192,6 @@ extern "C" {
 		//else
 		//	OS << "Unable to print values of type " << NodeKind.asStringRef() << "\n";
 		return nullptr;
-	}
-
-	EXPORT void DumpyAST()
-	{
-		int count = 3 + search->compiler_option.size() + search->include_files.size();
-		int argc = count - 1;
-		char **argv = (char **)malloc(count * sizeof(char*));
-		char ** p = argv;
-		*p++ = (char*)"program";
-		for (auto i = search->compiler_option.begin(); i != search->compiler_option.end(); ++i)
-		{
-			std::string s = std::string("-extra-arg-before=") + *i;
-			*p++ = (char*)_strdup(s.c_str());
-		}
-		for (auto i = search->include_files.begin(); i != search->include_files.end(); ++i)
-		{
-			*p++ = *i;
-		}
-		*p++ = (char*)"--";
-		*p++ = 0;
-
-		search->options_parser = new clang::tooling::CommonOptionsParser(argc, (const char **)argv, ClangQueryCategory);
-		search->tool = new clang::tooling::ClangTool(search->options_parser->getCompilations(),
-			search->options_parser->getSourcePathList());
-		if (search->tool->buildASTs(search->ASTs) != 0)
-			return;
-
-
 	}
 
 #ifdef __cplusplus
