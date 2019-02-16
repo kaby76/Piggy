@@ -31,32 +31,6 @@ static llvm::cl::list<std::string> CommandFiles("f",
                                                 llvm::cl::cat(ClangQueryCategory));
 
 
-
-#if defined(_MSC_VER)
-//  Microsoft 
-#define EXPORT __declspec(dllexport)
-#define IMPORT __declspec(dllimport)
-#elif defined(__GNUC__)
-//  GCC
-#define EXPORT __attribute__((visibility("default")))
-#define IMPORT
-#else
-//  do nothing and hope for the best?
-#define EXPORT
-#define IMPORT
-#pragma warning Unknown dynamic link import/export semantics.
-#endif
-
-#ifndef STDCALL
-# if defined(_MSC_VER)
-#   define STDCALL __stdcall
-# else
-#   define STDCALL
-# endif
-#endif
-
-
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,13 +47,13 @@ extern "C" {
 	static SearchingAst * search = new SearchingAst();
 #define _strdup strdup
 
-	EXPORT void ClangAddOption(char * i)
+	void Internal_ClangAddOption(char * i)
 	{
 		char* a = _strdup((char const *)i);
 		search->compiler_option.insert(search->compiler_option.end(), a);
 	}
 
-	EXPORT void ClangAddFile(char * i)
+	void Internal_ClangAddFile(char * i)
 	{
 		char* a = _strdup((char const *)i);
 		search->include_files.insert(search->include_files.end(), a);
@@ -89,7 +63,7 @@ extern "C" {
 
 	bool _packed_ast;
 
-	EXPORT char * ClangSerializeAst()
+	char * Internal_ClangSerializeAst()
 	{
 		int count = 3 + search->compiler_option.size() + search->include_files.size();
 		int argc = count - 1;
@@ -142,13 +116,14 @@ extern "C" {
 		return strdup(scratch.c_str());
 	}
 
-	EXPORT void ClangSetPackedAst(bool packed_ast)
+	void Internal_ClangSetPackedAst(int packed_ast)
 	{
-		_packed_ast = packed_ast;
+		_packed_ast = (bool)packed_ast;
 	}
 
-	EXPORT char * Name(clang::ast_type_traits::DynTypedNode* p)
+	char * Internal_Name(void * q)
 	{
+		clang::ast_type_traits::DynTypedNode* p = (clang::ast_type_traits::DynTypedNode*)q;
 		if (const clang::TemplateArgument *TA = p->get<clang::TemplateArgument>())
 			std::cout << "ta" << std::endl;
 		//	TA->print(PP, OS);

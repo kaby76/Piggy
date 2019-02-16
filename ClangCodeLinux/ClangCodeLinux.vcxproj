@@ -96,6 +96,8 @@
       <FunctionBinding Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</FunctionBinding>
       <NoExecStackRequired Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</NoExecStackRequired>
       <UnresolvedSymbolReferences Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</UnresolvedSymbolReferences>
+      <Relocation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</Relocation>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">-fPIC</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
