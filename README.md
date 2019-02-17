@@ -36,6 +36,8 @@ of the interface for the DLL. Make sure to set all the properties for the .PIG f
 
 ## How to run the tool directly ##
 
+_Note: Piggy only runs on Windows. I'm porting the code to Ubuntu._
+
 Piggy is actually two tools: a wrapper for Clang to output serialized ASTs; a tool that reads ASTs and a .PIG file,
 which specifies the templates, and outputs code.
 
@@ -51,6 +53,8 @@ AST; -o specifies the output C# file. The output of Piggy is assumed to be C# co
 I recommend you look at the CUDA example in the root directory of Piggy. It contains code for enums, typedefs, and functions for generating a basic CUDA interface. Please understand that Piggy requires a bit of work for you to generate a pinvoke interface. There is no magic here, and you will have to program a bit to get it to work the way you want. I eventually plan to expand the Enums/Structs/Funcs.pig files to have a large library for generating basic interfaces. I also plan to write .targets and .props files to have Piggy generate an interface during a build to use in your program.
 
 ## Building Piggy ##
+
+_Note: Piggy only runs on Windows. I'm porting the code to Ubuntu._
 
 Piggy requires a few things to build. Once built, a number of the dependencies are not required.
 
