@@ -18,11 +18,11 @@
     <PackageReference Include="CommandLineParser" Version="2.4.3" />
   </ItemGroup>
 
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+  <Target Condition="'$(OS)' != 'Windows_NT'" Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.dll" DestinationFolder="$(OutDir)" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.pdb" DestinationFolder="$(OutDir)" />
   </Target>
-  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+  <Target Condition="'$(OS)' != 'Windows_NT'" Name="CopyCustomContentOnPublish" AfterTargets="Publish">
     <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.dll" DestinationFolder="$(PublishDir)" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\..\x64\Release\ClangCode.pdb" DestinationFolder="$(PublishDir)" />
   </Target>
