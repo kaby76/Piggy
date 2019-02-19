@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <Target Condition="'$(OS)' != 'Windows_NT'" Name="Build" />
-
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,9 +20,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Source2.cpp" />
-    <ClCompile Include="Source3.c" />
+    <ClCompile Include="Internal.cpp" />
+    <ClCompile Include="TreeDumper.cpp" />
+    <ClCompile Include="Exports.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

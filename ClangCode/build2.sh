@@ -1,4 +1,10 @@
 
+# This script is designed to be used only to build on WSL Bash (Windows
+# with Linux).
+if [[ "$OSTYPE" != "linux-gnu" ]]; then
+  exit 1
+fi
+
 /usr/bin/cc \
 	-Wall \
 	-fno-exceptions \
@@ -17,9 +23,9 @@
 	-D__STDC_CONSTANT_MACROS \
 	-D__STDC_FORMAT_MACROS \
 	-D__STDC_LIMIT_MACROS \
-	-o Source3.o \
+	-o Exports.o \
 	-c \
-	Source3.c
+	Exports.c
 	
 /usr/bin/c++ \
 	-Wall \
@@ -39,34 +45,33 @@
 	-D__STDC_CONSTANT_MACROS \
 	-D__STDC_FORMAT_MACROS \
 	-D__STDC_LIMIT_MACROS \
-	-o Source.o \
+	-o Internal.o \
 	-c \
-	Source.c
+	Internal.cpp
 	
-/usr/bin/c++ \
-	-Wall \
-	-fno-exceptions \
-	-fno-rtti \
-	-DClangCode_EXPORTS \
-	-I/mnt/c/Users/Kenne/Documents/clang-llvm/llvm/tools/clang/include \
-	-I/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/tools/clang/include \
-	-I/mnt/c/Users/Kenne/Documents/clang-llvm/llvm/include \
-	-I/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/include \
-	-std=c++11 \
-	-O3 \
-	-DNDEBUG \
-	-fPIC \
-	-D_GNU_SOURCE \
-	-D_DEBUG \
-	-D__STDC_CONSTANT_MACROS \
-	-D__STDC_FORMAT_MACROS \
-	-D__STDC_LIMIT_MACROS \
-	-o Source2.o \
-	-c \
-	Source2.c
-	
-#	-fvisibility-inlines-hidden
 
+/usr/bin/c++ \
+	-Wall \
+	-fno-exceptions \
+	-fno-rtti \
+	-DClangCode_EXPORTS \
+	-I/mnt/c/Users/Kenne/Documents/clang-llvm/llvm/tools/clang/include \
+	-I/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/tools/clang/include \
+	-I/mnt/c/Users/Kenne/Documents/clang-llvm/llvm/include \
+	-I/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/include \
+	-std=c++11 \
+	-O3 \
+	-DNDEBUG \
+	-fPIC \
+	-D_GNU_SOURCE \
+	-D_DEBUG \
+	-D__STDC_CONSTANT_MACROS \
+	-D__STDC_FORMAT_MACROS \
+	-D__STDC_LIMIT_MACROS \
+	-o TreeDumper.o \
+	-c \
+	TreeDumper.cpp
+	
 /usr/bin/c++ \
 	-fvisibility=default \
 	-fPIC \
@@ -93,9 +98,9 @@
 	-shared \
 	-Wl,-soname,ClangCode.so \
 	-o ClangCode.so \
-	Source.o \
-	Source2.o \
-	Source3.o \
+	Exports.o \
+	Internal.o \
+	TreeDumper.o \
 	-Wl,-rpath,"\$ORIGIN/../lib" \
 	/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangAST.a \
 	/mnt/c/Users/Kenne/Documents/clang-llvm/build-linux/lib/libclangBasic.a \

@@ -15,13 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source3.c">
+    <ClCompile Include="Exports.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source.cpp">
+    <ClCompile Include="Internal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source2.cpp">
+    <ClCompile Include="TreeDumper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

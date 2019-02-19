@@ -379,13 +379,13 @@ namespace {
 		void VisitVectorType(const VectorType *T) {
 			switch (T->getVectorKind()) {
 			case VectorType::GenericVector: break;
-			case VectorType::AltiVecVector: *OS << " altivec"; break;
-			case VectorType::AltiVecPixel: *OS << " altivec pixel"; break;
-			case VectorType::AltiVecBool: *OS << " altivec bool"; break;
-			case VectorType::NeonVector: *OS << " neon"; break;
-			case VectorType::NeonPolyVector: *OS << " neon poly"; break;
+			case VectorType::AltiVecVector: *OS << " Weirdness=\"altivec\""; break;
+			case VectorType::AltiVecPixel: *OS << " Weirdness=\"altivec pixel\""; break;
+			case VectorType::AltiVecBool: *OS << " Weirdness=\"altivec bool\""; break;
+			case VectorType::NeonVector: *OS << " Weirdness=\"neon\""; break;
+			case VectorType::NeonPolyVector: *OS << " Weirdness=\"neon poly\""; break;
 			}
-			*OS << " " << T->getNumElements();
+			*OS << " Size=\"" << T->getNumElements() << "\"";
 			dumpTypeAsChild(T->getElementType());
 		}
 		void VisitFunctionType(const FunctionType *T) {
