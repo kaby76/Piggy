@@ -15,6 +15,7 @@
         public object _instance;
         public CommonTokenStream _common_token_stream;
         public Intercept<IParseTree, IParseTree> _matches = new Intercept<IParseTree, IParseTree>();
+        public Intercept<IParseTree, IParseTree> _top_level_matches = new Intercept<IParseTree, IParseTree>();
         public Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
         public List<Pass> _passes;
         public Piggy _piggy;
@@ -55,8 +56,35 @@
                     }
                 }
             }
+
+            _pre_order = new List<IParseTree>();
+            int current_dfs_number = 0;
+            visited = new HashSet<IParseTree>();
+            stack.Push(_ast);
+            while (stack.Count > 0)
+            {
+                var v = stack.Pop();
+                if (visited.Contains(v)) continue;
+                visited.Add(v);
+                _pre_order_number[v] = current_dfs_number;
+                _pre_order.Add(v);
+                for (int i = v.ChildCount - 1; i >= 0; --i)
+                {
+                    var c = v.GetChild(i);
+                    if (!visited.Contains(c))
+                        stack.Push(c);
+                }
+            }
+
+            var copy = new Stack<IParseTree>(_pre_order);
+            _post_order = new List<IParseTree>();
+            while (copy.Any())
+            {
+                var x = copy.Pop();
+                _post_order.Add(x);
+            }
         }
-       
+
         // Pattern matcher.
         public static string sourceTextForContext(IParseTree context)
         {
@@ -84,33 +112,7 @@
         {
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
-            _pre_order = new List<IParseTree>();
             stack.Push(_ast);
-            int current_dfs_number = 0;
-
-            while (stack.Count > 0)
-            {
-                var v = stack.Pop();
-                if (visited.Contains(v)) continue;
-                visited.Add(v);
-                _pre_order_number[v] = current_dfs_number;
-                _pre_order.Add(v);
-                for (int i = v.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = v.GetChild(i);
-                    if (!visited.Contains(c))
-                        stack.Push(c);
-                }
-            }
-
-            // Do pre-order walk to find matches.
-            var copy = new Stack<IParseTree>(_pre_order);
-            _post_order = new List<IParseTree>();
-            while (copy.Any())
-            {
-                var x = copy.Pop();
-                _post_order.Add(x);
-            }
 
             foreach (var v in _pre_order)
             {
@@ -122,18 +124,31 @@
                         SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
                         _current_type = pattern.Owner.Owner.Type;
                         // Try matching at vertex, if the node hasn't been already matched.
-                        if (!_matches.ContainsKey(v))
+                        _matches.TryGetValue(v, out HashSet<IParseTree> val);
+                        bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
+                        if (do_matching)
                         {
                             //System.Console.WriteLine("Trying match ");
                             //System.Console.WriteLine("Template " + sourceTextForContext(t));
                             //System.Console.WriteLine("Tree " + sourceTextForContext(v));
                             bool matched = match_pattern(t, v);
                             if (matched)
+                            {
+                                var tre = new Tree(_parent, _ast, v, _common_token_stream);
+                                if (tre.Attr("Name") == "PEImage")
+                                {
+
+                                }
+                                else if (tre.Attr("Name") == "PEImageLocator")
+                                {
+
+                                }
                                 match_pattern(t, v, true);
+                            }
                         }
                         else
                         {
-                            
+
                         }
                     }
                 }
@@ -184,7 +199,11 @@
             var re = p.GetChild(0);
             if (re == null) return false;
             bool result = match_basic(re, t, map);
-            if (result && map) _matches.MyAdd(t, p);
+            if (result && map)
+            {
+                _matches.MyAdd(t, p);
+                _top_level_matches.MyAdd(t, p);
+            }
             return result;
         }
 
@@ -454,6 +473,24 @@
             return text != null;
         }
 
+        private bool is_pattern_simple(IParseTree p)
+        {
+            var q = p.GetChild(0);
+            return q as SpecParserParser.Simple_basicContext != null;
+        }
+
+        private bool is_pattern_kleene(IParseTree p)
+        {
+            var q = p.GetChild(0);
+            return q as SpecParserParser.Kleene_star_basicContext != null;
+        }
+
+        private bool is_pattern_continued(IParseTree p)
+        {
+            var q = p.GetChild(0);
+            return q as SpecParserParser.Continued_basicContext != null;
+        }
+
         private bool match_basic(IParseTree p, IParseTree t, bool map = false)
         {
             var q = p.GetChild(0);
@@ -465,6 +502,10 @@
             else if (q as SpecParserParser.Kleene_star_basicContext != null)
             {
                 result = match_kleene_star_node(q, t, map);
+            }
+            else if (q as SpecParserParser.Continued_basicContext != null)
+            {
+                result = match_basic_simple(q, t, map);
             }
             if (result && map) _matches.MyAdd(t, p);
             return result;
@@ -498,7 +539,8 @@
                 if (p_tok == null) return false;
                 var p_sym = p_tok.Symbol;
                 if (!(p_sym.Type == SpecParserParser.OPEN_PAREN ||
-                    p_sym.Type == SpecParserParser.OPEN_KLEENE_STAR_PAREN))
+                    p_sym.Type == SpecParserParser.OPEN_KLEENE_STAR_PAREN ||
+                    p_sym.Type == SpecParserParser.OPEN_VISIT))
                     return false;
 
                 if (map) _matches.MyAdd(t_c, p_c);
@@ -637,7 +679,8 @@
                     return false;
                 var p_sym = p_tok.Symbol;
                 if (!(p_sym.Type == SpecParserParser.CLOSE_PAREN
-                      || p_sym.Type == SpecParserParser.CLOSE_KLEENE_STAR_PAREN))
+                      || p_sym.Type == SpecParserParser.CLOSE_KLEENE_STAR_PAREN
+                      || p_sym.Type == SpecParserParser.CLOSE_VISIT))
                     return false;
                 if (map) _matches.MyAdd(t_c, p_c);
             }

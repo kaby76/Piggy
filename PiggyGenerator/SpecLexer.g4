@@ -31,6 +31,8 @@ OPEN_RE         :       '(%';
 CLOSE_RE        :       '%)';
 OPEN_PAREN      :       '(';
 CLOSE_PAREN     :       ')';
+OPEN_VISIT      :       '<';
+CLOSE_VISIT     :       '>';
 LCURLY          : '{';
 RCURLY          : '}';
 OPEN_KLEENE_STAR_PAREN  :       '(*';

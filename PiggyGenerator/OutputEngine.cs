@@ -395,7 +395,6 @@ namespace " + @namespace + @"
                 {
                     if (visited.Contains(x)) continue;
                     visited.Add(x);
-
                     re._matches.TryGetValue(x, out HashSet<IParseTree> v);
                     IParseTree pattern = v?.FirstOrDefault();
                     int count = v == null ? 0 : v.Count;
@@ -560,7 +559,6 @@ namespace " + @namespace + @"
 
         public void OutputMatches(TreeRegEx re)
         {
-            var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
             stack.Push(re._ast);
             while (stack.Count > 0)
@@ -568,22 +566,17 @@ namespace " + @namespace + @"
                 var x = stack.Pop();
                 if (is_ast_node(x))
                 {
-                    if (visited.Contains(x)) continue;
-                    visited.Add(x);
-                    re._matches.TryGetValue(x, out HashSet<IParseTree> v);
-                    if (v != null)
+                    re._top_level_matches.TryGetValue(x, out HashSet<IParseTree> val);
+                    if (val != null)
                     {
+                        // Match.
                         System.Console.WriteLine(TreeRegEx.sourceTextForContext(x));
                     }
-                    else
-                        for (int i = x.ChildCount - 1; i >= 0; --i)
-                        {
-                            var c = x.GetChild(i);
-                            if (!visited.Contains(c))
-                            {
-                                stack.Push(c);
-                            }
-                        }
+                    for (int i = x.ChildCount - 1; i >= 0; --i)
+                    {
+                        var c = x.GetChild(i);
+                        stack.Push(c);
+                    }
                 }
                 else if (x as TerminalNodeImpl != null)
                     ;
