@@ -1,7 +1,5 @@
 ﻿namespace JavaSerializer
 {
-    using Antlr4.Runtime.Misc;
-    using Antlr4.Runtime.Tree;
     using Antlr4.Runtime;
     using PiggyRuntime;
     using CommandLine;

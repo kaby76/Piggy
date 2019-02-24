@@ -2,7 +2,7 @@
   "profiles": {
     "JavaSerializer": {
       "commandName": "Project",
-      "commandLineArgs": "-f \"c:\\Users\\Kenne\\source\\repos\\generate-from-spec\\spec-20.cs\" -o \"obj\\Debug\\netcoreapp2.1\\ast.txt\" ",
+      "commandLineArgs": "-f \"e:\\jdk11\\src\\java.base\\share\\classes\\java\\util\\arrays.java\" -o \"obj\\Debug\\netcoreapp2.1\\ast.txt\" ",
       "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\JavaSerializer"
     }
   }

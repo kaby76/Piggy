@@ -2,8 +2,7 @@
 using Antlr4.Runtime.Tree;
 using Antlr4.Runtime;
 using System.Text;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace PiggyRuntime
 {
@@ -56,9 +55,8 @@ namespace PiggyRuntime
             else
             {
                 var fixed_name = tree.GetType().ToString()
-                    .Replace("Antlr4.Runtime.Tree.", "")
-                    .Replace("PiggyRuntime.CSharpParser+", "")
-                    ;
+                    .Replace("Antlr4.Runtime.Tree.", "");
+                fixed_name = Regex.Replace(fixed_name, "^.*[+]", "");
                 fixed_name = fixed_name.Substring(0, fixed_name.Length - "Context".Length);
                 fixed_name = fixed_name[0].ToString().ToLower()
                              + fixed_name.Substring(1);
