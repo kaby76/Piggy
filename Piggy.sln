@@ -53,6 +53,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{00082383
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpSerializer", "CsharpSerializer\CSharpSerializer.csproj", "{7F6A38F6-3983-4DB4-A888-31689497D3F4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JavaSerializer", "JavaSerializer\JavaSerializer.csproj", "{43525AC7-1B28-4332-8F70-4C9F29A0EE35}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -223,6 +225,26 @@ Global
 		{7F6A38F6-3983-4DB4-A888-31689497D3F4}.Release|x64.Build.0 = Release|Any CPU
 		{7F6A38F6-3983-4DB4-A888-31689497D3F4}.Release|x86.ActiveCfg = Release|Any CPU
 		{7F6A38F6-3983-4DB4-A888-31689497D3F4}.Release|x86.Build.0 = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|ARM.Build.0 = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|x64.Build.0 = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Debug|x86.Build.0 = Debug|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|ARM.ActiveCfg = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|ARM.Build.0 = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|ARM64.Build.0 = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|x64.ActiveCfg = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|x64.Build.0 = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|x86.ActiveCfg = Release|Any CPU
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
