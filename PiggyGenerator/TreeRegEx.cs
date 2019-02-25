@@ -232,7 +232,7 @@
             return false;
         }
 
-        /* Match simple_rexp : basic_rexp+ ;
+        /* Match simple_rexp : basic_rexp ;
          * Add entry into matches t => p if there is a match and map is true.
          */
         private bool match_simple_re(IParseTree p, IParseTree t, bool map = false)
@@ -244,14 +244,6 @@
             IParseTree start = simple_re.GetChild(0);
             var result = match_basic_re(start, t, map);
             if (!result) return false;
-            for (; ; )
-            {
-                pos += 1;
-                start = simple_re.GetChild(pos);
-                if (start == null) break;
-                result = match_basic_re(start, t, map);
-                if (!result) return false; // If any non-match, the whole is non-match.
-            }
             if (map) _matches.MyAdd(t, p);
             return true;
         }
@@ -556,10 +548,11 @@
                 return false;
             var id = id_or_star.GetChild(0);
 
-            if (id_tree.GetText() == "EnumDecl")
-            { }
-
-
+            if (id_tree.GetText() == "classOrInterfaceModifier" && id.GetText() == id_tree.GetText())
+            {
+                if (t.GetText().Contains("Override"))
+                { }
+            }
 
             if (id == null)
             {
