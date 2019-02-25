@@ -70,11 +70,11 @@
             // serialize the AST for the desired input header files.
             IntPtr v = ClangSerializeAst();
 
-            System.Console.WriteLine("Info: Command line args " + string.Join(" ", args));
-            System.Console.WriteLine("Info: arguments " + string.Join(" ", arguments));
-            System.Console.WriteLine("Info: options " + string.Join(" ", options));
-            System.Console.WriteLine("Info: ast_output_file " + ast_output_file);
-            System.Console.WriteLine("Info: packed_ast " + packed_ast);
+            System.Console.Error.WriteLine("Info: Command line args '" + string.Join("' '", args) + "'");
+            System.Console.Error.WriteLine("Info: arguments '" + string.Join("' '", arguments) + "'");
+            System.Console.Error.WriteLine("Info: options '" + string.Join("' '", options) + "'");
+            System.Console.Error.WriteLine("Info: ast_output_file '" + ast_output_file + "'");
+            System.Console.Error.WriteLine("Info: packed_ast '" + packed_ast + "'");
 
             if (v == IntPtr.Zero)
             {

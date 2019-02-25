@@ -109,8 +109,18 @@ namespace PiggyRuntime
         {
             var code_as_string = System.IO.File.ReadAllText(file_name);
             var input = new AntlrInputStream(code_as_string);
-            var lexer = new CSharpLexer(input);
-            tokens = new CommonTokenStream(lexer);
+            var suffix = System.IO.Path.GetExtension(file_name);
+            if (suffix == ".cs")
+            {
+                var lexer = new CSharpLexer(input);
+                tokens = new CommonTokenStream(lexer);
+            }
+            else if (suffix == ".java")
+            {
+                var lexer = new JavaLexer(input);
+                tokens = new CommonTokenStream(lexer);
+            }
+            else throw new System.Exception("File type not handled '" + suffix + "'");
             tokens.Fill();
         }
 
