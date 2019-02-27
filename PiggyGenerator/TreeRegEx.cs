@@ -124,7 +124,7 @@
                         SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
                         _current_type = pattern.Owner.Owner.Type;
                         // Try matching at vertex, if the node hasn't been already matched.
-                        _matches.TryGetValue(v, out HashSet<IParseTree> val);
+                        _matches.TryGetValue(v, out List<IParseTree> val);
                         bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
                         if (do_matching)
                         {
@@ -135,14 +135,6 @@
                             if (matched)
                             {
                                 var tre = new Tree(_parent, _ast, v, _common_token_stream);
-                                if (tre.Attr("Name") == "PEImage")
-                                {
-
-                                }
-                                else if (tre.Attr("Name") == "PEImageLocator")
-                                {
-
-                                }
                                 match_pattern(t, v, true);
                             }
                         }
@@ -548,12 +540,6 @@
                 return false;
             var id = id_or_star.GetChild(0);
 
-            if (id_tree.GetText() == "classOrInterfaceModifier" && id.GetText() == id_tree.GetText())
-            {
-                if (t.GetText().Contains("Override"))
-                { }
-            }
-
             if (id == null)
             {
                 p_pos++;
@@ -588,22 +574,42 @@
             IParseTree t_more = null;
             bool result = true;
             int not_counting_parens = 1;
-            for ( ; p_pos < p.ChildCount - not_counting_parens; ++p_pos)
+
+            for (; ; )
             {
+                if (p_pos >= p.ChildCount - not_counting_parens)
+                    break;
+                if (t_pos >= decl.ChildCount - not_counting_parens)
+                    break;
+
+                // Fetch pattern "more", ignoring code and text in pattern.
                 p_more = p.GetChild(p_pos);
                 if (p_more == null) break;
                 var p_more_type = p_more.GetType();
                 var p_more_text = p_more.GetText();
-                if (p_more as SpecParserParser.CodeContext != null
-                    || p_more as SpecParserParser.TextContext != null)
+                if (p_more as SpecParserParser.CodeContext != null || p_more as SpecParserParser.TextContext != null)
+                {
+                    p_pos++;
                     continue;
+                }
                 SpecParserParser.MoreContext c11 = p_more as SpecParserParser.MoreContext;
                 if (c11 == null) return false;
                 var p_child = p_more.GetChild(0);
-                if (p_child as SpecParserParser.CodeContext != null
-                    || p_child as SpecParserParser.TextContext != null)
+                if (p_child as SpecParserParser.CodeContext != null || p_child as SpecParserParser.TextContext != null)
+                {
+                    p_pos++;
                     continue;
+                }
                 var p_child_type = p_child.GetType();
+
+                // Fetch tree "more".
+                t_more = decl.GetChild(t_pos);
+                var t_more_type = t_more.GetType();
+                var t_more_text = t_more.GetText();
+                AstParserParser.MoreContext c22 = t_more as AstParserParser.MoreContext;
+                if (c22 == null) return false;
+
+                // Compare pattern at p_pos with tree at t_pos, ignoring code and text in pattern.
 
                 // Note order of attributes is significant.
                 // Go through _display_ast and look for pattern in the _display_ast. If we
@@ -616,42 +622,55 @@
                 bool is_attr = this.is_pattern_attr(p_more);
                 bool is_plus = this.is_pattern_plus(p_more);
                 bool is_star = this.is_pattern_star(p_more);
-                bool matched = false;
-                //for (int j = is_attr ? 2 : t_pos; j < decl.ChildCount - not_counting_parens; ++j)
-                for (int j = t_pos; j < decl.ChildCount - not_counting_parens; ++j)
+
+                bool matched = match_more(c11, c22, map);
+                if (matched)
                 {
-                    t_more = decl.GetChild(j);
-                    var t_more_type = t_more.GetType();
-                    var t_more_text = t_more.GetText();
-                    AstParserParser.MoreContext c22 = t_more as AstParserParser.MoreContext;
-                    if (c22 == null)
+                    if (is_not_attr)
+                    {
+                        // If you find an attribute with a !attr pattern, then this pattern can't match!
                         return false;
-                    if (match_more(c11, c22, map))
-                    {
-                        // Current _display_ast child matches.
-                        matched = true;
-                        t_pos = j;
                     }
-                    // Determine pattern child type. If it's a * or + grouping,
-                    // continue to look for this pattern. Otherwise, move onto the next
-                    // pattern child.
-                    if (matched && !(is_plus || is_star))
+                    t_pos++;
+                    if (!(is_plus || is_star))
                     {
-                        break;
+                        p_pos++;
                     }
+                    continue;
                 }
-                // If you didn't match pattern child, then this pattern can't match.
-                if (is_not_attr)
+
+                // mismatch...
+                // In general, a mismatch in a "more" part of a pattern is not a problem.
+                t_pos++;
+            }
+
+            // At the end of pattern match expression or the tree expression.
+            // Step through pattern and make sure we are at the end, less code or text blocks.
+            for (; ; )
+            {
+                if (p_pos >= p.ChildCount - not_counting_parens)
+                    break;
+
+                // Fetch pattern "more", ignoring code and text in pattern.
+                p_more = p.GetChild(p_pos);
+                if (p_more == null) break;
+                var p_more_type = p_more.GetType();
+                var p_more_text = p_more.GetText();
+                if (p_more as SpecParserParser.CodeContext != null || p_more as SpecParserParser.TextContext != null)
                 {
-                    if (matched) return false;
+                    p_pos++;
+                    continue;
                 }
-                else if (is_star)
+                SpecParserParser.MoreContext c11 = p_more as SpecParserParser.MoreContext;
+                if (c11 == null) return false;
+                var p_child = p_more.GetChild(0);
+                if (p_child as SpecParserParser.CodeContext != null || p_child as SpecParserParser.TextContext != null)
                 {
+                    p_pos++;
+                    continue;
                 }
-                else
-                {
-                    if (!matched) return false;
-                }
+
+                return false;
             }
 
             {
@@ -678,7 +697,7 @@
                 if (map) _matches.MyAdd(t_c, p_c);
             }
 
-            if (true && map) _matches.MyAdd(t, p);
+            if (map) _matches.MyAdd(t, p);
             return true;
         }
 

@@ -395,8 +395,13 @@ namespace " + @namespace + @"
                 {
                     if (visited.Contains(x)) continue;
                     visited.Add(x);
-                    re._matches.TryGetValue(x, out HashSet<IParseTree> v);
+                    re._matches.TryGetValue(x, out List<IParseTree> v);
                     IParseTree pattern = v?.FirstOrDefault();
+                    if (v != null)
+                    {
+                        if (v.Count() > 1)
+                        { }
+                    }
                     int count = v == null ? 0 : v.Count;
                     int i = pattern == null ? 0 : pattern.ChildCount - 1;
                     List<IParseTree> after = new List<IParseTree>();
@@ -406,7 +411,7 @@ namespace " + @namespace + @"
                     for (int ai = 0; ai < x.ChildCount; ++ai)
                     {
                         var c = x.GetChild(ai);
-                        re._matches.TryGetValue(c, out HashSet<IParseTree> vc);
+                        re._matches.TryGetValue(c, out List<IParseTree> vc);
                         IParseTree pc = vc?.FirstOrDefault();
                         int countc = vc == null ? 0 : vc.Count;
                         int ic = pc == null ? 0 : pc.ChildCount - 1;
@@ -500,7 +505,7 @@ namespace " + @namespace + @"
                         // For decl nodes, mutate back to AST.
                         // This can be tricky because it's many to one AST to pattern.
                         // Find possible AST nodes in matches.
-                        List<KeyValuePair<IParseTree, HashSet<IParseTree>>> found_ast_match =
+                        List<KeyValuePair<IParseTree, List<IParseTree>>> found_ast_match =
                             re._matches.Where(kvp =>
                             {
                                 var y = kvp.Value;
@@ -566,11 +571,19 @@ namespace " + @namespace + @"
                 var x = stack.Pop();
                 if (is_ast_node(x))
                 {
-                    re._top_level_matches.TryGetValue(x, out HashSet<IParseTree> val);
+                    re._matches.TryGetValue(x, out List<IParseTree> val);
                     if (val != null)
                     {
                         // Match.
+#if DEBUG
+                        System.Console.WriteLine();
+                        System.Console.WriteLine("Match");
+#endif
                         System.Console.WriteLine(TreeRegEx.sourceTextForContext(x));
+#if DEBUG
+                        foreach (var v in val)
+                            System.Console.WriteLine("Pattern " + v.GetText());
+#endif
                     }
                     for (int i = x.ChildCount - 1; i >= 0; --i)
                     {
