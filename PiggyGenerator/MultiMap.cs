@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class MultiMap<TKey, TValue> : Dictionary<TKey, HashSet<TValue>>
+    public class MultiMap<TKey, TValue> : Dictionary<TKey, List<TValue>>
     {
         public MultiMap() : base() { }
 
@@ -14,14 +14,14 @@
 
         public void Add(TKey key, TValue value)
         {
-            HashSet<TValue> valueList;
+            List<TValue> valueList;
             if (TryGetValue(key, out valueList))
             {
                 valueList.Add(value);
             }
             else
             {
-                valueList = new HashSet<TValue>();
+                valueList = new List<TValue>();
                 valueList.Add(value);
                 Add(key, valueList);
             }
@@ -29,7 +29,7 @@
 
         public bool Remove(TKey key, TValue value)
         {
-            HashSet<TValue> valueList;
+            List<TValue> valueList;
 
             if (TryGetValue(key, out valueList))
             {
@@ -47,7 +47,7 @@
 
         public int RemoveAll(TKey key, TValue value)
         {
-            HashSet<TValue> valueList;
+            List<TValue> valueList;
             int n = 0;
             if (TryGetValue(key, out valueList))
             {
@@ -69,7 +69,7 @@
             {
                 int n = 0;
 
-                foreach (HashSet<TValue> valueList in Values)
+                foreach (List<TValue> valueList in Values)
                 {
                     n += valueList.Count;
                 }
@@ -79,7 +79,7 @@
 
         public bool Contains(TKey key, TValue value)
         {
-            HashSet<TValue> valueList;
+            List<TValue> valueList;
             if (TryGetValue(key, out valueList))
             {
                 return valueList.Contains(value);
@@ -89,7 +89,7 @@
 
         public bool Contains(TValue value)
         {
-            foreach (HashSet<TValue> valueList in Values)
+            foreach (List<TValue> valueList in Values)
             {
                 if (valueList.Contains(value))
                 {
