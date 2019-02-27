@@ -55,6 +55,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpSerializer", "CsharpS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JavaSerializer", "JavaSerializer\JavaSerializer.csproj", "{43525AC7-1B28-4332-8F70-4C9F29A0EE35}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DA24F7C0-D74D-49FE-A3F9-8AAD4DFAEE1B}"
+	ProjectSection(SolutionItems) = preProject
+		Examples\ser.pig = Examples\ser.pig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
