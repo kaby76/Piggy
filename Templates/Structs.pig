@@ -10,18 +10,18 @@ template Structs
     pass GenerateStructs {
         
         ( TranslationUnitDecl
-        {{
-            // Let's create "generate_for_only" to contain itself, plus Zero-width negative lookahead assertion
-            // regular expression for each element in ClangSupport _name_map.
-            StringBuilder sb = new StringBuilder();
-            foreach (var t in ClangSupport._type_map)
-            {
-                var k = t.Key;
-                sb.Append("(?!" + k + ")");
-            }
-            sb.Append(ClangSupport.generate_for_only);
-            ClangSupport.generate_for_only = sb.ToString();         
-        }}
+			{{
+				// Let's create "generate_for_only" to contain itself, plus Zero-width negative lookahead assertion
+				// regular expression for each element in ClangSupport _name_map.
+				StringBuilder sb = new StringBuilder();
+				foreach (var t in ClangSupport._type_map)
+				{
+					var k = t.Key;
+					sb.Append("(?!" + k + ")");
+				}
+				sb.Append(ClangSupport.generate_for_only);
+				ClangSupport.generate_for_only = sb.ToString();         
+			}}
         )
         
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
