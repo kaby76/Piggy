@@ -118,8 +118,7 @@
             {
                 foreach (var pass in this._passes)
                 {
-                    List<Pattern> patterns = pass.Patterns;
-                    foreach (var pattern in patterns)
+                    foreach (var pattern in pass.Patterns)
                     {
                         SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
                         _current_type = pattern.Owner.Owner.Type;
@@ -137,10 +136,6 @@
                                 var tre = new Tree(_parent, _ast, v, _common_token_stream);
                                 match_pattern(t, v, true);
                             }
-                        }
-                        else
-                        {
-
                         }
                     }
                 }
@@ -665,6 +660,18 @@
                 if (c11 == null) return false;
                 var p_child = p_more.GetChild(0);
                 if (p_child as SpecParserParser.CodeContext != null || p_child as SpecParserParser.TextContext != null)
+                {
+                    p_pos++;
+                    continue;
+                }
+
+                bool is_not_attr = this.is_pattern_not_attr(p_more);
+                bool is_attr = this.is_pattern_attr(p_more);
+                bool is_plus = this.is_pattern_plus(p_more);
+                bool is_star = this.is_pattern_star(p_more);
+
+                // Assume if it's a plus or star that we can skip past it.
+                if (is_plus || is_star)
                 {
                     p_pos++;
                     continue;
