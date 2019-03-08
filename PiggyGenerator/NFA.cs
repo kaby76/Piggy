@@ -177,6 +177,7 @@
                 throw new System.Exception("Fragment stack not empty.");
 
             _final_states = completeNfa.OutStates;
+            foreach (var s in _final_states) s._match = true;
             _start_state = completeNfa.StartState;
             System.Console.Error.WriteLine(this);
         }

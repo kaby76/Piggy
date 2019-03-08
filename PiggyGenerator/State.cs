@@ -9,10 +9,8 @@
      */
     public class State
     {
-        private List<Edge> _out_edges;
-        private bool _match;
-        private bool _hasChar;
-        private int _lastlist;
+        public List<Edge> _out_edges;
+        public bool _match;
         private NFA _owner;
         private static int _next_id;
         public int _id;
@@ -27,20 +25,11 @@
          */
         public State(NFA owner)
         {
-            _hasChar = false;
-            _match = true;
-            _lastlist = -1;
+            _match = false;
             _owner = owner;
             _id = _next_id++;
+            _out_edges = new List<Edge>();
             owner._all_states.Add(this);
-        }
-
-        /**
-         * @return true, if the state is a literal state, otherwise false
-         */
-        public bool isLiteralState()
-        {
-            return _hasChar;
         }
 
         /**
@@ -49,23 +38,6 @@
         public bool isMatch()
         {
             return _match;
-        }
-
-        /**
-         * @return The last generation of the current states list this state has been added to. If the state hasn't been added to any list yet, returns -1.
-         */
-        public int getLastlist()
-        {
-            return _lastlist;
-        }
-
-        /**
-         * Sets the lastlist variable to the specified parameter
-         * @param listindex the generation number of a list of current states
-         */
-        public void setLastlist(int listindex)
-        {
-            _lastlist = listindex;
         }
 
         public override string ToString()

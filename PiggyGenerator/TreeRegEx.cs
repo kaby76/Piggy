@@ -108,11 +108,13 @@
             // Combine all patterns of a pass into one NFA.
             foreach (var pass in this._passes)
             {
+                NFA nfa = new NFA();
+                SpecParserParser.PatternContext ppp = null;
                 foreach (var pattern in pass.Patterns)
                 {
                     SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
+                    ppp = t;
                     _current_type = pattern.Owner.Owner.Type;
-                    NFA nfa = new NFA();
                     nfa.post2nfa(t);
                     System.Console.Error.WriteLine(nfa.ToString());
                 }
@@ -124,6 +126,16 @@
                     bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
                     if (do_matching)
                     {
+                        var matched = match_pattern(ppp, v);
+                        if (matched)
+                        {
+                            var tre = new Tree(_parent, _ast, v, _common_token_stream);
+                            match_pattern(ppp, v, true);
+                        }
+                        var nfa_match = new NfaMatch();
+                        bool matched2 = nfa_match.IsMatch(nfa, v);
+                        if (matched2)
+                        { }
                         //System.Console.WriteLine("Trying match ");
                         //System.Console.WriteLine("Template " + sourceTextForContext(t));
                         //System.Console.WriteLine("Tree " + sourceTextForContext(v));
