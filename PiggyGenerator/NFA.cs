@@ -55,21 +55,36 @@
                 var p_text = p.GetText();
                 var p_type = p.GetType();
                 //System.Console.Error.WriteLine("Next p " + p_text + " " + p_type);
-                if (p as SpecParserParser.PatternContext != null) { }
-                else if (p as SpecParserParser.BasicContext != null) { }
-                else if (p as SpecParserParser.Simple_basicContext != null
+
+                // simple_basic, kleen_star_basic, and continued_basic are very special:
+                // add in ".*" between each item.
+                if (p as SpecParserParser.Simple_basicContext != null
                     || p as SpecParserParser.Kleene_star_basicContext != null
                     || p as SpecParserParser.Continued_basicContext != null)
                 {
                     Fragment last = fragmentStack.Pop();
-                    for (int i = 1; i < p.ChildCount; ++i)
+                    for (int i = p.ChildCount - 2; i >= 0; --i)
                     {
                         Fragment f = fragmentStack.Pop();
+                        if (i > 0)
+                        {
+                            // Add in ".*"
+                            State s1 = new State(this);
+                            State s2 = new State(this);
+                            State s3 = new State(this);
+                            new Edge(this, s1, s2, null);
+                            new Edge(this, s2, s3, null);
+                            new Edge(this, s2, s2, null, (int)Edge.EdgeModifiers.Any);
+                            new Edge(this, s3, last.StartState, null);
+                            last = new Fragment(s1, last.OutStates);
+                        }
                         foreach (var o in f.OutStates) new Edge(this, o, last.StartState, null);
                         last = new Fragment(f.StartState, last.OutStates);
                     }
                     fragmentStack.Push(last);
                 }
+                else if(p as SpecParserParser.BasicContext != null) { }
+                else if (p as SpecParserParser.PatternContext != null) { }
                 else if (p as TerminalNodeImpl != null)
                 {
                     TerminalNodeImpl t = NewMethod(p);
@@ -132,7 +147,7 @@
                         var s_type = s.Type;
                         Fragment previous = fragmentStack.Pop();
                         State s2 = new State(this);
-                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, true);
+                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, (int)Edge.EdgeModifiers.Not);
                         var f = new Fragment(previous.StartState, s2);
                         fragmentStack.Push(f);
                     }

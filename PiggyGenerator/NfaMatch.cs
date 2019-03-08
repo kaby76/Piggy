@@ -106,6 +106,7 @@ namespace PiggyGenerator
                         addState(nextList, e._to, listID, gen);
                     else if (e._c_text == "<" && "(" == c.GetText()) addState(nextList, e._to, listID, gen);
                     else if (e._c_text == ">" && ")" == c.GetText()) addState(nextList, e._to, listID, gen);
+                    else if (e._any) addState(nextList, e._to, listID, gen);
                 }
             }
             return listID;
