@@ -43,8 +43,6 @@
         ///  The order in which symbols are defined must be preserved so that
         ///  <seealso cref="#getSymbols()"/> returns the list in definition order.
         /// </summary>
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: void define(Symbol sym) throws IllegalArgumentException;
         void define(Symbol sym);
 
         /// <summary>
@@ -61,8 +59,6 @@
         ///  add a LocalScope for its block via this method.
         /// </summary>
         ///  <exception cref="IllegalArgumentException"> if you pass in a SymbolWithScope. </exception>
-//JAVA TO C# CONVERTER WARNING: Method 'throws' clauses are not available in .NET:
-//ORIGINAL LINE: void nest(Scope scope) throws IllegalArgumentException;
         void nest(Scope scope);
 
         /// <summary>
@@ -98,8 +94,6 @@
         /// Return the symbols defined within this scope. The order of insertion
         ///  into the scope is the order returned in this list.
         /// </summary>
-//JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in .NET:
-//ORIGINAL LINE: java.util.List<? extends Symbol> getSymbols();
         IList<Symbol> Symbols {get;}
 
         /// <summary>
@@ -108,8 +102,6 @@
         ///  list for each scope.  The scopes are traversed in the
         ///  order in which they are encountered in the input.
         /// </summary>
-//JAVA TO C# CONVERTER WARNING: Java wildcard generics have no direct equivalent in .NET:
-//ORIGINAL LINE: java.util.List<? extends Symbol> getAllSymbols();
         IList<Symbol> AllSymbols {get;}
 
         /// <summary>

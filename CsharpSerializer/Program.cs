@@ -63,7 +63,7 @@
                 if (listener.had_error) return;
                 var sb = new StringBuilder();
                 PiggyRuntime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
-                System.Console.WriteLine(sb.ToString());
+                System.Console.Error.WriteLine(sb.ToString());
             }
             r.Dispose();
         }

@@ -19,7 +19,6 @@
         public Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
         public List<Pass> _passes;
         public Piggy _piggy;
-        public List<IParseTree> _post_order = new List<IParseTree>();
         public List<IParseTree> _pre_order = new List<IParseTree>();
         public Dictionary<IParseTree, int> _pre_order_number = new Dictionary<IParseTree, int>();
 
@@ -75,14 +74,6 @@
                         stack.Push(c);
                 }
             }
-
-            var copy = new Stack<IParseTree>(_pre_order);
-            _post_order = new List<IParseTree>();
-            while (copy.Any())
-            {
-                var x = copy.Pop();
-                _post_order.Add(x);
-            }
         }
 
         // Pattern matcher.
@@ -114,31 +105,48 @@
             var stack = new Stack<IParseTree>();
             stack.Push(_ast);
 
-            foreach (var v in _pre_order)
+            // Combine all patterns of a pass into one NFA.
+            foreach (var pass in this._passes)
             {
-                foreach (var pass in this._passes)
+                foreach (var pattern in pass.Patterns)
                 {
-                    foreach (var pattern in pass.Patterns)
+                    SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
+                    _current_type = pattern.Owner.Owner.Type;
+                    NFA nfa = new NFA();
+                    nfa.post2nfa(t);
+                    System.Console.Error.WriteLine(nfa.ToString());
+                }
+
+                foreach (var v in _pre_order)
+                {
+                    // Try matching at vertex, if the node hasn't been already matched.
+                    _matches.TryGetValue(v, out List<IParseTree> val);
+                    bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
+                    if (do_matching)
                     {
-                        SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
-                        _current_type = pattern.Owner.Owner.Type;
-                        // Try matching at vertex, if the node hasn't been already matched.
-                        _matches.TryGetValue(v, out List<IParseTree> val);
-                        bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
-                        if (do_matching)
-                        {
-                            //System.Console.WriteLine("Trying match ");
-                            //System.Console.WriteLine("Template " + sourceTextForContext(t));
-                            //System.Console.WriteLine("Tree " + sourceTextForContext(v));
-                            bool matched = match_pattern(t, v);
-                            if (matched)
-                            {
-                                var tre = new Tree(_parent, _ast, v, _common_token_stream);
-                                match_pattern(t, v, true);
-                            }
-                        }
+                        //System.Console.WriteLine("Trying match ");
+                        //System.Console.WriteLine("Template " + sourceTextForContext(t));
+                        //System.Console.WriteLine("Tree " + sourceTextForContext(v));
                     }
                 }
+                //foreach (var v in _pre_order)
+                //{
+                //    // Try matching at vertex, if the node hasn't been already matched.
+                //    _matches.TryGetValue(v, out List<IParseTree> val);
+                //    bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
+                //    if (do_matching)
+                //    {
+                //        //System.Console.WriteLine("Trying match ");
+                //        //System.Console.WriteLine("Template " + sourceTextForContext(t));
+                //        //System.Console.WriteLine("Tree " + sourceTextForContext(v));
+                //        bool matched = match_pattern(t, v);
+                //        if (matched)
+                //        {
+                //            var tre = new Tree(_parent, _ast, v, _common_token_stream);
+                //            match_pattern(t, v, true);
+                //        }
+                //    }
+                //}
             }
         }
 
@@ -384,7 +392,7 @@
          * Determine via lookahead if a node for a pattern matcher
          * is a star expression or not.
          */
-        public bool is_pattern_star(IParseTree p)
+        public static bool is_pattern_star(IParseTree p)
         {
             if (p == null) return false;
             if (p as SpecParserParser.MoreContext == null) return false;
@@ -408,7 +416,7 @@
          * Determine via lookahead if a node for a pattern matcher
          * is a plus expression or not.
          */
-        public bool is_pattern_plus(IParseTree p)
+        public static bool is_pattern_plus(IParseTree p)
         {
             if (p == null) return false;
             if (p as SpecParserParser.MoreContext == null) return false;
@@ -615,8 +623,8 @@
                 // next pattern child.
                 bool is_not_attr = this.is_pattern_not_attr(p_more);
                 bool is_attr = this.is_pattern_attr(p_more);
-                bool is_plus = this.is_pattern_plus(p_more);
-                bool is_star = this.is_pattern_star(p_more);
+                bool is_plus = is_pattern_plus(p_more);
+                bool is_star = is_pattern_star(p_more);
 
                 bool matched = match_more(c11, c22, map);
                 if (matched)
@@ -635,7 +643,6 @@
                 }
 
                 // mismatch...
-                // In general, a mismatch in a "more" part of a pattern is not a problem.
                 t_pos++;
             }
 
@@ -667,8 +674,8 @@
 
                 bool is_not_attr = this.is_pattern_not_attr(p_more);
                 bool is_attr = this.is_pattern_attr(p_more);
-                bool is_plus = this.is_pattern_plus(p_more);
-                bool is_star = this.is_pattern_star(p_more);
+                bool is_plus = is_pattern_plus(p_more);
+                bool is_star = is_pattern_star(p_more);
 
                 // Assume if it's a plus or star that we can skip past it.
                 if (is_plus || is_star)

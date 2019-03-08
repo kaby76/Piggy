@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "-a java-ast.txt -s ser.pig",
+      "commandLineArgs": "-a java-ast.txt -e \"< classBodyDeclaration < modifier >* < memberDeclaration > >\"",
       "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\Examples"
     }
   }
