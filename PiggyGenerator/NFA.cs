@@ -72,13 +72,13 @@
                             State s1 = new State(this);
                             State s2 = new State(this);
                             State s3 = new State(this);
-                            new Edge(this, s1, s2, null);
-                            new Edge(this, s2, s3, null);
-                            new Edge(this, s2, s2, null, (int)Edge.EdgeModifiers.Any);
-                            new Edge(this, s3, last.StartState, null);
+                            new Edge(this, s1, s2, null, null);
+                            new Edge(this, s2, s3, null, null);
+                            new Edge(this, s2, s2, null, null, (int)Edge.EdgeModifiers.Any);
+                            new Edge(this, s3, last.StartState, null, null);
                             last = new Fragment(s1, last.OutStates);
                         }
-                        foreach (var o in f.OutStates) new Edge(this, o, last.StartState, null);
+                        foreach (var o in f.OutStates) new Edge(this, o, last.StartState, null, null);
                         last = new Fragment(f.StartState, last.OutStates);
                     }
                     fragmentStack.Push(last);
@@ -99,7 +99,7 @@
                     {
                         State s1 = new State(this);
                         State s2 = new State(this);
-                        var e = new Edge(this, s1, s2, t);
+                        var e = new Edge(this, s1, s2, t, null);
                         var f = new Fragment(s1, s2);
                         fragmentStack.Push(f);
                     }
@@ -109,20 +109,34 @@
                     var c = p.GetChild(0);
                     State s1 = new State(this);
                     State s2 = new State(this);
-                    var e = new Edge(this, s1, s2, c);
+                    var e = new Edge(this, s1, s2, c, null);
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
                 else if (p as SpecParserParser.MoreContext != null) { }
-                else if (p as SpecParserParser.TextContext != null) { }
-                else if (p as SpecParserParser.CodeContext != null) { }
+                else if (p as SpecParserParser.TextContext != null)
+                {
+                    State s1 = new State(this);
+                    State s2 = new State(this);
+                    var e = new Edge(this, s1, s2, null, p);
+                    var f = new Fragment(s1, s2);
+                    fragmentStack.Push(f);
+                }
+                else if (p as SpecParserParser.CodeContext != null)
+                {
+                    State s1 = new State(this);
+                    State s2 = new State(this);
+                    var e = new Edge(this, s1, s2, null, p);
+                    var f = new Fragment(s1, s2);
+                    fragmentStack.Push(f);
+                }
                 else if (p as SpecParserParser.Group_rexpContext != null) { }
                 else if (p as SpecParserParser.Star_rexpContext != null)
                 {
                     Fragment previous = fragmentStack.Pop();
                     State s1 = new State(this);
-                    var e1 = new Edge(this, s1, previous.StartState, null);
-                    foreach (var s in previous.OutStates) new Edge(this, s, s1, null);
+                    var e1 = new Edge(this, s1, previous.StartState, null, null);
+                    foreach (var s in previous.OutStates) new Edge(this, s, s1, null, null);
                     var f = new Fragment(s1, s1);
                     fragmentStack.Push(f);
                 }
@@ -131,9 +145,9 @@
                     Fragment previous = fragmentStack.Pop();
                     State s1 = new State(this);
                     State s2 = new State(this);
-                    var e1 = new Edge(this, s1, s2, null);
-                    var e2 = new Edge(this, s2, previous.StartState, null);
-                    foreach (var s in previous.OutStates) new Edge(this, s, s2, null);
+                    var e1 = new Edge(this, s1, s2, null, null);
+                    var e2 = new Edge(this, s2, previous.StartState, null, null);
+                    foreach (var s in previous.OutStates) new Edge(this, s, s2, null, null);
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -147,7 +161,7 @@
                         var s_type = s.Type;
                         Fragment previous = fragmentStack.Pop();
                         State s2 = new State(this);
-                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, (int)Edge.EdgeModifiers.Not);
+                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, null, (int)Edge.EdgeModifiers.Not);
                         var f = new Fragment(previous.StartState, s2);
                         fragmentStack.Push(f);
                     }
@@ -158,13 +172,13 @@
                         var s_type = s.Type;
                         Fragment previous = fragmentStack.Pop();
                         State s2 = new State(this);
-                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t);
+                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, null);
                         State s3 = new State(this);
                         t = NewMethod(p.GetChild(1));
-                        var e = new Edge(this, s2, s3, t);
+                        var e = new Edge(this, s2, s3, t, null);
                         State s4 = new State(this);
                         t = NewMethod(p.GetChild(2));
-                        var e2 = new Edge(this, s3, s4, t);
+                        var e2 = new Edge(this, s3, s4, t, null);
                         var f = new Fragment(previous.StartState, s4);
                         fragmentStack.Push(f);
                     }
@@ -176,11 +190,11 @@
                         State s = new State(this);
                         Fragment s2 = fragmentStack.Pop();
                         Fragment s1 = fragmentStack.Pop();
-                        var e1 = new Edge(this, s, s1.StartState, null);
-                        var e2 = new Edge(this, s, s2.StartState, null);
+                        var e1 = new Edge(this, s, s1.StartState, null, null);
+                        var e2 = new Edge(this, s, s2.StartState, null, null);
                         State s3 = new State(this);
-                        foreach (var o in s1.OutStates) new Edge(this, o, s3, null);
-                        foreach (var o in s2.OutStates) new Edge(this, o, s3, null);
+                        foreach (var o in s1.OutStates) new Edge(this, o, s3, null, null);
+                        foreach (var o in s2.OutStates) new Edge(this, o, s3, null, null);
                         var f = new Fragment(s, s3);
                         fragmentStack.Push(f);
                     }

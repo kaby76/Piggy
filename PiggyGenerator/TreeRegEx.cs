@@ -116,7 +116,6 @@
                     ppp = t;
                     _current_type = pattern.Owner.Owner.Type;
                     nfa.post2nfa(t);
-                    System.Console.Error.WriteLine(nfa.ToString());
                 }
 
                 foreach (var v in _pre_order)
@@ -133,9 +132,11 @@
                             match_pattern(ppp, v, true);
                         }
                         var nfa_match = new NfaMatch();
-                        bool matched2 = nfa_match.IsMatch(nfa, v);
+                        bool matched2 = nfa_match.IsMatchOld(nfa, v);
                         if (matched2)
-                        { }
+                        {
+                            var m3 = nfa_match.IsMatch(nfa, v);
+                        }
                         //System.Console.WriteLine("Trying match ");
                         //System.Console.WriteLine("Template " + sourceTextForContext(t));
                         //System.Console.WriteLine("Tree " + sourceTextForContext(v));
