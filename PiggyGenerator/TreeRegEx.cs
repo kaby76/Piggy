@@ -116,50 +116,18 @@
                     ppp = t;
                     _current_type = pattern.Owner.Owner.Type;
                     nfa.post2nfa(t);
-                }
-
-                foreach (var v in _pre_order)
-                {
-                    // Try matching at vertex, if the node hasn't been already matched.
-                    _matches.TryGetValue(v, out List<IParseTree> val);
-                    bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
-                    if (do_matching)
+                    foreach (var v in _pre_order)
                     {
-                        var matched = match_pattern(ppp, v);
-                        if (matched)
+                        // Try matching at vertex, if the node hasn't been already matched.
+                        _matches.TryGetValue(v, out List<IParseTree> val);
+                        bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
+                        if (do_matching)
                         {
-                            var tre = new Tree(_parent, _ast, v, _common_token_stream);
-                            match_pattern(ppp, v, true);
+                            var nfa_match = new NfaMatch();
+                            var matched = nfa_match.IsMatch(nfa, v);
                         }
-                        var nfa_match = new NfaMatch();
-                        bool matched2 = nfa_match.IsMatchOld(nfa, v);
-                        if (matched2)
-                        {
-                            var m3 = nfa_match.IsMatch(nfa, v);
-                        }
-                        //System.Console.WriteLine("Trying match ");
-                        //System.Console.WriteLine("Template " + sourceTextForContext(t));
-                        //System.Console.WriteLine("Tree " + sourceTextForContext(v));
                     }
                 }
-                //foreach (var v in _pre_order)
-                //{
-                //    // Try matching at vertex, if the node hasn't been already matched.
-                //    _matches.TryGetValue(v, out List<IParseTree> val);
-                //    bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
-                //    if (do_matching)
-                //    {
-                //        //System.Console.WriteLine("Trying match ");
-                //        //System.Console.WriteLine("Template " + sourceTextForContext(t));
-                //        //System.Console.WriteLine("Tree " + sourceTextForContext(v));
-                //        bool matched = match_pattern(t, v);
-                //        if (matched)
-                //        {
-                //            var tre = new Tree(_parent, _ast, v, _common_token_stream);
-                //            match_pattern(t, v, true);
-                //        }
-                //    }
-                //}
             }
         }
 

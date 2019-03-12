@@ -136,8 +136,8 @@ namespace PiggyGenerator
             for (int i = 0; i < finalList.Count; i++)
             {
                 List<Edge> l = finalList[i];
-                foreach (var x in l)
-                    System.Console.WriteLine(x);
+                //foreach (var x in l)
+                //    System.Console.WriteLine(x);
                 Edge e = l.Last();
                 State s = e._to;
                 if (s.isMatch())
