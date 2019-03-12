@@ -78,7 +78,7 @@
             {
                 var trustedAssembliesPaths = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
                 var s = trustedAssembliesPaths as string;
-                var l = s.Split(Path.PathSeparator);
+                var l = s.Split(System.IO.Path.PathSeparator);
                 result = l.ToList();
                 result = result.Where(x => !x.Contains("System.Private.CoreLib")).ToList();
             }
@@ -270,8 +270,8 @@ namespace " + @namespace + @"
 
                 // With template classes generated, let's compile them.
                 {
-                    string assemblyName = Path.GetRandomFileName();
-                    string symbolsName = Path.ChangeExtension(assemblyName, "pdb");
+                    string assemblyName = System.IO.Path.GetRandomFileName();
+                    string symbolsName = System.IO.Path.ChangeExtension(assemblyName, "pdb");
 
                     SourceText sourceText = SourceText.From(formatted_source_code, Encoding.UTF8);
                     SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(

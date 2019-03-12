@@ -87,7 +87,7 @@
                 else if (p as SpecParserParser.PatternContext != null) { }
                 else if (p as TerminalNodeImpl != null)
                 {
-                    TerminalNodeImpl t = NewMethod(p);
+                    TerminalNodeImpl t = p as TerminalNodeImpl;
                     var s = t.Symbol;
                     var s_type = s.Type;
                     if (s.Type == SpecParserParser.OPEN_PAREN ||
@@ -156,7 +156,7 @@
                     var c = p.GetChild(0);
                     if (c.GetText() == "!")
                     {
-                        TerminalNodeImpl t = NewMethod(c);
+                        TerminalNodeImpl t = c as TerminalNodeImpl;
                         var s = t.Symbol;
                         var s_type = s.Type;
                         Fragment previous = fragmentStack.Pop();
@@ -167,17 +167,17 @@
                     }
                     else
                     {
-                        TerminalNodeImpl t = NewMethod(c);
+                        TerminalNodeImpl t = c as TerminalNodeImpl;
                         var s = t.Symbol;
                         var s_type = s.Type;
                         Fragment previous = fragmentStack.Pop();
                         State s2 = new State(this);
                         foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, null);
                         State s3 = new State(this);
-                        t = NewMethod(p.GetChild(1));
+                        t = p.GetChild(1) as TerminalNodeImpl;
                         var e = new Edge(this, s2, s3, t, null);
                         State s4 = new State(this);
-                        t = NewMethod(p.GetChild(2));
+                        t = p.GetChild(2) as TerminalNodeImpl;
                         var e2 = new Edge(this, s3, s4, t, null);
                         var f = new Fragment(previous.StartState, s4);
                         fragmentStack.Push(f);
@@ -208,12 +208,6 @@
             _final_states = completeNfa.OutStates;
             foreach (var s in _final_states) s._match = true;
             _start_state = completeNfa.StartState;
-            System.Console.Error.WriteLine(this);
-        }
-
-        private static TerminalNodeImpl NewMethod(IParseTree p)
-        {
-            return p as TerminalNodeImpl;
         }
 
         public override string ToString()

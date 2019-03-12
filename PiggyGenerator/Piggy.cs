@@ -78,8 +78,8 @@ namespace PiggyGenerator
             }
             else if (spec_file != null)
             {
-                string full_path = Path.GetDirectoryName(Path.GetFullPath(typeof(Piggy).Assembly.Location))
-                                   + Path.DirectorySeparatorChar;
+                string full_path = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(typeof(Piggy).Assembly.Location))
+                                   + System.IO.Path.DirectorySeparatorChar;
                 SpecFileAndListener file = new SpecFileAndListener(this);
                 file.ParseSpecFile(_specification);
                 var output_engine = new OutputEngine(this);
