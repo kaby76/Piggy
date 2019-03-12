@@ -50,7 +50,15 @@ namespace PiggyGenerator
             }
         }
 
-        Path _matching_path;
+        public List<Path> MatchingPaths
+        {
+            get; private set;
+        }
+
+        public NfaMatch()
+        {
+            MatchingPaths = new List<Path>();
+        }
 
         public bool IsMatch(NFA nfa, IParseTree input)
         {
@@ -80,14 +88,13 @@ namespace PiggyGenerator
                     break;
                 nextList = new List<Path>();
             }
-            var result = containsMatchState(currentList);
+            var result = ContainsMatchState(currentList);
             return result;
         }
 
-        private bool containsMatchState(List<Path> finalList)
+        private bool ContainsMatchState(List<Path> finalList)
         {
             int matches = 0;
-            _matching_path = null;
             for (int i = 0; i < finalList.Count; i++)
             {
                 Path l = finalList[i];
@@ -98,7 +105,7 @@ namespace PiggyGenerator
                 if (s.isMatch())
                 {
                     matches++;
-                    _matching_path = l;
+                    MatchingPaths.Add(l);
                 }
             }
             return matches > 0;

@@ -109,22 +109,37 @@
             foreach (var pass in this._passes)
             {
                 NFA nfa = new NFA();
-                SpecParserParser.PatternContext ppp = null;
                 foreach (var pattern in pass.Patterns)
                 {
                     SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
-                    ppp = t;
                     _current_type = pattern.Owner.Owner.Type;
                     nfa.post2nfa(t);
                     foreach (var v in _pre_order)
                     {
+                        var nfa_match = new NfaMatch();
                         // Try matching at vertex, if the node hasn't been already matched.
                         _matches.TryGetValue(v, out List<IParseTree> val);
                         bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
-                        if (do_matching)
+                        var matched = do_matching && nfa_match.IsMatch(nfa, v);
+                        if (matched)
                         {
-                            var nfa_match = new NfaMatch();
-                            var matched = nfa_match.IsMatch(nfa, v);
+                            foreach (Path p in nfa_match.MatchingPaths)
+                            {
+                                foreach (var e in p)
+                                {
+                                    if (e._c != null)
+                                    {
+                                        var pat = e._c;
+                                        foreach (IParseTree ast in new NfaMatch.EnumerableIParseTree(v))
+                                        {
+                                            if (ast as TerminalNodeImpl == null)
+                                                continue;
+                                            _matches.MyAdd(ast, pat);
+                                        }
+                                        _top_level_matches.MyAdd(v, t);
+                                    }
+                                }
+                            }
                         }
                     }
                 }

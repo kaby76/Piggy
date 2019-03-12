@@ -564,37 +564,11 @@ namespace " + @namespace + @"
 
         public void OutputMatches(TreeRegEx re)
         {
-            StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
-            stack.Push(re._ast);
-            while (stack.Count > 0)
+            foreach (var x in re._top_level_matches)
             {
-                var x = stack.Pop();
-                if (is_ast_node(x))
-                {
-                    re._matches.TryGetValue(x, out List<IParseTree> val);
-                    if (val != null)
-                    {
-                        // Match.
-#if DEBUG
-                        System.Console.WriteLine();
-                        System.Console.WriteLine("Match");
-#endif
-                        System.Console.WriteLine(TreeRegEx.sourceTextForContext(x));
-#if DEBUG
-                        foreach (var v in val)
-                            System.Console.WriteLine("Pattern " + v.GetText());
-#endif
-                    }
-                    for (int i = x.ChildCount - 1; i >= 0; --i)
-                    {
-                        var c = x.GetChild(i);
-                        stack.Push(c);
-                    }
-                }
-                else if (x as TerminalNodeImpl != null)
-                    ;
-                else
-                    throw new Exception();
+                IParseTree a = x.Key;
+                List<IParseTree> b = x.Value;
+                System.Console.WriteLine(TreeRegEx.sourceTextForContext(a));
             }
         }
 

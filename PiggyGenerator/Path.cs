@@ -5,26 +5,29 @@ namespace PiggyGenerator
 {
     public class Path : IEnumerable<Edge>
     {
+        readonly Path _next;
+        readonly Edge _last_edge;
+
         public Path(Edge l)
         {
-            Next = null;
-            LastEdge = l;
+            _next = null;
+            _last_edge = l;
         }
 
         public Path(Path n, Edge l)
         {
-            Next = n;
-            LastEdge = l;
+            _next = n;
+            _last_edge = l;
         }
 
         public Path Next
         {
-            get; private set;
+            get { return _next; }
         }
 
         public Edge LastEdge
         {
-            get; set;
+            get { return _last_edge; }
         }
 
         private IEnumerator<Edge> Doit()
