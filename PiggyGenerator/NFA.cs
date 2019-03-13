@@ -159,10 +159,10 @@
                         TerminalNodeImpl t = c as TerminalNodeImpl;
                         var s = t.Symbol;
                         var s_type = s.Type;
-                        Fragment previous = fragmentStack.Pop();
+                        State s1 = new State(this);
                         State s2 = new State(this);
-                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, null, (int)Edge.EdgeModifiers.Not);
-                        var f = new Fragment(previous.StartState, s2);
+                        new Edge(this, s1, s2, t, null, (int)Edge.EdgeModifiers.Not);
+                        var f = new Fragment(s1, s2);
                         fragmentStack.Push(f);
                     }
                     else
@@ -170,16 +170,16 @@
                         TerminalNodeImpl t = c as TerminalNodeImpl;
                         var s = t.Symbol;
                         var s_type = s.Type;
-                        Fragment previous = fragmentStack.Pop();
+                        State s1 = new State(this);
                         State s2 = new State(this);
-                        foreach (var s1 in previous.OutStates) new Edge(this, s1, s2, t, null);
                         State s3 = new State(this);
-                        t = p.GetChild(1) as TerminalNodeImpl;
-                        var e = new Edge(this, s2, s3, t, null);
                         State s4 = new State(this);
+                        new Edge(this, s1, s2, t, null);
+                        t = p.GetChild(1) as TerminalNodeImpl;
+                        new Edge(this, s2, s3, t, null);
                         t = p.GetChild(2) as TerminalNodeImpl;
-                        var e2 = new Edge(this, s3, s4, t, null);
-                        var f = new Fragment(previous.StartState, s4);
+                        new Edge(this, s3, s4, t, null);
+                        var f = new Fragment(s1, s4);
                         fragmentStack.Push(f);
                     }
                 }
