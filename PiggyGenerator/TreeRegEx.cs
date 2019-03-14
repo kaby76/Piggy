@@ -16,6 +16,7 @@
         public CommonTokenStream _common_token_stream;
         public Intercept<IParseTree, IParseTree> _matches = new Intercept<IParseTree, IParseTree>();
         public Intercept<IParseTree, IParseTree> _top_level_matches = new Intercept<IParseTree, IParseTree>();
+        public Intercept<IParseTree, Path> _top_level_paths = new Intercept<IParseTree, Path>();
         public Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
         public List<Pass> _passes;
         public Piggy _piggy;
@@ -114,29 +115,30 @@
                     SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
                     _current_type = pattern.Owner.Owner.Type;
                     nfa.post2nfa(t);
-                    foreach (var v in _pre_order)
+                    foreach (var ast_node in _pre_order)
                     {
                         var nfa_match = new NfaMatch();
                         // Try matching at vertex, if the node hasn't been already matched.
-                        _matches.TryGetValue(v, out List<IParseTree> val);
+                        _matches.TryGetValue(ast_node, out List<IParseTree> val);
                         bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
-                        var matched = do_matching && nfa_match.IsMatch(nfa, v);
+                        var matched = do_matching && nfa_match.IsMatch(nfa, ast_node);
                         if (matched)
                         {
                             foreach (Path p in nfa_match.MatchingPaths)
                             {
+                                _top_level_paths.MyAdd(ast_node, p);
                                 foreach (var e in p)
                                 {
                                     if (e._c != null)
                                     {
                                         var pat = e._c;
-                                        foreach (IParseTree ast in new NfaMatch.EnumerableIParseTree(v))
+                                        foreach (IParseTree ast in new NfaMatch.EnumerableIParseTree(ast_node))
                                         {
                                             if (ast as TerminalNodeImpl == null)
                                                 continue;
                                             _matches.MyAdd(ast, pat);
                                         }
-                                        _top_level_matches.MyAdd(v, t);
+                                        _top_level_matches.MyAdd(ast_node, t);
                                     }
                                 }
                             }

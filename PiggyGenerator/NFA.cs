@@ -208,6 +208,7 @@
             _final_states = completeNfa.OutStates;
             foreach (var s in _final_states) s._match = true;
             _start_state = completeNfa.StartState;
+            System.Console.Error.WriteLine(this);
         }
 
         public override string ToString()
@@ -216,7 +217,19 @@
             sb.AppendLine("digraph g {");
             foreach (var e in _all_edges)
             {
-                sb.AppendLine(e._from + " -> " + e._to + " [label=\"" + (e._c_text == null ? "empty" : e._c_text) + "\"];");
+                sb.Append(e._from + " -> " + e._to
+                    + " [label=\"");
+                if (e._other != null && e._other as SpecParserParser.TextContext != null)
+                    sb.Append("[[ text ]]");
+                else if (e._other != null && e._other as SpecParserParser.CodeContext != null)
+                    sb.Append("{{ code }}");
+                else if (e._any)
+                    sb.Append(" any ");
+                else if (e._c_text == null)
+                    sb.Append(" empty ");
+                else
+                    sb.Append(e._c_text);
+                sb.AppendLine("\"];");
             }
             sb.AppendLine(_start_state + " [shape=box];");
             foreach (var end in _final_states) sb.AppendLine(end + " [shape=doublecircle];");

@@ -153,23 +153,23 @@ namespace PiggyGenerator
                 {
                     if (e._c_text == null)
                     {
-                        addPath(p, nextList, e, listID, gen);
+                        addPath(null, p, nextList, e, listID, gen);
                     }
                     else if (e._c_text == c.GetText())
                     {
-                        addPath(p, nextList, e, listID, gen);
+                        addPath(c, p, nextList, e, listID, gen);
                     }
                     else if (e._c_text == "<" && "(" == c.GetText())
                     {
-                        addPath(p, nextList, e, listID, gen);
+                        addPath(c, p, nextList, e, listID, gen);
                     }
                     else if (e._c_text == ">" && ")" == c.GetText())
                     {
-                        addPath(p, nextList, e, listID, gen);
+                        addPath(c, p, nextList, e, listID, gen);
                     }
                     else if (e._any)
                     {
-                        addPath(p, nextList, e, listID, gen);
+                        addPath(c, p, nextList, e, listID, gen);
                     }
                 }
             }
@@ -186,30 +186,30 @@ namespace PiggyGenerator
                 {
                     if (e._c_text == null)
                     {
-                        addPath(null, nextList, e, listID, gen);
+                        addPath(null, null, nextList, e, listID, gen);
                     }
                     else if (e._c_text == c.GetText())
                     {
-                        addPath(null, nextList, e, listID, gen);
+                        addPath(c, null, nextList, e, listID, gen);
                     }
                     else if (e._c_text == "<" && "(" == c.GetText())
                     {
-                        addPath(null, nextList, e, listID, gen);
+                        addPath(c, null, nextList, e, listID, gen);
                     }
                     else if (e._c_text == ">" && ")" == c.GetText())
                     {
-                        addPath(null, nextList, e, listID, gen);
+                        addPath(c, null, nextList, e, listID, gen);
                     }
                     else if (e._any)
                     {
-                        addPath(null, nextList, e, listID, gen);
+                        addPath(c, null, nextList, e, listID, gen);
                     }
                 }
             }
             return listID;
         }
 
-        private void addPath(Path path, List<Path> list, Edge e, int listID, Dictionary<State, int> gen)
+        private void addPath(IParseTree c, Path path, List<Path> list, Edge e, int listID, Dictionary<State, int> gen)
         {
             var s = e._to;
             var sf = e._from;
@@ -223,11 +223,11 @@ namespace PiggyGenerator
             gen[s] = listID;
             if (path == null && !list.Any())
             {
-                list.Add(new Path(path, e));
+                list.Add(new Path(e, c));
             }
             else
             {
-                var p = new Path(e);
+                var p = new Path(path, e, c);
                 CheckPath(p);
                 list.Add(p);
             }
@@ -236,7 +236,7 @@ namespace PiggyGenerator
             foreach (var o in s._out_edges)
                 if (o._c == null)
                 {
-                    addPath(added, list, o, listID, gen);
+                    addPath(null, added, list, o, listID, gen);
                 }
         }
     }

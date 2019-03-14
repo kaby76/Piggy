@@ -382,6 +382,33 @@ namespace " + @namespace + @"
 
         public void PatternMatchingEngine(TreeRegEx re)
         {
+            // Step though all top level matches, then the path for each.
+            foreach (var x in re._top_level_matches)
+            {
+                IParseTree a = x.Key; // tree
+                List<IParseTree> b = x.Value; // patterns.
+                foreach (var path in re._top_level_paths[a])
+                {
+                    var pe = path.GetEnumerator();
+                    pe.MoveNext();
+                    for (; ; )
+                    {
+                        var cpe = pe.Current;
+
+                        if (cpe._other != null)
+                        {
+                            // code or text.
+                        }
+
+                        if (!pe.MoveNext()) break;
+                    }
+                }
+            }
+
+            return;
+
+
+
             var visited = new HashSet<IParseTree>();
             StackQueue<IParseTree> stack = new StackQueue<IParseTree>();
             StackQueue<List<IParseTree>> dfs_parent_chain = new StackQueue<List<IParseTree>>();
