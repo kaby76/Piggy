@@ -127,8 +127,9 @@
                             foreach (Path p in nfa_match.MatchingPaths)
                             {
                                 _top_level_paths.MyAdd(ast_node, p);
-                                foreach (var e in p)
+                                foreach (var ee in p)
                                 {
+                                    var e = ee.LastEdge;
                                     if (e._c != null)
                                     {
                                         var pat = e._c;

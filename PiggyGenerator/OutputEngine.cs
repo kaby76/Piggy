@@ -383,21 +383,59 @@ namespace " + @namespace + @"
         public void PatternMatchingEngine(TreeRegEx re)
         {
             // Step though all top level matches, then the path for each.
-            foreach (var x in re._top_level_matches)
+            foreach (var zz in re._top_level_matches)
             {
-                IParseTree a = x.Key; // tree
-                List<IParseTree> b = x.Value; // patterns.
+                IParseTree a = zz.Key; // tree
+                List<IParseTree> b = zz.Value; // patterns.
                 foreach (var path in re._top_level_paths[a])
                 {
-                    var pe = path.GetEnumerator();
+                    IEnumerator<Path> pe = path.GetEnumerator();
                     pe.MoveNext();
                     for (; ; )
                     {
-                        var cpe = pe.Current;
-
-                        if (cpe._other != null)
+                        Path cpe = pe.Current;
+                        // System.Console.Error.WriteLine(cpe.LastEdge);
+                        if (cpe.LastEdge._other != null)
                         {
+                            var x = cpe.LastEdge._other;
                             // code or text.
+                            if (x as SpecParserParser.TextContext != null)
+                            {
+                                string s = TreeRegEx.sourceTextForContext(x);
+                                string s2 = s.Substring(2);
+                                string s3 = s2.Substring(0, s2.Length - 2);
+                                System.Console.Write(s3);
+                            }
+                            else if (x as SpecParserParser.CodeContext != null)
+                            {
+                                // move back to find a terminal.
+                                Path find = cpe;
+                                IParseTree con = null;
+                                for (; ;)
+                                {
+                                    if (find == null) break;
+                                    con = find.Ast;
+                                    if (con != null) break;
+                                    find = find.Next;
+                                }
+                                while (con != null)
+                                {
+                                    if (con as AstParserParser.DeclContext != null) break;
+                                    con = re._parent[con];
+                                }
+
+                                try
+                                {
+                                    MethodInfo main = _piggy._code_blocks[x];
+                                    Type type = re._current_type;
+                                    object instance = re._instance;
+                                    object[] aa = new object[] { new Tree(re._parent, re._ast, con, re._common_token_stream) };
+                                    var res = main.Invoke(instance, aa);
+                                }
+                                finally
+                                {
+                                }
+                            }
                         }
 
                         if (!pe.MoveNext()) break;

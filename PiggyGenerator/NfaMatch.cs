@@ -127,8 +127,9 @@ namespace PiggyGenerator
         {
             return;
             State p = null;
-            foreach (var e in path)
+            foreach (var ee in path)
             {
+                var e = ee.LastEdge;
                 if (p == null)
                     p = e._to;
                 else
@@ -167,9 +168,16 @@ namespace PiggyGenerator
                     {
                         addPath(c, p, nextList, e, listID, gen);
                     }
+                    else if (e._c_text == "*")
+                    {
+                        addPath(c, p, nextList, e, listID, gen);
+                    }
                     else if (e._any)
                     {
                         addPath(c, p, nextList, e, listID, gen);
+                    }
+                    else
+                    {
                     }
                 }
             }

@@ -7,7 +7,7 @@
     using System.Linq;
     using System;
 
-    public class Path : IEnumerable<Edge>
+    public class Path : IEnumerable<Path>
     {
         readonly Path _next;
         readonly Edge _last_edge;
@@ -38,7 +38,12 @@
             get { return _last_edge; }
         }
 
-        private IEnumerator<Edge> Doit()
+        public IParseTree Ast
+        {
+            get { return _c; }
+        }
+
+        private IEnumerator<Path> Doit()
         {
             Stack<Path> stack = new Stack<Path>();
             var p = this;
@@ -50,11 +55,11 @@
             while (stack.Count > 0)
             {
                 var v = stack.Pop();
-                yield return v.LastEdge;
+                yield return v;
             }
         }
 
-        public IEnumerator<Edge> GetEnumerator()
+        public IEnumerator<Path> GetEnumerator()
         {
             return Doit();
         }
