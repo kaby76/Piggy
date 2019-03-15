@@ -5,6 +5,8 @@ namespace PiggyGenerator
     using System.Collections.Generic;
     using Antlr4.Runtime.Tree;
     using System.Linq;
+    using System;
+    using System.Text.RegularExpressions;
 
     public class NfaMatch
     {
@@ -54,10 +56,12 @@ namespace PiggyGenerator
         {
             get; private set;
         }
+        private TreeRegEx _tree_re;
 
-        public NfaMatch()
+        public NfaMatch(TreeRegEx tree_re)
         {
             MatchingPaths = new List<Path>();
+            _tree_re = tree_re;
         }
 
         public bool IsMatch(NFA nfa, IParseTree input)
@@ -175,6 +179,38 @@ namespace PiggyGenerator
                     else if (e._any)
                     {
                         addPath(c, p, nextList, e, listID, gen);
+                    }
+                    else if (e._c_text.StartsWith("$\""))
+                    {
+                        string pattern = e._c_text.Substring(2);
+                        pattern = pattern.Substring(0, pattern.Length - 1);
+                        try
+                        {
+                            var attr = e._c;
+                            for (; ; )
+                            {
+                                if (attr == null) break;
+                                if (attr as SpecParserParser.AttrContext != null) break;
+                                attr = this._tree_re._parent[attr];
+                            }
+                            pattern = _tree_re.ReplaceMacro(attr);
+                        }
+                        catch (System.Exception ex)
+                        {
+                            System.Console.WriteLine("Cannot perform substitution in pattern with string.");
+                            System.Console.WriteLine("Pattern " + pattern);
+                            System.Console.WriteLine(ex.Message);
+                            throw ex;
+                        }
+                        pattern = pattern.Replace("\\", "\\\\");
+                        Regex re = new Regex(pattern);
+                        string tvaltext = c.GetText();
+                        tvaltext = tvaltext.Substring(1);
+                        tvaltext = tvaltext.Substring(0, tvaltext.Length - 1);
+                        var matched = re.Match(tvaltext);
+                        var result = matched.Success;
+                        if (result)
+                            addPath(c, p, nextList, e, listID, gen);
                     }
                     else
                     {

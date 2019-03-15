@@ -117,7 +117,7 @@
                     nfa.post2nfa(t);
                     foreach (var ast_node in _pre_order)
                     {
-                        var nfa_match = new NfaMatch();
+                        var nfa_match = new NfaMatch(this);
                         // Try matching at vertex, if the node hasn't been already matched.
                         _matches.TryGetValue(ast_node, out List<IParseTree> val);
                         bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
@@ -755,7 +755,7 @@
             return false;
         }
 
-        string ReplaceMacro(IParseTree p)
+        public string ReplaceMacro(IParseTree p)
         {
             // Try in order current type, then all other types.
             try
