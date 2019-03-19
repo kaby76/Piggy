@@ -109,19 +109,21 @@
             // Combine all patterns of a pass into one NFA.
             foreach (var pass in this._passes)
             {
-                NFA nfa = new NFA();
                 foreach (var pattern in pass.Patterns)
                 {
                     SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
                     _current_type = pattern.Owner.Owner.Type;
-                    nfa.post2nfa(t);
+                    var nfa = NFA.post2nfa(t);
+                    var nfa_to_dfa = new NFAToDFA();
+                    var dfa = nfa_to_dfa.ConvertToDFA(nfa);
+                    System.Console.Error.WriteLine(dfa);
                     foreach (var ast_node in _pre_order)
                     {
                         var nfa_match = new NfaMatch(this);
                         // Try matching at vertex, if the node hasn't been already matched.
                         _matches.TryGetValue(ast_node, out List<IParseTree> val);
                         bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
-                        var matched = do_matching && nfa_match.IsMatch(nfa, ast_node);
+                        var matched = do_matching && nfa_match.IsMatch(dfa, ast_node);
                         if (matched)
                         {
                             foreach (Path p in nfa_match.MatchingPaths)

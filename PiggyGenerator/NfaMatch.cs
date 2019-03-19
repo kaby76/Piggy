@@ -64,7 +64,7 @@ namespace PiggyGenerator
             _tree_re = tree_re;
         }
 
-        public bool IsMatch(NFA nfa, IParseTree input)
+        public bool IsMatch(Automaton nfa, IParseTree input)
         {
             var currentList = new List<Path>();
             var nextList = new List<Path>();
@@ -77,9 +77,9 @@ namespace PiggyGenerator
                     continue;
                 if (first)
                 {
-                    var start_state = nfa._start_state;
+                    var start_states = nfa.StartStates;
                     var start_state_list = new List<State>();
-                    addState(start_state_list, start_state, listID, generation);
+                    foreach (var s in start_states) addState(start_state_list, s, listID, generation);
                     listID = stepPath(start_state_list, c, nextList, listID, generation);
                     first = false;
                 }
