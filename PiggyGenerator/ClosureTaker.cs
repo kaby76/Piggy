@@ -16,7 +16,7 @@
                 var transitions = automaton.AllEdges(state);
                 foreach (var transition in transitions)
                 {
-                    if (automaton.IsLambdaTransition(transition))
+                    if (Automaton.IsLambdaTransition(transition))
                     {
                         var toState = transition._to;
                         if (list.Contains(toState)) continue;

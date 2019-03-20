@@ -20,7 +20,6 @@
          */
         public State(Automaton owner)
         {
-            _match = false;
             _owner = owner;
             Id = _next_id++;
             _out_edges = new List<Edge>();
@@ -47,7 +46,7 @@
          */
         public bool isMatch()
         {
-            return _match;
+            return Owner.EndStates.Contains(this);
         }
 
         public override string ToString()

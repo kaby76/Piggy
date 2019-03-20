@@ -70,7 +70,7 @@
                         dfa.AddEndState(from);
                     foreach (var e in nfa_state._out_edges)
                     {
-                        if (!nfa.IsLambdaTransition(e))
+                        if (!Automaton.IsLambdaTransition(e))
                         {
                             var c = ClosureTaker.GetClosure(new List<State>() { e._to }, nfa);
                             var to = FindHashSetState(dfa, c);

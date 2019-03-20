@@ -11,7 +11,7 @@
         protected SmartSet<State> _start_states = new SmartSet<State>();
         protected SmartSet<State> _final_states = new SmartSet<State>();
 
-        public bool IsLambdaTransition(Edge e)
+        public static bool IsLambdaTransition(Edge e)
         {
             if (e._c != null) return false;
             else if (e._any) return false;

@@ -112,6 +112,10 @@ namespace PiggyGenerator
                     MatchingPaths.Add(l);
                 }
             }
+            if (matches > 1)
+            {
+
+            }
             return matches > 0;
         }
 
@@ -278,7 +282,7 @@ namespace PiggyGenerator
             var added = list.Last();
             // If s contains any edges over epsilon, then add them.
             foreach (var o in s._out_edges)
-                if (o._c == null)
+                if (Automaton.IsLambdaTransition(o))
                 {
                     addPath(null, added, list, o, listID, gen);
                 }
