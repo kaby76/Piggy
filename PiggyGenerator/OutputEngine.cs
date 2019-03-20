@@ -401,7 +401,7 @@ namespace " + @namespace + @"
                             // code or text.
                             if (x as SpecParserParser.TextContext != null)
                             {
-                                string s = TreeRegEx.sourceTextForContext(x);
+                                string s = TreeRegEx.GetText(x);
                                 string s2 = s.Substring(2);
                                 string s3 = s2.Substring(0, s2.Length - 2);
                                 System.Console.Write(s3);
@@ -526,7 +526,7 @@ namespace " + @namespace + @"
                 {
                     if (x as SpecParserParser.TextContext != null)
                     {
-                        string s = TreeRegEx.sourceTextForContext(x);
+                        string s = TreeRegEx.GetText(x);
                         string s2 = s.Substring(2);
                         string s3 = s2.Substring(0, s2.Length - 2);
                         System.Console.Write(s3);
@@ -633,7 +633,7 @@ namespace " + @namespace + @"
             {
                 IParseTree a = x.Key;
                 List<IParseTree> b = x.Value;
-                System.Console.WriteLine(TreeRegEx.sourceTextForContext(a));
+                System.Console.WriteLine(TreeRegEx.GetText(a));
             }
         }
 
@@ -694,7 +694,7 @@ namespace " + @namespace + @"
                 var template = _piggy._templates.Find(t => t.TemplateName == template_name);
                 List<Pass> passes = GetAllPassesNamed(template, pass_name);
                 TreeRegEx regex = new TreeRegEx(_piggy, passes, _instances[template.Type]);
-                regex.dfs_match();
+                regex.Match();
                 if (grep_only) OutputMatches(regex);
                 else PatternMatchingEngine(regex);
             }

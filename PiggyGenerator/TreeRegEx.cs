@@ -77,30 +77,7 @@
             }
         }
 
-        // Pattern matcher.
-        public static string sourceTextForContext(IParseTree context)
-        {
-            if (context as Antlr4.Runtime.Tree.TerminalNodeImpl != null)
-            {
-                return context.GetText();
-            }
-            var x = context as Antlr4.Runtime.ParserRuleContext;
-            if (x == null)
-            {
-                return "UNKNOWN TYPE!";
-            }
-            var c = x;
-            IToken startToken = c.Start;
-            IToken stopToken = c.Stop;
-            ICharStream cs = startToken.InputStream;
-            int startIndex = startToken.StartIndex;
-            int stopIndex = stopToken.StopIndex;
-            if (startIndex > stopIndex)
-                startIndex = stopIndex;
-            return cs.GetText(new Antlr4.Runtime.Misc.Interval(startIndex, stopIndex));
-        }
-
-        public void dfs_match()
+        public void Match()
         {
             var visited = new HashSet<IParseTree>();
             var stack = new Stack<IParseTree>();
@@ -122,7 +99,7 @@
                         var nfa_match = new NfaMatch(this);
                         // Try matching at vertex, if the node hasn't been already matched.
                         _matches.TryGetValue(ast_node, out List<IParseTree> val);
-                        bool do_matching = val == null || !val.Where(xx => is_pattern_kleene(xx) || is_pattern_simple(xx)).Any();
+                        bool do_matching = val == null || !val.Where(xx => IsPatternKleene(xx) || IsPatternSimple(xx)).Any();
                         var matched = do_matching && nfa_match.IsMatch(dfa, ast_node);
                         if (matched)
                         {
@@ -151,16 +128,38 @@
             }
         }
 
-        private bool is_pattern_simple(IParseTree p)
+        private bool IsPatternSimple(IParseTree p)
         {
             var q = p.GetChild(0);
             return q as SpecParserParser.Simple_basicContext != null;
         }
 
-        private bool is_pattern_kleene(IParseTree p)
+        private bool IsPatternKleene(IParseTree p)
         {
             var q = p.GetChild(0);
             return q as SpecParserParser.Kleene_star_basicContext != null;
+        }
+
+        public static string GetText(IParseTree context)
+        {
+            if (context as Antlr4.Runtime.Tree.TerminalNodeImpl != null)
+            {
+                return context.GetText();
+            }
+            var x = context as Antlr4.Runtime.ParserRuleContext;
+            if (x == null)
+            {
+                return "UNKNOWN TYPE!";
+            }
+            var c = x;
+            IToken startToken = c.Start;
+            IToken stopToken = c.Stop;
+            ICharStream cs = startToken.InputStream;
+            int startIndex = startToken.StartIndex;
+            int stopIndex = stopToken.StopIndex;
+            if (startIndex > stopIndex)
+                startIndex = stopIndex;
+            return cs.GetText(new Antlr4.Runtime.Misc.Interval(startIndex, stopIndex));
         }
 
         public string ReplaceMacro(IParseTree p)
