@@ -1,9 +1,6 @@
 ﻿namespace PiggyGenerator
 {
-    using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Text;
     using System.Linq;
 
     public class NFAToDFA
@@ -34,39 +31,6 @@
             return false;
         }
 
-
-        public bool containSameStates(State[] states1, State[] states2)
-        {
-            int len1 = states1.Length;
-            int len2 = states2.Length;
-            if (len1 != len2)
-                return false;
-
-            //        Arrays.sort(states1, new Comparator<State>()
-            //        {
-
-            //                public int compare(State s, State t)
-            //                {
-            //                    return s.hashCode() - t.hashCode();
-            //                }
-
-            //	    Arrays.sort(states2, new Comparator<State>(){
-            //	    	    public int compare(State s, State t)
-            //    {
-            //        return s.hashCode() - t.hashCode();
-            //    }
-            //}); 
-
-            for (int k = 0; k < states1.Length; k++)
-            {
-                //			if (!containsState(states1[k], states2))
-                //				return false;
-                if (states1[k] != states2[k])
-                    return false;
-            }
-            return true;
-        }
-
         public State AddHashSetState(Automaton dfa, SmartSet<State> states)
         {
             State result = FindHashSetState(dfa, states);
@@ -89,6 +53,7 @@
                 if (hs.Value == state) return hs.Key;
             return null;
         }
+
         public Automaton ConvertToDFA(Automaton nfa)
         {
             var dfa = new Automaton();

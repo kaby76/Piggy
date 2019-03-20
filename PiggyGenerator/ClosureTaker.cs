@@ -8,31 +8,25 @@
 
         public static SmartSet<State> GetClosure(IEnumerable<State> states, Automaton automaton)
         {
-            var list = new SmartSet<State>();
+            var list = new List<State>();
             foreach (var state in states) list.Add(state);
-            bool changed = true;
-            for (; ;)
+            for (int i = 0; i < list.Count; i++)
             {
-                changed = false;
-                SmartSet<State> new_list = new SmartSet<State>();
-                foreach (var state in list)
+                var state = list[i];
+                var transitions = automaton.AllEdges(state);
+                foreach (var transition in transitions)
                 {
-                    var transitions = automaton.AllEdges(state);
-                    foreach (var transition in transitions)
+                    if (automaton.IsLambdaTransition(transition))
                     {
-                        if (automaton.IsLambdaTransition(transition))
-                        {
-                            var toState = transition._to;
-                            if (new_list.Contains(toState)) continue;
-                            changed = true;
-                            new_list.Add(toState);
-                        }
+                        var toState = transition._to;
+                        if (list.Contains(toState)) continue;
+                        list.Add(toState);
                     }
                 }
-                if (!changed) break;
-                list = new_list;
             }
-            return list;
+            var result = new SmartSet<State>();
+            result.UnionWith(list);
+            return result;
         }
     }
 }
