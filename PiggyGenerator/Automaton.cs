@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Text;
     using System.Linq;
+    using PiggyRuntime;
 
     public class Automaton
     {
@@ -69,7 +70,7 @@
                 else if (e._c_text == null)
                     sb.Append(" empty ");
                 else
-                    sb.Append(e._c_text);
+                    sb.Append(e._c_text.provide_escapes());
                 sb.AppendLine("\"];");
             }
             foreach (var ss in StartStates) sb.AppendLine(ss + " [shape=box];");

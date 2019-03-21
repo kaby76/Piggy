@@ -7,7 +7,7 @@
     /**
      * NFA via Thompson's Construction.
      */
-    public class NFA : Automaton
+    public class NFA
     {
         /**
          * Computes and returns the post-order nodes of a tree.
@@ -40,9 +40,8 @@
         /**
          * Generates the NFA from the given tree pattern using Thompson's Construction.
          */
-        public static Automaton post2nfa(IParseTree tree)
+        public static Automaton post2nfa(Automaton nfa, IParseTree tree)
         {
-            var nfa = new Automaton();
             var post_order = ComputePostOrder(tree);
             Stack<Fragment> fragmentStack = new Stack<Fragment>();
             Fragment completeNfa = new Fragment();
@@ -219,7 +218,6 @@
             if (fragmentStack.Count > 0)
                 throw new System.Exception("Fragment stack not empty.");
             foreach (var s in completeNfa.OutStates) nfa.AddEndState(s);
-            foreach (var s in nfa.EndStates) s._match = true;
             nfa.AddStartState(completeNfa.StartState);
             System.Console.Error.WriteLine(nfa);
             return nfa;

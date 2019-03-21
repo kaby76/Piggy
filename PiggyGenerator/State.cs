@@ -10,7 +10,6 @@
     public class State
     {
         public List<Edge> _out_edges;
-        public bool _match;
         private Automaton _owner;
         private static int _next_id;
         public int Id { get; private set; }
