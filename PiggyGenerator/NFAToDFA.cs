@@ -68,7 +68,7 @@
             {
                 var dfa_state = stack.Pop();
                 var nfa_state_set = FindHashSet(dfa_state);
-                var transitions = ClosureTaker.Step(nfa_state_set);
+                var transitions = ClosureTaker.GatherTransitions(nfa_state_set);
                 foreach (KeyValuePair<string, List<Edge>> transition_set in transitions)
                 {
                     // Note, transitions is a collection of edges for a given string.
@@ -88,6 +88,12 @@
                         state.Commit();
                         stack.Push(state);
                         new_dfa_state = state;
+                        bool mark = false;
+                        foreach (var s in new_state_set)
+                            if (nfa.EndStates.Contains(s))
+                                mark = true;
+                        if (mark && !dfa.EndStates.Contains(new_dfa_state))
+                            dfa.AddEndState(new_dfa_state);
                     }
                     // Add edges, if it doesn't exist already.
                     int mods = value.First()._edge_modifiers;
@@ -97,11 +103,6 @@
                             asts.Add(v2);
                     var he = new Edge(dfa, dfa_state, new_dfa_state, asts, mods);
                     if (!new_dfa_state._out_edges.Contains(he)) he.Commit();
-
-                    bool mark = false;
-                    foreach (var s in nfa_state_set) if (nfa.EndStates.Contains(s)) mark = true;
-                    if (mark && !dfa.EndStates.Contains(new_dfa_state))
-                        dfa.AddEndState(new_dfa_state);
                 }
             }
             return dfa;

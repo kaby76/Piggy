@@ -6,7 +6,7 @@
     public class ClosureTaker
     {
         private ClosureTaker() { }
-        public static MultiMap<string, Edge> Step(IEnumerable<State> state_set)
+        public static MultiMap<string, Edge> GatherTransitions(IEnumerable<State> state_set)
         {
             MultiMap<string, Edge> transitions = new MultiMap<string, Edge>();
             foreach (var s in state_set)
