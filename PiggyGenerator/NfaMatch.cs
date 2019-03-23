@@ -7,6 +7,7 @@ namespace PiggyGenerator
     using System.Linq;
     using System;
     using System.Text.RegularExpressions;
+    using PiggyRuntime;
 
     public class NfaMatch
     {
@@ -160,37 +161,43 @@ namespace PiggyGenerator
                 State s = l._to;
                 foreach (Edge e in s._out_edges)
                 {
-                    if (e._c_text == null)
+                    if (e._c == Edge.EmptyString)
                     {
                         addPath(null, p, nextList, e, listID, gen);
                     }
-                    else if (e._c_text == c.GetText())
+                    else if (e._c == c.GetText())
                     {
                         addPath(c, p, nextList, e, listID, gen);
                     }
-                    else if (e._c_text == "<" && "(" == c.GetText())
+                    else if (e._c == "<" && "(" == c.GetText())
                     {
                         addPath(c, p, nextList, e, listID, gen);
                     }
-                    else if (e._c_text == ">" && ")" == c.GetText())
+                    else if (e._c == ">" && ")" == c.GetText())
                     {
                         addPath(c, p, nextList, e, listID, gen);
                     }
-                    else if (e._c_text == "*")
+                    else if (e._c == "*")
                     {
                         addPath(c, p, nextList, e, listID, gen);
                     }
-                    else if (e._any)
+                    else if (e.IsAny)
                     {
                         addPath(c, p, nextList, e, listID, gen);
                     }
-                    else if (e._c_text.StartsWith("$\""))
+                    else if (e.IsCode || e.IsText)
                     {
-                        string pattern = e._c_text.Substring(2);
+                        addPath(null, p, nextList, e, listID, gen);
+                    }
+                    else if (e._c.StartsWith("$\""))
+                    {
+                        string pattern = e._c.Substring(2);
                         pattern = pattern.Substring(0, pattern.Length - 1);
                         try
                         {
-                            var attr = e._c;
+                            var ch = e._c;
+                            if (e.AstList.Count() > 1) throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");
+                            IParseTree attr = e.AstList.First();
                             for (; ; )
                             {
                                 if (attr == null) break;
@@ -232,23 +239,23 @@ namespace PiggyGenerator
                 State s = currentList[i];
                 foreach (Edge e in s._out_edges)
                 {
-                    if (e._c_text == null)
+                    if (e._c == Edge.EmptyString)
                     {
                         addPath(null, null, nextList, e, listID, gen);
                     }
-                    else if (e._c_text == c.GetText())
+                    else if (e._c == c.GetText())
                     {
                         addPath(c, null, nextList, e, listID, gen);
                     }
-                    else if (e._c_text == "<" && "(" == c.GetText())
+                    else if (e._c == "<" && "(" == c.GetText())
                     {
                         addPath(c, null, nextList, e, listID, gen);
                     }
-                    else if (e._c_text == ">" && ")" == c.GetText())
+                    else if (e._c == ">" && ")" == c.GetText())
                     {
                         addPath(c, null, nextList, e, listID, gen);
                     }
-                    else if (e._any)
+                    else if (e.IsAny)
                     {
                         addPath(c, null, nextList, e, listID, gen);
                     }

@@ -15,8 +15,10 @@
         public static bool IsLambdaTransition(Edge e)
         {
             if (e._c != null) return false;
-            else if (e._any) return false;
-            else if (e._other != null) return false;
+            else if (e.IsAny) return false;
+            else if (e.IsCode) return false;
+            else if (e.IsText) return false;
+            else if (e.IsNot) return false;
             else return true;
         }
         public IEnumerable<Edge> AllEdges()
@@ -61,16 +63,16 @@
             {
                 sb.Append(e._from + " -> " + e._to
                     + " [label=\"");
-                if (e._other != null && e._other as SpecParserParser.TextContext != null)
+                if (e.IsText)
                     sb.Append("[[ text ]]");
-                else if (e._other != null && e._other as SpecParserParser.CodeContext != null)
+                else if (e.IsCode)
                     sb.Append("{{ code }}");
-                else if (e._any)
+                else if (e.IsAny)
                     sb.Append(" any ");
-                else if (e._c_text == null)
+                else if (e._c == null)
                     sb.Append(" empty ");
                 else
-                    sb.Append(e._c_text.provide_escapes());
+                    sb.Append(e._c.provide_escapes());
                 sb.AppendLine("\"];");
             }
             foreach (var ss in StartStates) sb.AppendLine(ss + " [shape=box];");

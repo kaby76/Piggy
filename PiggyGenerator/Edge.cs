@@ -3,6 +3,7 @@
     using Antlr4.Runtime.Tree;
     using System.Collections.Generic;
     using System.Text;
+    using System.Linq;
 
     public class Edge
     {
@@ -11,35 +12,58 @@
             Exact = 0,
             Not = 1,
             Any = 2,
+            Code = 4,
+            Text = 8
         }
 
         public State _from;
         public State _to;
-        public IParseTree _c;
-        public IParseTree _other;
-        public bool _not;
-        public bool _any;
-        public string _c_text;
-        public System.Type _c_type;
+        public string _c;
+        public int _pattern_id;
         private Automaton _owner;
         public int _edge_modifiers;
+        public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
+        public static readonly string EmptyString = null;
 
-        public Edge(Automaton o, State f, State t, IParseTree c, IParseTree other, int edge_modifiers = 0)
+        public Edge(Automaton o, State f, State t, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
         {
             _owner = o;
             _from = f;
             _to = t;
-            _other = other;
-            _c = c; // Null indicates empty string.
-            if (_c != null)
-            {
-                _c_text = _c.GetText();
-                _c_type = _c.GetType();
-            }
+            AstList = ast_list;
+            if (ast_list.Count() == 0) _c = EmptyString;
+            else _c = ast_list.First().GetText();
             _edge_modifiers = edge_modifiers;
-            _not = 0 != (edge_modifiers & (int)EdgeModifiers.Not);
-            _any = 0 != (edge_modifiers & (int)EdgeModifiers.Any);
         }
+        public bool IsAny
+        {
+            get
+            {
+                return 0 != (_edge_modifiers & (int)EdgeModifiers.Any);
+            }
+        }
+        public bool IsNot
+        {
+            get
+            {
+                return 0 != (_edge_modifiers & (int)EdgeModifiers.Not);
+            }
+        }
+        public bool IsText
+        {
+            get
+            {
+                return 0 != (_edge_modifiers & (int)EdgeModifiers.Text);
+            }
+        }
+        public bool IsCode
+        {
+            get
+            {
+                return 0 != (_edge_modifiers & (int)EdgeModifiers.Code);
+            }
+        }
+        public IEnumerable<IParseTree> AstList { get; protected set; }
         public void Commit()
         {
             _owner.AddEdge(this);
@@ -56,13 +80,14 @@
             if (o == null) return false;
             if (this._from != o._from || this._to != o._to) return false;
             if (this._c != o._c) return false;
-            if (this._other != o._other) return false;
+            if (this._edge_modifiers != o._edge_modifiers) return false;
             return true;
         }
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(this._from + " -> " + this._to + " on " + (this._c_text == null ? "empty" : this._c_text));
+            sb.Append(this._from + " -> " + this._to
+                + " on '" + (this._c == null ? "empty" : this._c) + "'");
             return sb.ToString();
         }
     }

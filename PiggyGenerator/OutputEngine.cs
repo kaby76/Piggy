@@ -396,46 +396,45 @@ namespace " + @namespace + @"
                     {
                         Path cpe = pe.Current;
                         // System.Console.Error.WriteLine(cpe.LastEdge);
-                        if (cpe.LastEdge._other != null)
+                        if (0 != (cpe.LastEdge._edge_modifiers & (int)Edge.EdgeModifiers.Text))
                         {
-                            var x = cpe.LastEdge._other;
-                            // code or text.
-                            if (x as SpecParserParser.TextContext != null)
+                            var x = cpe.LastEdge._c;
                             {
-                                string s = TreeRegEx.GetText(x);
+                                string s = x;
                                 string s2 = s.Substring(2);
                                 string s3 = s2.Substring(0, s2.Length - 2);
                                 System.Console.Write(s3);
                             }
-                            else if (x as SpecParserParser.CodeContext != null)
+                        } else if (cpe.LastEdge.IsCode)
+                        {
+                            // move back to find a terminal.
+                            Path find = cpe;
+                            IParseTree con = null;
+                            for (; ; )
                             {
-                                // move back to find a terminal.
-                                Path find = cpe;
-                                IParseTree con = null;
-                                for (; ;)
-                                {
-                                    if (find == null) break;
-                                    con = find.Ast;
-                                    if (con != null) break;
-                                    find = find.Next;
-                                }
-                                while (con != null)
-                                {
-                                    if (con as AstParserParser.DeclContext != null) break;
-                                    con = re._parent[con];
-                                }
+                                if (find == null) break;
+                                con = find.Ast;
+                                if (con != null) break;
+                                find = find.Next;
+                            }
+                            while (con != null)
+                            {
+                                if (con as AstParserParser.DeclContext != null) break;
+                                con = re._parent[con];
+                            }
 
-                                try
-                                {
-                                    MethodInfo main = _piggy._code_blocks[x];
-                                    Type type = re._current_type;
-                                    object instance = re._instance;
-                                    object[] aa = new object[] { new Tree(re._parent, re._ast, con, re._common_token_stream) };
-                                    var res = main.Invoke(instance, aa);
-                                }
-                                finally
-                                {
-                                }
+                            try
+                            {
+                                var x = cpe.LastEdge.AstList;
+                                if (x.Count() > 1) throw new Exception("Cannot execute multiple code blocks.");
+                                MethodInfo main = _piggy._code_blocks[x.First()];
+                                Type type = re._current_type;
+                                object instance = re._instance;
+                                object[] aa = new object[] { new Tree(re._parent, re._ast, con, re._common_token_stream) };
+                                var res = main.Invoke(instance, aa);
+                            }
+                            finally
+                            {
                             }
                         }
 

@@ -83,20 +83,22 @@
             var stack = new Stack<IParseTree>();
             stack.Push(_ast);
 
-            // Combine all patterns of a pass into one NFA.
             foreach (var pass in this._passes)
             {
+                // Combine all patterns of a pass into one NFA,
+                // then one, beautifully massive DFA.
                 var nfa = new Automaton();
                 foreach (Pattern pattern in pass.Patterns)
                 {
-                    SpecParserParser.PatternContext t = pattern.AstNode as SpecParserParser.PatternContext;
-                    NFA.post2nfa(nfa, t);
+                    NFA.post2nfa(nfa, pattern);
                 }
-
+                System.Console.Error.WriteLine(nfa);
                 _current_type = pass.Owner.Type;
                 var nfa_to_dfa = new NFAToDFA();
                 var dfa = nfa_to_dfa.ConvertToDFA(nfa);
                 System.Console.Error.WriteLine(dfa);
+
+                // Perform naive matching for each node.
                 foreach (var ast_node in _pre_order)
                 {
                     var nfa_match = new NfaMatch(this);
@@ -114,7 +116,7 @@
                                 var e = ee.LastEdge;
                                 if (e._c != null)
                                 {
-                                    var pat = e._c;
+                                    var pat = e.AstList.First();
                                     foreach (IParseTree ast in new NfaMatch.EnumerableIParseTree(ast_node))
                                     {
                                         if (ast as TerminalNodeImpl == null)
