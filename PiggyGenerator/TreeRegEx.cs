@@ -105,7 +105,7 @@
                     // Try matching at vertex, if the node hasn't been already matched.
                     _matches.TryGetValue(ast_node, out List<IParseTree> val);
                     bool do_matching = val == null || !val.Where(xx => IsPatternKleene(xx) || IsPatternSimple(xx)).Any();
-                    var matched = do_matching && nfa_match.IsMatch(dfa, ast_node);
+                    var matched = do_matching && nfa_match.FindMatches(dfa, ast_node);
                     if (matched)
                     {
                         foreach (Path p in nfa_match.MatchingPaths)

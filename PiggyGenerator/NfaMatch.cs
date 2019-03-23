@@ -1,13 +1,11 @@
-﻿
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using Antlr4.Runtime.Tree;
+    using System.Collections.Generic;
+    using System.Collections;
     using System.Linq;
-    using System;
     using System.Text.RegularExpressions;
-    using PiggyRuntime;
+    using System;
 
     public class NfaMatch
     {
@@ -65,7 +63,7 @@ namespace PiggyGenerator
             _tree_re = tree_re;
         }
 
-        public bool IsMatch(Automaton nfa, IParseTree input)
+        public bool FindMatches(Automaton nfa, IParseTree input)
         {
             var currentList = new List<Path>();
             var nextList = new List<Path>();
@@ -81,12 +79,12 @@ namespace PiggyGenerator
                     var start_states = nfa.StartStates;
                     var start_state_list = new List<State>();
                     foreach (var s in start_states) addState(start_state_list, s, listID, generation);
-                    listID = stepPath(start_state_list, c, nextList, listID, generation);
+                    listID = Step(start_state_list, c, nextList, listID, generation);
                     first = false;
                 }
                 else
                 {
-                    listID = stepPath(currentList, c, nextList, listID, generation);
+                    listID = Step(currentList, c, nextList, listID, generation);
                 }
                 currentList = nextList;
                 if (!currentList.Any())
@@ -150,7 +148,7 @@ namespace PiggyGenerator
             }
         }
 
-        private int stepPath(List<Path> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<State, int> gen)
+        private int Step(List<Path> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<State, int> gen)
         {
             listID++;
             for (int i = 0; i < currentList.Count; i++)
@@ -163,31 +161,31 @@ namespace PiggyGenerator
                 {
                     if (e._c == Edge.EmptyString)
                     {
-                        addPath(null, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(null, p, nextList, e, listID, gen);
                     }
                     else if (e._c == c.GetText())
                     {
-                        addPath(c, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
                     else if (e._c == "<" && "(" == c.GetText())
                     {
-                        addPath(c, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
                     else if (e._c == ">" && ")" == c.GetText())
                     {
-                        addPath(c, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
                     else if (e._c == "*")
                     {
-                        addPath(c, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
                     else if (e.IsAny)
                     {
-                        addPath(c, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
                     else if (e.IsCode || e.IsText)
                     {
-                        addPath(null, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(null, p, nextList, e, listID, gen);
                     }
                     else if (e._c.StartsWith("$\""))
                     {
@@ -221,7 +219,7 @@ namespace PiggyGenerator
                         var matched = re.Match(tvaltext);
                         var result = matched.Success;
                         if (result)
-                            addPath(c, p, nextList, e, listID, gen);
+                            AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
                     else
                     {
@@ -231,7 +229,7 @@ namespace PiggyGenerator
             return listID;
         }
 
-        private int stepPath(List<State> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<State, int> gen)
+        private int Step(List<State> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<State, int> gen)
         {
             listID++;
             for (int i = 0; i < currentList.Count; i++)
@@ -241,30 +239,30 @@ namespace PiggyGenerator
                 {
                     if (e._c == Edge.EmptyString)
                     {
-                        addPath(null, null, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(null, null, nextList, e, listID, gen);
                     }
                     else if (e._c == c.GetText())
                     {
-                        addPath(c, null, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, null, nextList, e, listID, gen);
                     }
                     else if (e._c == "<" && "(" == c.GetText())
                     {
-                        addPath(c, null, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, null, nextList, e, listID, gen);
                     }
                     else if (e._c == ">" && ")" == c.GetText())
                     {
-                        addPath(c, null, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, null, nextList, e, listID, gen);
                     }
                     else if (e.IsAny)
                     {
-                        addPath(c, null, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, null, nextList, e, listID, gen);
                     }
                 }
             }
             return listID;
         }
 
-        private void addPath(IParseTree c, Path path, List<Path> list, Edge e, int listID, Dictionary<State, int> gen)
+        private void AppendEdgeToPathSet(IParseTree c, Path path, List<Path> list, Edge e, int listID, Dictionary<State, int> gen)
         {
             var s = e._to;
             var sf = e._from;
@@ -291,7 +289,7 @@ namespace PiggyGenerator
             foreach (var o in s._out_edges)
                 if (Automaton.IsLambdaTransition(o))
                 {
-                    addPath(null, added, list, o, listID, gen);
+                    AppendEdgeToPathSet(null, added, list, o, listID, gen);
                 }
         }
     }
