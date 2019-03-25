@@ -43,7 +43,7 @@
         /**
          * @return true, if the state is a match state.
          */
-        public bool isMatch()
+        public bool IsFinalState()
         {
             return Owner.EndStates.Contains(this);
         }

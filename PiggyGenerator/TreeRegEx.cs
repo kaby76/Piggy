@@ -4,8 +4,6 @@
     using Antlr4.Runtime;
     using PiggyRuntime;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.RegularExpressions;
     using System;
 
     public class TreeRegEx
@@ -14,9 +12,9 @@
         public Type _current_type;
         public object _instance;
         public CommonTokenStream _common_token_stream;
-        public Intercept<IParseTree, IParseTree> _matches = new Intercept<IParseTree, IParseTree>();
+        public HashSet<IParseTree> _matches = new HashSet<IParseTree>();
         public HashSet<IParseTree> _top_level_matches = new HashSet<IParseTree>();
-        public Intercept<IParseTree, Path> _top_level_paths = new Intercept<IParseTree, Path>();
+        public Intercept<IParseTree, Path> _matches_path_start = new Intercept<IParseTree, Path>();
         public Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
         public List<Pass> _passes;
         public Piggy _piggy;
@@ -80,9 +78,6 @@
         public void Match()
         {
             var visited = new HashSet<IParseTree>();
-            var stack = new Stack<IParseTree>();
-            stack.Push(_ast);
-
             foreach (var pass in this._passes)
             {
                 // Combine all patterns of a pass into one NFA,
@@ -101,31 +96,31 @@
                 // Perform naive matching for each node.
                 foreach (var ast_node in _pre_order)
                 {
-                    var nfa_match = new NfaMatch(this);
-                    // Try matching at vertex, if the node hasn't been already matched.
-                    _matches.TryGetValue(ast_node, out List<IParseTree> val);
-                    bool do_matching = val == null || !val.Where(xx => IsPatternKleene(xx) || IsPatternSimple(xx)).Any();
+                    var nfa_match = new NfaMatch(this._parent,
+                        this._piggy._code_blocks, this._instance);
+                    bool has_previous_match = _matches.Contains(ast_node);
+                    bool do_matching = (!has_previous_match);
                     var matched = do_matching && nfa_match.FindMatches(dfa, ast_node);
                     if (matched)
                     {
+                        // If this node matched, then mark entire subtree as matched.
+                        var stack = new Stack<IParseTree>();
+                        stack.Push(ast_node);
+                        while (stack.Count > 0)
+                        {
+                            var v = stack.Pop();
+                            _matches.Add(v);
+                            for (int i = v.ChildCount - 1; i >= 0; --i)
+                            {
+                                var c = v.GetChild(i);
+                                if (!visited.Contains(c))
+                                    stack.Push(c);
+                            }
+                        }
+                        _top_level_matches.Add(ast_node);
                         foreach (Path p in nfa_match.MatchingPaths)
                         {
-                            _top_level_paths.MyAdd(ast_node, p);
-                            foreach (var ee in p)
-                            {
-                                var e = ee.LastEdge;
-                                if (e._c != null)
-                                {
-                                    var pat = e.AstList.First();
-                                    foreach (IParseTree ast in new NfaMatch.EnumerableIParseTree(ast_node))
-                                    {
-                                        if (ast as TerminalNodeImpl == null)
-                                            continue;
-                                        _matches.MyAdd(ast, pat);
-                                    }
-                                    _top_level_matches.Add(ast_node);
-                                }
-                            }
+                            _matches_path_start.MyAdd(ast_node, p);
                         }
                     }
                 }
@@ -164,24 +159,6 @@
             if (startIndex > stopIndex)
                 startIndex = stopIndex;
             return cs.GetText(new Antlr4.Runtime.Misc.Interval(startIndex, stopIndex));
-        }
-
-        public string ReplaceMacro(IParseTree p)
-        {
-            // Try in order current type, then all other types.
-            try
-            {
-                var main = _piggy._code_blocks[p];
-                Type current_type = _current_type;
-                object instance = this._instance;
-                object[] a = new object[] { };
-                var res = main.Invoke(instance, a);
-                return res as string;
-            }
-            catch (Exception e)
-            {
-            }
-            throw new Exception("Cannot eval expression.");
         }
     }
 }

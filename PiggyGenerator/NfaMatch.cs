@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using System;
+    using System.Reflection;
 
     public class NfaMatch
     {
@@ -55,12 +56,32 @@
         {
             get; private set;
         }
-        private TreeRegEx _tree_re;
+        private Dictionary<IParseTree, IParseTree> _parent;
+        private Dictionary<IParseTree, MethodInfo> _code_blocks;
+        private object _instance;
 
-        public NfaMatch(TreeRegEx tree_re)
+        public NfaMatch(Dictionary<IParseTree, IParseTree> parent,
+            Dictionary<IParseTree, MethodInfo> code_blocks,
+            object instance)
         {
             MatchingPaths = new List<Path>();
-            _tree_re = tree_re;
+            _parent = parent;
+            _code_blocks = code_blocks;
+            _instance = instance;
+        }
+
+        public string ReplaceMacro(IParseTree p)
+        {
+            // Try in order current type, then all other types.
+            try
+            {
+                var res = _code_blocks[p].Invoke(_instance, new object[] { });
+                return res as string;
+            }
+            catch (Exception e)
+            {
+            }
+            throw new Exception("Cannot eval expression.");
         }
 
         public bool FindMatches(Automaton nfa, IParseTree input)
@@ -91,21 +112,15 @@
                     break;
                 nextList = new List<Path>();
             }
-            var result = ContainsMatchState(currentList);
-            return result;
-        }
-
-        private bool ContainsMatchState(List<Path> finalList)
-        {
             int matches = 0;
-            for (int i = 0; i < finalList.Count; i++)
+            for (int i = 0; i < currentList.Count; i++)
             {
-                Path l = finalList[i];
+                Path l = currentList[i];
                 //foreach (var x in l)
                 //    System.Console.WriteLine(x);
                 Edge e = l.LastEdge;
                 State s = e._to;
-                if (s.isMatch())
+                if (s.IsFinalState())
                 {
                     matches++;
                     MatchingPaths.Add(l);
@@ -113,9 +128,8 @@
             }
             if (matches > 1)
             {
-
             }
-            return matches > 0;
+            return matches != 0;
         }
 
         private void addState(List<State> list, State s, int listID, Dictionary<State, int> gen)
@@ -194,15 +208,17 @@
                         try
                         {
                             var ch = e._c;
-                            if (e.AstList.Count() > 1) throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");
+                            if (e.AstList.Count() > 1)
+                                ;
+                            //throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");
                             IParseTree attr = e.AstList.First();
                             for (; ; )
                             {
                                 if (attr == null) break;
                                 if (attr as SpecParserParser.AttrContext != null) break;
-                                attr = this._tree_re._parent[attr];
+                                attr = _parent[attr];
                             }
-                            pattern = _tree_re.ReplaceMacro(attr);
+                            pattern = ReplaceMacro(attr);
                         }
                         catch (System.Exception ex)
                         {

@@ -388,7 +388,7 @@ namespace " + @namespace + @"
                 IParseTree a = zz; // tree
                 //System.Console.Error.WriteLine("------");
                 //System.Console.Error.WriteLine(a.GetText());
-                foreach (var path in re._top_level_paths[a])
+                foreach (var path in re._matches_path_start[a])
                 {
                     IEnumerator<Path> pe = path.GetEnumerator();
                     pe.MoveNext();
