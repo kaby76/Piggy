@@ -66,7 +66,7 @@
                         pp = pp.Substring(3);
                         pp = pp.Substring(0, pp.Length - 2);
                         var code = pp;
-                        result.Add(v, code);
+                        result.Add(p_val, code);
                     }
                     continue;
                 }

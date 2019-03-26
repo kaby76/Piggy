@@ -420,7 +420,7 @@ namespace " + @namespace + @"
                             while (con != null)
                             {
                                 if (con as AstParserParser.DeclContext != null) break;
-                                con = re._parent[con];
+                                con = re._ast.Parents()[con];
                             }
 
                             try
@@ -430,7 +430,7 @@ namespace " + @namespace + @"
                                 MethodInfo main = _piggy._code_blocks[x.First()];
                                 Type type = re._current_type;
                                 object instance = re._instance;
-                                object[] aa = new object[] { new Tree(re._parent, re._ast, con, re._common_token_stream) };
+                                object[] aa = new object[] { new Tree(re._ast.Parents(), re._ast, con, re._common_token_stream) };
                                 var res = main.Invoke(instance, aa);
                             }
                             finally

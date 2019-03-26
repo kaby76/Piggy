@@ -88,7 +88,7 @@
         {
             var currentList = new List<Path>();
             var nextList = new List<Path>();
-            var generation = new Dictionary<State, int>();
+            var generation = new Dictionary<Edge, int>();
             int listID = 0;
             bool first = true;
             foreach (var c in new EnumerableIParseTree(input))
@@ -107,6 +107,7 @@
                 {
                     listID = Step(currentList, c, nextList, listID, generation);
                 }
+                var oldlist = currentList;
                 currentList = nextList;
                 if (!currentList.Any())
                     break;
@@ -129,14 +130,19 @@
             if (matches > 1)
             {
             }
+            foreach (var m in MatchingPaths)
+            {
+                System.Console.WriteLine("match ----- ");
+                foreach (var ss in m)
+                {
+                    System.Console.WriteLine(ss.LastEdge + " sym " + (ss.Ast == null ? "empty" : ss.Ast.GetText()));
+                }
+            }
             return matches != 0;
         }
 
-        private void addState(List<State> list, State s, int listID, Dictionary<State, int> gen)
+        private void addState(List<State> list, State s, int listID, Dictionary<Edge, int> gen)
         {
-            if (s == null || (gen.TryGetValue(s, out int last) && last == listID))
-                return;
-            gen[s] = listID;
             list.Add(s);
             // If s contains any edges over epsilon, then add them.
             foreach (var e in s._out_edges)
@@ -162,7 +168,7 @@
             }
         }
 
-        private int Step(List<Path> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<State, int> gen)
+        private int Step(List<Path> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<Edge, int> gen)
         {
             listID++;
             for (int i = 0; i < currentList.Count; i++)
@@ -171,11 +177,13 @@
                 CheckPath(p);
                 Edge l = p.LastEdge;
                 State s = l._to;
+                if (s.Id == 58)
+                { }
                 foreach (Edge e in s._out_edges)
                 {
-                    if (e._c == Edge.EmptyString)
+                    if (e.IsAny)
                     {
-                        AppendEdgeToPathSet(null, p, nextList, e, listID, gen);
+                        AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
                     else if (e._c == c.GetText())
                     {
@@ -193,14 +201,6 @@
                     {
                         AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
-                    else if (e.IsAny)
-                    {
-                        AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
-                    }
-                    else if (e.IsCode || e.IsText)
-                    {
-                        AppendEdgeToPathSet(null, p, nextList, e, listID, gen);
-                    }
                     else if (e._c.StartsWith("$\""))
                     {
                         string pattern = e._c.Substring(2);
@@ -212,12 +212,6 @@
                                 ;
                             //throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");
                             IParseTree attr = e.AstList.First();
-                            for (; ; )
-                            {
-                                if (attr == null) break;
-                                if (attr as SpecParserParser.AttrContext != null) break;
-                                attr = _parent[attr];
-                            }
                             pattern = ReplaceMacro(attr);
                         }
                         catch (System.Exception ex)
@@ -245,7 +239,7 @@
             return listID;
         }
 
-        private int Step(List<State> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<State, int> gen)
+        private int Step(List<State> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<Edge, int> gen)
         {
             listID++;
             for (int i = 0; i < currentList.Count; i++)
@@ -278,7 +272,7 @@
             return listID;
         }
 
-        private void AppendEdgeToPathSet(IParseTree c, Path path, List<Path> list, Edge e, int listID, Dictionary<State, int> gen)
+        private void AppendEdgeToPathSet(IParseTree c, Path path, List<Path> list, Edge e, int listID, Dictionary<Edge, int> gen)
         {
             var s = e._to;
             var sf = e._from;
@@ -287,15 +281,23 @@
                 CheckPath(l);
             }
 
-            if (gen.TryGetValue(s, out int last) && last == listID)
-                return;
-            gen[s] = listID;
+            //if (gen.TryGetValue(e, out int last) && last == listID)
+            //    return;
+            //gen[e] = listID;
             if (path == null && !list.Any())
             {
                 list.Add(new Path(e, c));
             }
             else
             {
+                if (e.IsAny)
+                {
+                }
+                else
+                {
+                    if (path.Change != 0)
+                        return;
+                }
                 var p = new Path(path, e, c);
                 CheckPath(p);
                 list.Add(p);
@@ -303,7 +305,7 @@
             var added = list.Last();
             // If s contains any edges over epsilon, then add them.
             foreach (var o in s._out_edges)
-                if (Automaton.IsLambdaTransition(o))
+                if (o.IsEmpty || o.IsCode || o.IsText)
                 {
                     AppendEdgeToPathSet(null, added, list, o, listID, gen);
                 }

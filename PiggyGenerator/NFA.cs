@@ -43,7 +43,6 @@
         public static Automaton post2nfa(Automaton nfa, Pattern pattern)
         {
             var tree = pattern.AstNode as SpecParserParser.PatternContext;
-            var pid = pattern.Id;
             var post_order = ComputePostOrder(tree);
             Stack<Fragment> fragmentStack = new Stack<Fragment>();
             Fragment completeNfa = new Fragment();
@@ -65,15 +64,23 @@
                         Fragment f = fragmentStack.Pop();
                         if (i > 0)
                         {
-                            // Add in ".*"
-                            State s1 = new State(nfa); s1.Commit();
-                            State s2 = new State(nfa); s2.Commit();
-                            State s3 = new State(nfa); s3.Commit();
-                            var e1 = new Edge(nfa, s1, s2, Edge.EmptyAst); e1.Commit();
-                            var e2 = new Edge(nfa, s2, s3, Edge.EmptyAst); e2.Commit();
-                            var e3 = new Edge(nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e3.Commit();
-                            var e4 = new Edge(nfa, s3, last.StartState, Edge.EmptyAst); e4.Commit();
-                            last = new Fragment(s1, last.OutStates);
+                            if ((last.StartState._out_edges.Count == 1 &&
+                                last.StartState._out_edges[0].IsCode ||
+                                last.StartState._out_edges[0].IsText))
+                            {
+                            }
+                            else
+                            {
+                                // Add in ".*"
+                                State s1 = new State(nfa); s1.Commit();
+                                State s2 = new State(nfa); s2.Commit();
+                                State s3 = new State(nfa); s3.Commit();
+                                var e1 = new Edge(nfa, s1, s2, Edge.EmptyAst); e1.Commit();
+                                var e2 = new Edge(nfa, s2, s3, Edge.EmptyAst); e2.Commit();
+                                var e3 = new Edge(nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e3.Commit();
+                                var e4 = new Edge(nfa, s3, last.StartState, Edge.EmptyAst); e4.Commit();
+                                last = new Fragment(s1, last.OutStates);
+                            }
                         }
                         foreach (var o in f.OutStates)
                         {

@@ -65,8 +65,6 @@ namespace PiggyGenerator
             ast_parser.AddErrorListener(listener);
             IParseTree ast_tree = ast_parser.ast();
             if (listener.had_error) throw new Exception();
-            AstSymtabBuilderListener ast_listener = new AstSymtabBuilderListener(ast_tree);
-            ParseTreeWalker.Default.Walk(ast_listener, ast_tree);
             this._ast = ast_tree;
             this._common_token_stream = ast_tokens;
             if (spec_file == null && expression != null)

@@ -63,6 +63,13 @@
                 return 0 != (_edge_modifiers & (int)EdgeModifiers.Code);
             }
         }
+        public bool IsEmpty
+        {
+            get
+            {
+                return (!IsAny) && _c == Edge.EmptyString;
+            }
+        }
         public IEnumerable<IParseTree> AstList { get; protected set; }
         public void Commit()
         {
@@ -87,7 +94,13 @@
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(this._from + " -> " + this._to
-                + " on '" + (this._c == null ? "empty" : this._c) + "'");
+                + " on '");
+            if (this.IsAny) sb.Append("any");
+            else if (this.IsCode) sb.Append("code");
+            else if (this.IsText) sb.Append("text");
+            else if (this._c == Edge.EmptyString) sb.Append("empty");
+            else sb.Append(this._c);
+            sb.Append("'");
             return sb.ToString();
         }
     }

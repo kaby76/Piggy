@@ -15,11 +15,10 @@
         public HashSet<IParseTree> _matches = new HashSet<IParseTree>();
         public HashSet<IParseTree> _top_level_matches = new HashSet<IParseTree>();
         public Intercept<IParseTree, Path> _matches_path_start = new Intercept<IParseTree, Path>();
-        public Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
+        public static Dictionary<IParseTree, IParseTree> _parent = new Dictionary<IParseTree, IParseTree>();
+        public static Dictionary<string, IParseTree> tree_collections = new Dictionary<string, IParseTree>();
         public List<Pass> _passes;
         public Piggy _piggy;
-        public List<IParseTree> _pre_order = new List<IParseTree>();
-        public Dictionary<IParseTree, int> _pre_order_number = new Dictionary<IParseTree, int>();
 
         public TreeRegEx(Piggy piggy, List<Pass> passes_with_common_name, object instance)
         {
@@ -28,75 +27,26 @@
             _passes = passes_with_common_name;
             _instance = instance;
             _common_token_stream = _piggy._common_token_stream;
-
-            bool result = false;
-            var visited = new HashSet<IParseTree>();
-            var stack = new Stack<IParseTree>();
-            _parent = Parents.Compute(_ast);
-            foreach (var pass in _passes)
-            {
-                foreach (var pattern in pass.Patterns)
-                {
-                    stack.Push(pattern.AstNode);
-                    while (stack.Count > 0)
-                    {
-                        var v = stack.Pop();
-                        if (visited.Contains(v))
-                            continue;
-                        visited.Add(v);
-                        for (int i = v.ChildCount - 1; i >= 0; --i)
-                        {
-                            var c = v.GetChild(i);
-                            _parent[c] = v;
-                            if (!visited.Contains(c))
-                                stack.Push(c);
-                        }
-                    }
-                }
-            }
-
-            _pre_order = new List<IParseTree>();
-            int current_dfs_number = 0;
-            visited = new HashSet<IParseTree>();
-            stack.Push(_ast);
-            while (stack.Count > 0)
-            {
-                var v = stack.Pop();
-                if (visited.Contains(v)) continue;
-                visited.Add(v);
-                _pre_order_number[v] = current_dfs_number;
-                _pre_order.Add(v);
-                for (int i = v.ChildCount - 1; i >= 0; --i)
-                {
-                    var c = v.GetChild(i);
-                    if (!visited.Contains(c))
-                        stack.Push(c);
-                }
-            }
         }
 
         public void Match()
         {
-            var visited = new HashSet<IParseTree>();
             foreach (var pass in this._passes)
             {
+                _current_type = pass.Owner.Type;
                 // Combine all patterns of a pass into one NFA,
                 // then one, beautifully massive DFA.
                 var nfa = new Automaton();
-                foreach (Pattern pattern in pass.Patterns)
-                {
-                    NFA.post2nfa(nfa, pattern);
-                }
+                foreach (Pattern pattern in pass.Patterns) NFA.post2nfa(nfa, pattern);
                 System.Console.Error.WriteLine(nfa);
-                _current_type = pass.Owner.Type;
                 var nfa_to_dfa = new NFAToDFA();
                 var dfa = nfa_to_dfa.ConvertToDFA(nfa);
                 System.Console.Error.WriteLine(dfa);
 
                 // Perform naive matching for each node.
-                foreach (var ast_node in _pre_order)
+                foreach (var ast_node in this._ast.Preorder())
                 {
-                    var nfa_match = new NfaMatch(this._parent,
+                    var nfa_match = new NfaMatch(this._ast.Parents(),
                         this._piggy._code_blocks, this._instance);
                     bool has_previous_match = _matches.Contains(ast_node);
                     bool do_matching = (!has_previous_match);
@@ -113,8 +63,7 @@
                             for (int i = v.ChildCount - 1; i >= 0; --i)
                             {
                                 var c = v.GetChild(i);
-                                if (!visited.Contains(c))
-                                    stack.Push(c);
+                                stack.Push(c);
                             }
                         }
                         _top_level_matches.Add(ast_node);

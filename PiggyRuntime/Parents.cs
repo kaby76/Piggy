@@ -3,34 +3,56 @@
     using Antlr4.Runtime.Tree;
     using System.Collections.Generic;
 
-    public class Parents
+    public static class TreeInfo
     {
-        private static Dictionary<IParseTree, Dictionary<IParseTree, IParseTree>> _cache = new Dictionary<IParseTree, Dictionary<IParseTree, IParseTree>>();
+        private static Dictionary<IParseTree, IParseTree> _cached_parents;
+        private static Dictionary<string, IParseTree> _cached_aggregate_types;
+        private static List<IParseTree> _preorder;
 
-        public static Dictionary<IParseTree, IParseTree> Compute(IParseTree ast)
+        private static void Compute(IParseTree ast)
         {
-            if (_cache.TryGetValue(ast, out Dictionary<IParseTree, IParseTree> result))
-                return result;
-            Dictionary<IParseTree, IParseTree> parent = new Dictionary<IParseTree, IParseTree>();
-            var visited = new HashSet<IParseTree>();
+            _cached_parents = new Dictionary<IParseTree, IParseTree>();
+            _cached_aggregate_types = new Dictionary<string, IParseTree>();
+            _preorder = new List<IParseTree>();
             var stack = new Stack<IParseTree>();
             stack.Push(ast);
             while (stack.Count > 0)
             {
                 var v = stack.Pop();
-                if (visited.Contains(v))
-                    continue;
-                visited.Add(v);
+                _preorder.Add(v);
+                if (v as AstParserParser.DeclContext != null)
+                {
+                    var n = v.GetChild(1);
+                    _cached_aggregate_types[n.GetText()] = v;
+                }
                 for (int i = v.ChildCount - 1; i >= 0; --i)
                 {
                     var c = v.GetChild(i);
-                    parent[c] = v;
-                    if (!visited.Contains(c))
-                        stack.Push(c);
+                    _cached_parents[c] = v;
+                    stack.Push(c);
                 }
             }
-            _cache[ast] = parent;
-            return parent;
+        }
+
+        public static Dictionary<IParseTree, IParseTree> Parents(this IParseTree ast)
+        {
+            if (_cached_parents == null)
+                Compute(ast);
+            return _cached_parents;
+        }
+
+        public static Dictionary<string, IParseTree> AggregateTypes(this IParseTree ast)
+        {
+            if (_cached_parents == null)
+                Compute(ast);
+            return _cached_aggregate_types;
+        }
+
+        public static List<IParseTree> Preorder(this IParseTree ast)
+        {
+            if (_cached_parents == null)
+                Compute(ast);
+            return _preorder;
         }
     }
 }

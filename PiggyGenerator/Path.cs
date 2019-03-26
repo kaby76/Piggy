@@ -12,12 +12,14 @@
         readonly Path _next;
         readonly Edge _transition;
         readonly IParseTree _input;
+        readonly int change;
 
-        public Path(Edge l, IParseTree c)
+        public Path(Edge e, IParseTree input)
         {
             _next = null;
-            _transition = l;
-            _input = c;
+            _transition = e;
+            _input = input;
+            change = 0;
         }
 
         public Path(Path n, Edge e, IParseTree input)
@@ -26,6 +28,11 @@
             if (n == null) throw new Exception();
             _transition = e;
             _input = input;
+            if (e.IsAny && input.GetText() == "(")
+                change = n.change + 1;
+            else if (e.IsAny && input.GetText() == ")")
+                change = n.change - 1;
+            else change = n.change;
         }
 
         public Path Next
@@ -42,6 +49,8 @@
         {
             get { return _input; }
         }
+
+        public int Change { get { return change; } }
 
         private IEnumerator<Path> Doit()
         {
