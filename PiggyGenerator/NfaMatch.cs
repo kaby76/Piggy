@@ -132,11 +132,15 @@
             }
             foreach (var m in MatchingPaths)
             {
-                System.Console.WriteLine("match ----- ");
+                System.Console.Error.WriteLine("match ----- ");
                 foreach (var ss in m)
                 {
-                    System.Console.WriteLine(ss.LastEdge + " sym " + (ss.Ast == null ? "empty" : ss.Ast.GetText()));
+                    System.Console.Error.WriteLine(ss.LastEdge + " sym " + (ss.Ast == null ? "empty" : ss.Ast.GetText()));
                 }
+            }
+            if (matches > 1)
+            {
+                throw new Exception("QUIT");
             }
             return matches != 0;
         }
