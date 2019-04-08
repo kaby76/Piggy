@@ -1,4 +1,6 @@
-﻿namespace PiggyGenerator
+﻿using System;
+
+namespace PiggyGenerator
 {
     using Antlr4.Runtime.Tree;
     using System.Collections.Generic;
@@ -9,11 +11,12 @@
     {
         public enum EdgeModifiers
         {
-            Exact = 0,
+            DoNotUse = 0,
             Not = 1,
             Any = 2,
             Code = 4,
-            Text = 8
+            Text = 8,
+            Subpattern = 16
         }
 
         public State _from;
@@ -22,18 +25,35 @@
         public int _pattern_id;
         private Automaton _owner;
         public int _edge_modifiers;
+        public Fragment _fragment;
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
         public static readonly string EmptyString = null;
+
+        private Edge() { }
 
         public Edge(Automaton o, State f, State t, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
         {
             _owner = o;
             _from = f;
             _to = t;
+            _fragment = null;
             AstList = ast_list;
             if (ast_list.Count() == 0) _c = EmptyString;
             else _c = ast_list.First().GetText();
             _edge_modifiers = edge_modifiers;
+            if (this.IsSubpattern) { throw new Exception(); }
+        }
+        public Edge(Automaton o, State f, State t, Fragment frag, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
+        {
+            _owner = o;
+            _from = f;
+            _to = t;
+            _fragment = frag;
+            AstList = ast_list;
+            if (ast_list.Count() == 0) _c = EmptyString;
+            else _c = ast_list.First().GetText();
+            _edge_modifiers = edge_modifiers;
+            if (frag != null && !this.IsSubpattern) { throw new Exception(); }
         }
         public bool IsAny
         {
@@ -70,6 +90,14 @@
                 return (!IsAny) && _c == Edge.EmptyString;
             }
         }
+        public bool IsSubpattern
+        {
+            get
+            {
+                return 0 != (_edge_modifiers & (int)EdgeModifiers.Subpattern);
+            }
+        }
+
         public IEnumerable<IParseTree> AstList { get; protected set; }
         public void Commit()
         {
@@ -98,6 +126,7 @@
             if (this.IsAny) sb.Append("any");
             else if (this.IsCode) sb.Append("code");
             else if (this.IsText) sb.Append("text");
+            else if (this.IsSubpattern) sb.Append("subpat");
             else if (this._c == Edge.EmptyString) sb.Append("empty");
             else sb.Append(this._c);
             sb.Append("'");

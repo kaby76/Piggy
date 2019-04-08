@@ -217,7 +217,7 @@
                             //throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");
                             IParseTree attr = e.AstList.First();
                             pattern = ReplaceMacro(attr);
-                        }
+			}
                         catch (System.Exception ex)
                         {
                             System.Console.WriteLine("Cannot perform substitution in pattern with string.");

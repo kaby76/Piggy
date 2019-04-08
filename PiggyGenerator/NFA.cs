@@ -50,7 +50,7 @@
             {
                 var p_text = p.GetText();
                 var p_type = p.GetType();
-                //System.Console.Error.WriteLine("Next p " + p_text + " " + p_type);
+                System.Console.Error.WriteLine("Next p " + p_text + " " + p_type);
 
                 // simple_basic, kleen_star_basic, and continued_basic are very special:
                 // add in ".*" between each item.
@@ -59,14 +59,22 @@
                     || p as SpecParserParser.Continued_basicContext != null)
                 {
                     Fragment last = fragmentStack.Pop();
+                    bool first = true;
                     for (int i = p.ChildCount - 2; i >= 0; --i)
                     {
+                        // For Piggy, we're going to use a special edge
+                        // to denote attribute or child node recognition
+                        // because there is lookahead for the attribute
+                        // or child node, not one symbol. In addition, once
+                        // a child is found next, no attributes can occur.
                         Fragment f = fragmentStack.Pop();
-                        if (i > 0)
+                        System.Console.Error.WriteLine(f.ToString());
+                        System.Console.Error.WriteLine(nfa.ToString());
+                        if (i > 0 && first)
                         {
                             if ((last.StartState._out_edges.Count == 1 &&
-                                last.StartState._out_edges[0].IsCode ||
-                                last.StartState._out_edges[0].IsText))
+                                 last.StartState._out_edges[0].IsCode ||
+                                 last.StartState._out_edges[0].IsText))
                             {
                             }
                             else
@@ -81,12 +89,22 @@
                                 var e4 = new Edge(nfa, s3, last.StartState, Edge.EmptyAst); e4.Commit();
                                 last = new Fragment(s1, last.OutStates);
                             }
+                            first = false;
                         }
                         foreach (var o in f.OutStates)
                         {
-                            var e5 = new Edge(nfa, o, last.StartState, Edge.EmptyAst); e5.Commit();
+                            if (i > 1)
+                            {
+                                State s1 = new State(nfa); s1.Commit();
+                                var e5 = new Edge(nfa, s1, last.StartState, f, Edge.EmptyAst, (int)Edge.EdgeModifiers.Subpattern); e5.Commit();
+                                last = new Fragment(s1, last.OutStates);
+                            }
+                            else
+                            {
+                                var e5 = new Edge(nfa, o, last.StartState, Edge.EmptyAst); e5.Commit();
+                                last = new Fragment(f.StartState, last.OutStates);
+                            }
                         }
-                        last = new Fragment(f.StartState, last.OutStates);
                     }
                     fragmentStack.Push(last);
                 }

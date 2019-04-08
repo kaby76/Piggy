@@ -19,6 +19,7 @@
                         if (e.IsAny) str = "...";
                         else if (e.IsCode) str = "";
                         else if (e.IsText) str = "";
+                        else if (e.IsSubpattern) str = "subpattern";
                         else if (str == null) throw new Exception();
                         transitions.Add(str, e);
                     }

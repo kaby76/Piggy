@@ -88,7 +88,7 @@ namespace PiggyGenerator
             {
                 sb.AppendLine("State out " + s);
             }
-            return base.ToString();
+            return sb.ToString();
         }
     }
 }

@@ -19,6 +19,7 @@
             else if (e.IsCode) return false;
             else if (e.IsText) return false;
             else if (e.IsNot) return false;
+            else if (e.IsSubpattern) return false;
             else return true;
         }
         public IEnumerable<Edge> AllEdges()
@@ -69,6 +70,8 @@
                     sb.Append("{{ code }}");
                 else if (e.IsAny)
                     sb.Append(" any ");
+                else if (e.IsSubpattern)
+                    sb.Append(" subpattern-" + e._fragment.StartState + " ");
                 else if (e._c == null)
                     sb.Append(" empty ");
                 else

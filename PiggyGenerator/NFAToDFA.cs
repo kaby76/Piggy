@@ -66,6 +66,7 @@
             stack.Push(initialState);
             while (stack.Count > 0)
             {
+                System.Console.Error.WriteLine(dfa.ToString());
                 var dfa_state = stack.Pop();
                 var nfa_state_set = FindHashSet(dfa_state);
                 var transitions = ClosureTaker.GatherTransitions(nfa_state_set);
@@ -80,7 +81,10 @@
                     var value = transition_set.Value;
                     var state_set = new HashSet<State>();
                     foreach (var e in value) state_set.Add(e._to);
-                    var new_state_set = ClosureTaker.GetClosure(state_set, nfa);
+                    // Find in all previous states.
+                    SmartSet<State> new_state_set = _hash_sets.Where(hs => state_set.IsSubsetOf(hs.Key)).FirstOrDefault().Key;
+                    if (new_state_set == null)
+                        new_state_set = ClosureTaker.GetClosure(state_set, nfa);
                     var new_dfa_state = FindHashSetState(dfa, new_state_set);
                     if (new_dfa_state == null)
                     {
@@ -97,11 +101,12 @@
                     }
                     // Add edges, if it doesn't exist already.
                     int mods = value.First()._edge_modifiers;
+                    var ff = value.First()._fragment;
                     var asts = new List<IParseTree>();
                     foreach (Edge v in value)
                         foreach (IParseTree v2 in v.AstList)
                             asts.Add(v2);
-                    var he = new Edge(dfa, dfa_state, new_dfa_state, asts, mods);
+                    var he = new Edge(dfa, dfa_state, new_dfa_state, ff, asts, mods);
                     if (!new_dfa_state._out_edges.Contains(he)) he.Commit();
                 }
             }
