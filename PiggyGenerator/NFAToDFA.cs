@@ -10,6 +10,7 @@
     public class NFAToDFA
     {
         Dictionary<SmartSet<State>, State> _hash_sets = new Dictionary<SmartSet<State>, State>();
+        Dictionary<State, SmartSet<State>> _closure = new Dictionary<State, SmartSet<State>>();
 
         public NFAToDFA()
         {
@@ -61,6 +62,22 @@
         public Automaton ConvertToDFA(Automaton nfa)
         {
             var dfa = new Automaton();
+            foreach (var s in nfa.AllStates())
+            {
+                var c = ClosureTaker.GetClosure(new List<State>() {s}, nfa);
+                _closure[s] = c;
+            }
+            foreach (var s in nfa.AllStates())
+            {
+                SmartSet<State> sum = new SmartSet<State>();
+                foreach (var p in _closure)
+                {
+                    var set = p.Value;
+                    if (set.Contains(s))
+                        sum.UnionWith(set);
+                }
+                _closure[s] = sum;
+            }
             State initialState = CreateInitialState(nfa, dfa);
             Stack<State> stack = new Stack<State>();
             stack.Push(initialState);
@@ -84,7 +101,7 @@
                     // Find in all previous states.
                     SmartSet<State> new_state_set = _hash_sets.Where(hs => state_set.IsSubsetOf(hs.Key)).FirstOrDefault().Key;
                     if (new_state_set == null)
-                        new_state_set = ClosureTaker.GetClosure(state_set, nfa);
+                        new_state_set = _closure[state_set.First()];
                     var new_dfa_state = FindHashSetState(dfa, new_state_set);
                     if (new_dfa_state == null)
                     {
