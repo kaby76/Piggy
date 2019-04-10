@@ -95,9 +95,14 @@
                         {
                             if (i > 1)
                             {
+                                // Create subpattern.
                                 State s1 = new State(nfa); s1.Commit();
                                 var e5 = new Edge(nfa, s1, last.StartState, f, Edge.EmptyAst, (int)Edge.EdgeModifiers.Subpattern); e5.Commit();
                                 last = new Fragment(s1, last.OutStates);
+                                foreach (var es in last.OutStates)
+                                {
+                                    nfa.AddEndState(es);
+                                }
                             }
                             else
                             {

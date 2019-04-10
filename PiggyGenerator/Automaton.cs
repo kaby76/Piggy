@@ -38,6 +38,7 @@
         public IEnumerable<State> EndStates { get { return _final_states; } }
         public void AddState(State s)
         {
+            if (_all_states.Contains(s)) return;
             _all_states.Add(s);
         }
         public void AddEdge(Edge e)
@@ -46,10 +47,12 @@
         }
         public void AddStartState(State ss)
         {
+            if (_start_states.Contains(ss)) return;
             _start_states.Add(ss);
         }
         public void AddEndState(State end)
         {
+            if (_final_states.Contains(end)) return;
             _final_states.Add(end);
         }
         public bool IsFinalState(State state)

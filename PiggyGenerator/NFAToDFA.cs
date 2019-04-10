@@ -88,12 +88,18 @@
                 {
                     State state = AddHashSetState(dfa, state_set);
                     state.Commit();
+                    bool mark = false;
+                    foreach (var s in state_set)
+                        if (nfa.EndStates.Contains(s))
+                            mark = true;
+                    if (mark && !dfa.EndStates.Contains(state))
+                        dfa.AddEndState(state);
                 }
             }
             System.Console.Error.WriteLine(dfa.ToString());
-            foreach (var dfa_state in dfa.AllStates())
+            foreach (var from_dfa_state in dfa.AllStates())
             {
-                var nfa_state_set = FindHashSet(dfa_state);
+                var nfa_state_set = FindHashSet(from_dfa_state);
                 var transitions = ClosureTaker.GatherTransitions(nfa_state_set);
                 foreach (KeyValuePair<string, List<Edge>> transition_set in transitions)
                 {
@@ -110,28 +116,15 @@
                     SmartSet<State> new_state_set = _hash_sets.Where(hs => state_set.IsSubsetOf(hs.Key)).FirstOrDefault().Key;
                     if (new_state_set == null)
                         new_state_set = _closure[state_set.First()];
-                    var new_dfa_state = FindHashSetState(dfa, new_state_set);
-                    if (new_dfa_state == null)
-                    {
-                        State state = AddHashSetState(dfa, new_state_set);
-                        state.Commit();
-                        new_dfa_state = state;
-                        bool mark = false;
-                        foreach (var s in new_state_set)
-                            if (nfa.EndStates.Contains(s))
-                                mark = true;
-                        if (mark && !dfa.EndStates.Contains(new_dfa_state))
-                            dfa.AddEndState(new_dfa_state);
-                    }
-                    // Add edges, if it doesn't exist already.
+                    var to_dfa_state = FindHashSetState(dfa, new_state_set);
                     int mods = value.First()._edge_modifiers;
                     var ff = value.First()._fragment;
                     var asts = new List<IParseTree>();
                     foreach (Edge v in value)
                         foreach (IParseTree v2 in v.AstList)
                             asts.Add(v2);
-                    var he = new Edge(dfa, dfa_state, new_dfa_state, ff, asts, mods);
-                    if (!new_dfa_state._out_edges.Contains(he)) he.Commit();
+                    var he = new Edge(dfa, from_dfa_state, to_dfa_state, ff, asts, mods);
+                    if (!to_dfa_state._out_edges.Contains(he)) he.Commit();
                 }
             }
             return dfa;
