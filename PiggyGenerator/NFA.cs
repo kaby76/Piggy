@@ -98,11 +98,13 @@
                                 // Create subpattern.
                                 State s1 = new State(nfa); s1.Commit();
                                 var e5 = new Edge(nfa, s1, last.StartState, f, Edge.EmptyAst, (int)Edge.EdgeModifiers.Subpattern); e5.Commit();
-                                last = new Fragment(s1, last.OutStates);
-                                foreach (var es in last.OutStates)
+                                nfa.AddStartStateSubpattern(f.StartState);
+                                foreach (var es in f.OutStates)
                                 {
-                                    nfa.AddEndState(es);
+                                    nfa.AddFinalStateSubpattern(es);
                                 }
+
+                                last = new Fragment(s1, last.OutStates);
                             }
                             else
                             {
@@ -249,7 +251,7 @@
             completeNfa = fragmentStack.Pop();
             if (fragmentStack.Count > 0)
                 throw new System.Exception("Fragment stack not empty.");
-            foreach (var s in completeNfa.OutStates) nfa.AddEndState(s);
+            foreach (var s in completeNfa.OutStates) nfa.AddFinalState(s);
             nfa.AddStartState(completeNfa.StartState);
             return nfa;
         }

@@ -46,7 +46,7 @@
          */
         public bool IsFinalState()
         {
-            return Owner.EndStates.Contains(this);
+            return Owner.FinalStates.Contains(this);
         }
 
         public override string ToString()
