@@ -78,8 +78,12 @@
                     sb.Append(e._c.provide_escapes());
                 sb.AppendLine("\"];");
             }
-            foreach (var ss in StartStates) sb.AppendLine(ss + " [shape=box];");
-            foreach (var es in EndStates) sb.AppendLine(es + " [shape=doublecircle];");
+            foreach (var ss in AllStates())
+            {
+                if (StartStates.Contains(ss)) sb.AppendLine(ss + " [shape=box];");
+                else if (EndStates.Contains(ss)) sb.AppendLine(ss + " [shape=doublecircle];");
+                else sb.AppendLine(ss + " [shape=circle];");
+            }
             sb.AppendLine("}");
             return sb.ToString();
         }

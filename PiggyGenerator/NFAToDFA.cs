@@ -79,12 +79,20 @@
                 _closure[s] = sum;
             }
             State initialState = CreateInitialState(nfa, dfa);
-            Stack<State> stack = new Stack<State>();
-            stack.Push(initialState);
-            while (stack.Count > 0)
+            System.Console.Error.WriteLine(dfa.ToString());
+            foreach (var p in _closure)
             {
-                System.Console.Error.WriteLine(dfa.ToString());
-                var dfa_state = stack.Pop();
+                SmartSet<State> state_set = p.Value;
+                var new_dfa_state = FindHashSetState(dfa, state_set);
+                if (new_dfa_state == null)
+                {
+                    State state = AddHashSetState(dfa, state_set);
+                    state.Commit();
+                }
+            }
+            System.Console.Error.WriteLine(dfa.ToString());
+            foreach (var dfa_state in dfa.AllStates())
+            {
                 var nfa_state_set = FindHashSet(dfa_state);
                 var transitions = ClosureTaker.GatherTransitions(nfa_state_set);
                 foreach (KeyValuePair<string, List<Edge>> transition_set in transitions)
@@ -107,7 +115,6 @@
                     {
                         State state = AddHashSetState(dfa, new_state_set);
                         state.Commit();
-                        stack.Push(state);
                         new_dfa_state = state;
                         bool mark = false;
                         foreach (var s in new_state_set)

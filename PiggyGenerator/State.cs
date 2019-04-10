@@ -1,6 +1,5 @@
 ﻿namespace PiggyGenerator
 {
-    using Antlr4.Runtime.Tree;
     using System.Linq;
     using System.Collections.Generic;
 
@@ -25,6 +24,8 @@
         }
         public void Commit()
         {
+            if (_owner.AllStates().Contains(this))
+                return;
             _owner.AddState(this);
         }
         public Automaton Owner
