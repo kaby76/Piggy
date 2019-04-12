@@ -2,8 +2,8 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "-a \"obj\\Debug\\netcoreapp2.1\\ast.txt\" -e \"( EnumDecl ( EnumConstantDecl ( IntegerLiteral Type=\\\"int\\\" ) ) )\"",
-      "workingDirectory": "c:\\Users\\Kenne\\Downloads\\leptonica-1.77.0\\ConsoleApp1"
+      "commandLineArgs": "-a \"obj\\Debug\\netcoreapp2.1\\ast.txt\" -e \"( EnumDecl ( EnumConstantDecl ) )\"",
+      "workingDirectory": "c:\\Users\\Kenne\\Downloads\\_2019\\leptonica-1.77.0\\ConsoleApp1"
     }
   }
 }

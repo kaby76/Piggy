@@ -2,8 +2,7 @@ grammar AstParser;
 
 options { tokenVocab = AstLexer; }
 
-ast : decl EOF ;
-decl : OPEN_PAREN ID more* CLOSE_PAREN ;
-more : decl | attr ;
+ast : node EOF ;
+node : OPEN_PAREN ID (node | attr)* CLOSE_PAREN ;
 attr : ID EQUALS StringLiteral ;
  

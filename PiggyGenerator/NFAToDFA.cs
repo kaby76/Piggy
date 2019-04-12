@@ -114,6 +114,7 @@
                     }
                 }
             }
+
             System.Console.Error.WriteLine(dfa.ToString());
             foreach (var from_dfa_state in dfa.AllStates())
             {
@@ -136,15 +137,31 @@
                         new_state_set = _closure[state_set.First()];
                     var to_dfa_state = FindHashSetState(dfa, new_state_set);
                     int mods = value.First()._edge_modifiers;
-                    var ff = value.First()._fragment;
+                    State ff = value.First()._fragment_start;
+                    State ff_dfa = null;
+                    if (ff != null)
+                    {
+                        SmartSet<State> zz = _closure[ff];
+                        ff_dfa = FindHashSetState(dfa, zz);
+                    }
+
+                    // Note, fragment is for nfa. Map to dfa.
                     var asts = new List<IParseTree>();
                     foreach (Edge v in value)
                         foreach (IParseTree v2 in v.AstList)
                             asts.Add(v2);
-                    var he = new Edge(dfa, from_dfa_state, to_dfa_state, ff, asts, mods);
+                    var he = new Edge(dfa, from_dfa_state, to_dfa_state, ff_dfa, asts, mods);
                     if (!to_dfa_state._out_edges.Contains(he)) he.Commit();
                 }
             }
+
+            // Add in "any" fragment in order to match tree nodes that aren't in pattern.
+            {
+                State s3 = new State(dfa); s3.Commit();
+                var e1 = new Edge(dfa, s3, s3, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e1.Commit();
+                var f = new Fragment(s3);
+            }
+
             return dfa;
         }
     }

@@ -25,7 +25,7 @@ namespace PiggyGenerator
         public int _pattern_id;
         private Automaton _owner;
         public int _edge_modifiers;
-        public Fragment _fragment;
+        public State _fragment_start;
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
         public static readonly string EmptyString = null;
 
@@ -36,24 +36,24 @@ namespace PiggyGenerator
             _owner = o;
             _from = f;
             _to = t;
-            _fragment = null;
+            _fragment_start = null;
             AstList = ast_list;
             if (ast_list.Count() == 0) _c = EmptyString;
             else _c = ast_list.First().GetText();
             _edge_modifiers = edge_modifiers;
             if (this.IsSubpattern) { throw new Exception(); }
         }
-        public Edge(Automaton o, State f, State t, Fragment frag, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
+        public Edge(Automaton o, State f, State t, State frag_start, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
         {
             _owner = o;
             _from = f;
             _to = t;
-            _fragment = frag;
+            _fragment_start = frag_start;
             AstList = ast_list;
             if (ast_list.Count() == 0) _c = EmptyString;
             else _c = ast_list.First().GetText();
             _edge_modifiers = edge_modifiers;
-            if (frag != null && !this.IsSubpattern) { throw new Exception(); }
+            if (_fragment_start != null && !this.IsSubpattern) { throw new Exception(); }
         }
         public bool IsAny
         {
@@ -87,7 +87,7 @@ namespace PiggyGenerator
         {
             get
             {
-                return (!IsAny) && _c == Edge.EmptyString;
+                return (!IsAny) && (!IsSubpattern) && _c == Edge.EmptyString;
             }
         }
         public bool IsSubpattern

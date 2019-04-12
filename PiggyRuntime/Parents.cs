@@ -20,7 +20,7 @@
             {
                 var v = stack.Pop();
                 _preorder.Add(v);
-                if (v as AstParserParser.DeclContext != null)
+                if (v as AstParserParser.NodeContext != null)
                 {
                     var n = v.GetChild(1);
                     _cached_aggregate_types[n.GetText()] = v;

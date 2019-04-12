@@ -100,7 +100,7 @@
                 else if (e.IsAny)
                     sb.Append(" any ");
                 else if (e.IsSubpattern)
-                    sb.Append(" subpattern-" + e._fragment.StartState + " ");
+                    sb.Append(" subpattern-" + e._fragment_start.Id + " ");
                 else if (e._c == null)
                     sb.Append(" empty ");
                 else

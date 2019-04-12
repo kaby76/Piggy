@@ -1,4 +1,6 @@
-﻿namespace PiggyGenerator
+﻿using PiggyRuntime;
+
+namespace PiggyGenerator
 {
     using Antlr4.Runtime.Tree;
     using System.Collections.Generic;
@@ -52,10 +54,6 @@
             }
         }
 
-        public List<Path> MatchingPaths
-        {
-            get; private set;
-        }
         private Dictionary<IParseTree, IParseTree> _parent;
         private Dictionary<IParseTree, MethodInfo> _code_blocks;
         private object _instance;
@@ -64,7 +62,6 @@
             Dictionary<IParseTree, MethodInfo> code_blocks,
             object instance)
         {
-            MatchingPaths = new List<Path>();
             _parent = parent;
             _code_blocks = code_blocks;
             _instance = instance;
@@ -84,34 +81,73 @@
             throw new Exception("Cannot eval expression.");
         }
 
-        public bool FindMatches(Automaton nfa, IParseTree input)
+        public bool FindMatches(List<Path> MatchingPaths, Automaton nfa, IParseTree input, int start = 0)
         {
+            if (start == 0)
+            {
+                start = nfa.StartStates.FirstOrDefault().Id;
+            }
+
             var currentList = new List<Path>();
             var nextList = new List<Path>();
             var generation = new Dictionary<Edge, int>();
             int listID = 0;
             bool first = true;
-            foreach (var c in new EnumerableIParseTree(input))
+            // Variable "input" can be either one of two types:
+            // AstParserParser.DeclContext
+            // AstParserParser.AttrContext
+            // Go through all children and match.
+            if (input as AstParserParser.NodeContext != null)
             {
-                if (c as TerminalNodeImpl == null)
-                    continue;
-                if (first)
+                for (int i = 0; i < input.ChildCount; ++i)
                 {
-                    var start_states = nfa.StartStates;
-                    var start_state_list = new List<State>();
-                    foreach (var s in start_states) addState(start_state_list, s, listID, generation);
-                    listID = Step(start_state_list, c, nextList, listID, generation);
-                    first = false;
+                    var c = input.GetChild(i);
+                    var t = c.GetText();
+                    if (i == 0)
+                    {
+                        var start_state_list = new List<State>();
+                        var st = nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
+                        addState(start_state_list, st, listID, generation);
+                        listID = Step(start_state_list, c, nextList, listID, generation);
+                    }
+                    else
+                    {
+                        listID = Step(nfa, currentList, c, nextList, listID, generation);
+                    }
+                    var oldlist = currentList;
+                    currentList = nextList;
+                    if (!currentList.Any())
+                        break;
+                    nextList = new List<Path>();
                 }
-                else
+            }
+            else if (input as AstParserParser.AttrContext != null)
+            {
+                for (int i = 0; i < input.ChildCount; ++i)
                 {
-                    listID = Step(currentList, c, nextList, listID, generation);
+                    var c = input.GetChild(i);
+                    var t = c.GetText();
+                    if (i == 0)
+                    {
+                        var start_state_list = new List<State>();
+                        var st = nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
+                        addState(start_state_list, st, listID, generation);
+                        listID = Step(start_state_list, c, nextList, listID, generation);
+                    }
+                    else
+                    {
+                        listID = Step(nfa, currentList, c, nextList, listID, generation);
+                    }
+                    var oldlist = currentList;
+                    currentList = nextList;
+                    if (!currentList.Any())
+                        break;
+                    nextList = new List<Path>();
                 }
-                var oldlist = currentList;
-                currentList = nextList;
-                if (!currentList.Any())
-                    break;
-                nextList = new List<Path>();
+            }
+            else
+            {
+                return false;
             }
             int matches = 0;
             for (int i = 0; i < currentList.Count; i++)
@@ -122,6 +158,11 @@
                 Edge e = l.LastEdge;
                 State s = e._to;
                 if (s.IsFinalState())
+                {
+                    matches++;
+                    MatchingPaths.Add(l);
+                }
+                else if (start != 0 && s.IsFinalStateSubpattern())
                 {
                     matches++;
                     MatchingPaths.Add(l);
@@ -172,7 +213,7 @@
             }
         }
 
-        private int Step(List<Path> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<Edge, int> gen)
+        private int Step(Automaton nfa, List<Path> currentList, IParseTree c, List<Path> nextList, int listID, Dictionary<Edge, int> gen)
         {
             listID++;
             for (int i = 0; i < currentList.Count; i++)
@@ -181,11 +222,45 @@
                 CheckPath(p);
                 Edge l = p.LastEdge;
                 State s = l._to;
-                if (s.Id == 58)
-                { }
                 foreach (Edge e in s._out_edges)
                 {
-                    if (e.IsAny)
+                    if (e.IsSubpattern)
+                    {
+                        // Set up to match c on subpattern. If no match,
+                        // create skipping path.
+                        var more = new List<Path>();
+                        bool matched = this.FindMatches(more, nfa, c, e._fragment_start.Id);
+                        if (matched)
+                        {
+                            foreach (Path ll in more)
+                            {
+                                var p2 = p;
+                                foreach (Path xxx in ll)
+                                {
+                                    p2 = new Path(p2, xxx.LastEdge, xxx.Ast);                                    
+                                }
+                                // Set up state where we left off.
+                                p2 = new Path(p2, new Edge(nfa, p2.LastEdge._to, e._to, Edge.EmptyAst), null);
+                                nextList.Add(p2);
+                            }
+                        }
+                        else
+                        {
+                            var any = nfa.AllStates().Last();
+                            var any_edge = any._out_edges.First();
+                            // Add in all of c into "any" path.
+                            var p2 = p;
+                            foreach (IParseTree zzz in new EnumerableIParseTree(c))
+                            {
+                                if (zzz as TerminalNodeImpl == null) continue;
+                                p2 = new Path(p2, any_edge, zzz);
+                            }
+                            // Set up state where we left off.
+                            p2 = new Path(p2, new Edge(nfa, any, e._from, Edge.EmptyAst), null);
+                            nextList.Add(p2);
+                        }
+                    }
+                    else if (e.IsAny)
                     {
                         AppendEdgeToPathSet(c, p, nextList, e, listID, gen);
                     }
@@ -278,16 +353,12 @@
 
         private void AppendEdgeToPathSet(IParseTree c, Path path, List<Path> list, Edge e, int listID, Dictionary<Edge, int> gen)
         {
-            var s = e._to;
+            var st = e._to;
             var sf = e._from;
             foreach (var l in list)
             {
                 CheckPath(l);
             }
-
-            //if (gen.TryGetValue(e, out int last) && last == listID)
-            //    return;
-            //gen[e] = listID;
             if (path == null && !list.Any())
             {
                 list.Add(new Path(e, c));
@@ -308,7 +379,7 @@
             }
             var added = list.Last();
             // If s contains any edges over epsilon, then add them.
-            foreach (var o in s._out_edges)
+            foreach (var o in st._out_edges)
                 if (o.IsEmpty || o.IsCode || o.IsText)
                 {
                     AppendEdgeToPathSet(null, added, list, o, listID, gen);

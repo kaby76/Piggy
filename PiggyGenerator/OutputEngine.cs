@@ -30,8 +30,8 @@
         {
             return (x as AstParserParser.AttrContext != null
                     || x as AstParserParser.AstContext != null
-                    || x as AstParserParser.DeclContext != null
-                    || x as AstParserParser.MoreContext != null);
+                    || x as AstParserParser.NodeContext != null
+                    );
         }
 
         public static bool is_spec_node(IParseTree x)
@@ -419,7 +419,7 @@ namespace " + @namespace + @"
                             }
                             while (con != null)
                             {
-                                if (con as AstParserParser.DeclContext != null) break;
+                                if (con as AstParserParser.NodeContext != null) break;
                                 con = re._ast.Parents()[con];
                             }
 

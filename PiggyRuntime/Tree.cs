@@ -87,7 +87,7 @@
             for (int i = 0; i < n; ++i)
             {
                 var t = _current.GetChild(i);
-                AstParserParser.DeclContext decl = t.GetChild(0) as AstParserParser.DeclContext;
+                AstParserParser.NodeContext decl = t.GetChild(0) as AstParserParser.NodeContext;
                 var is_decl = decl != null;
                 if (!is_decl) continue;
                 if (index > 0)
@@ -118,7 +118,7 @@
             for (int i = 0; i < n; ++i)
             {
                 var t = _current.GetChild(i);
-                AstParserParser.DeclContext decl = t.GetChild(0) as AstParserParser.DeclContext;
+                AstParserParser.NodeContext decl = t.GetChild(0) as AstParserParser.NodeContext;
                 var is_decl = decl != null;
                 if (!is_decl) continue;
                 var u = decl.GetChild(1);
