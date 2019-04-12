@@ -13,6 +13,7 @@ template Typedefs
     pass GeneratePointerTypes {
         ( TypedefDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}" ( PointerType )
             {{
+                // Typedefs 1
                 var scope = _stack.Peek();
                 var name = tree.Attr("Name");
                 bool is_rewrite = ClangSupport.IsAppliedOccurrenceRewrite(false, name);
@@ -60,6 +61,7 @@ template Typedefs
         ( TypedefDecl SrcRange=$"{ClangSupport.limit}" Name=$"{ClangSupport.generate_for_only}"
             ( BuiltinType BareType=*
                 {{
+                    // Typedefs 2
                     var scope = _stack.Peek();
                     var name = tree.Peek(1).Attr("Name");
                     string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
@@ -104,6 +106,8 @@ template Typedefs
                 ( RecordType
                     ( CXXRecord Name=*
                         {{
+                            // Typedefs 3
+
                             var scope = _stack.Peek();
                             var name = tree.Peek(3).Attr("Name");
                             string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
@@ -149,6 +153,7 @@ template Typedefs
                 ( RecordType
                     ( Record Name=*
                         {{
+                            // Typedefs 4
                             var scope = _stack.Peek();
                             var name = tree.Peek(3).Attr("Name");
                             string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
@@ -193,6 +198,7 @@ template Typedefs
                 ( EnumType
                     ( Enum Name=*
                         {{
+                            // Typedefs 5
                             var scope = _stack.Peek();
                             var name = tree.Peek(3).Attr("Name");
                             string preferred_name = ClangSupport.RewriteAppliedOccurrence(false, name);
