@@ -240,7 +240,7 @@ namespace PiggyGenerator
                                     p2 = new Path(p2, xxx.LastEdge, xxx.Ast);                                    
                                 }
                                 // Set up state where we left off.
-                                p2 = new Path(p2, new Edge(nfa, p2.LastEdge._to, e._to, Edge.EmptyAst), null);
+                                p2 = new Path(p2, new Edge(nfa, p2.LastEdge._to, e._to, null, Edge.EmptyAst), null);
                                 nextList.Add(p2);
                             }
                         }
@@ -256,7 +256,7 @@ namespace PiggyGenerator
                                 p2 = new Path(p2, any_edge, zzz);
                             }
                             // Set up state where we left off.
-                            p2 = new Path(p2, new Edge(nfa, any, e._from, Edge.EmptyAst), null);
+                            p2 = new Path(p2, new Edge(nfa, any, e._from, null, Edge.EmptyAst), null);
                             nextList.Add(p2);
                         }
                     }

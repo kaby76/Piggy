@@ -83,10 +83,10 @@
                                 State s1 = new State(nfa); s1.Commit();
                                 State s2 = new State(nfa); s2.Commit();
                                 State s3 = new State(nfa); s3.Commit();
-                                var e1 = new Edge(nfa, s1, s2, Edge.EmptyAst); e1.Commit();
-                                var e2 = new Edge(nfa, s2, s3, Edge.EmptyAst); e2.Commit();
-                                var e3 = new Edge(nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e3.Commit();
-                                var e4 = new Edge(nfa, s3, last.StartState, Edge.EmptyAst); e4.Commit();
+                                var e1 = new Edge(nfa, s1, s2, null, Edge.EmptyAst); e1.Commit();
+                                var e2 = new Edge(nfa, s2, s3, null, Edge.EmptyAst); e2.Commit();
+                                var e3 = new Edge(nfa, s2, s2, null, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e3.Commit();
+                                var e4 = new Edge(nfa, s3, last.StartState, null, Edge.EmptyAst); e4.Commit();
                                 last = new Fragment(s1, last.OutStates);
                             }
                             first = false;
@@ -108,7 +108,7 @@
                             }
                             else
                             {
-                                var e5 = new Edge(nfa, o, last.StartState, Edge.EmptyAst); e5.Commit();
+                                var e5 = new Edge(nfa, o, last.StartState, null, Edge.EmptyAst); e5.Commit();
                                 last = new Fragment(f.StartState, last.OutStates);
                             }
                         }
@@ -131,7 +131,7 @@
                     {
                         State s1 = new State(nfa); s1.Commit();
                         State s2 = new State(nfa); s2.Commit();
-                        var e = new Edge(nfa, s1, s2, new List<IParseTree>() { t }); e.Commit();
+                        var e = new Edge(nfa, s1, s2, null, new List<IParseTree>() { t }); e.Commit();
                         var f = new Fragment(s1, s2);
                         fragmentStack.Push(f);
                     }
@@ -141,7 +141,7 @@
                     var c = p.GetChild(0);
                     State s1 = new State(nfa); s1.Commit();
                     State s2 = new State(nfa); s2.Commit();
-                    var e = new Edge(nfa, s1, s2, new List<IParseTree>() { c }); e.Commit();
+                    var e = new Edge(nfa, s1, s2, null, new List<IParseTree>() { c }); e.Commit();
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -150,7 +150,7 @@
                 {
                     State s1 = new State(nfa); s1.Commit();
                     State s2 = new State(nfa); s2.Commit();
-                    var e = new Edge(nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Text); e.Commit();
+                    var e = new Edge(nfa, s1, s2, null, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Text); e.Commit();
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -158,7 +158,7 @@
                 {
                     State s1 = new State(nfa); s1.Commit();
                     State s2 = new State(nfa); s2.Commit();
-                    var e = new Edge(nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Code); e.Commit();
+                    var e = new Edge(nfa, s1, s2, null, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Code); e.Commit();
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -167,10 +167,10 @@
                 {
                     Fragment previous = fragmentStack.Pop();
                     State s1 = new State(nfa); s1.Commit();
-                    var e1 = new Edge(nfa, s1, previous.StartState, Edge.EmptyAst); e1.Commit();
+                    var e1 = new Edge(nfa, s1, previous.StartState, null, Edge.EmptyAst); e1.Commit();
                     foreach (var s in previous.OutStates)
                     {
-                        var e2 = new Edge(nfa, s, s1, Edge.EmptyAst);
+                        var e2 = new Edge(nfa, s, s1, null, Edge.EmptyAst);
                         e2.Commit();
                     }
                     var f = new Fragment(s1, s1);
@@ -181,11 +181,11 @@
                     Fragment previous = fragmentStack.Pop();
                     State s1 = new State(nfa); s1.Commit();
                     State s2 = new State(nfa); s2.Commit();
-                    var e1 = new Edge(nfa, s1, s2, Edge.EmptyAst); e1.Commit();
-                    var e2 = new Edge(nfa, s2, previous.StartState, Edge.EmptyAst); e2.Commit();
+                    var e1 = new Edge(nfa, s1, s2, null, Edge.EmptyAst); e1.Commit();
+                    var e2 = new Edge(nfa, s2, previous.StartState, null, Edge.EmptyAst); e2.Commit();
                     foreach (var s in previous.OutStates)
                     {
-                        var e3 = new Edge(nfa, s, s2, Edge.EmptyAst);
+                        var e3 = new Edge(nfa, s, s2, null, Edge.EmptyAst);
                         e3.Commit();
                     }
                     var f = new Fragment(s1, s2);
@@ -201,7 +201,7 @@
                         var s_type = s.Type;
                         State s1 = new State(nfa); s1.Commit();
                         State s2 = new State(nfa); s2.Commit();
-                        var e = new Edge(nfa, s1, s2, new List<IParseTree>() { t }, (int)Edge.EdgeModifiers.Not); e.Commit();
+                        var e = new Edge(nfa, s1, s2, null, new List<IParseTree>() { t }, (int)Edge.EdgeModifiers.Not); e.Commit();
                         var f = new Fragment(s1, s2);
                         fragmentStack.Push(f);
                     }
@@ -214,11 +214,11 @@
                         State s2 = new State(nfa); s2.Commit();
                         State s3 = new State(nfa); s3.Commit();
                         State s4 = new State(nfa); s4.Commit();
-                        var e1 = new Edge(nfa, s1, s2, new List<IParseTree>() { t }); e1.Commit();
+                        var e1 = new Edge(nfa, s1, s2, null, new List<IParseTree>() { t }); e1.Commit();
                         t = p.GetChild(1) as TerminalNodeImpl;
-                        var e2 = new Edge(nfa, s2, s3, new List<IParseTree>() { t }); e2.Commit();
+                        var e2 = new Edge(nfa, s2, s3, null, new List<IParseTree>() { t }); e2.Commit();
                         t = p.GetChild(2) as TerminalNodeImpl;
-                        var e3 = new Edge(nfa, s3, s4, new List<IParseTree>() { t }); e3.Commit();
+                        var e3 = new Edge(nfa, s3, s4, null, new List<IParseTree>() { t }); e3.Commit();
                         var f = new Fragment(s1, s4);
                         fragmentStack.Push(f);
                     }
@@ -230,17 +230,17 @@
                         State s = new State(nfa); s.Commit();
                         Fragment s2 = fragmentStack.Pop();
                         Fragment s1 = fragmentStack.Pop();
-                        var e1 = new Edge(nfa, s, s1.StartState, Edge.EmptyAst); e1.Commit();
-                        var e2 = new Edge(nfa, s, s2.StartState, Edge.EmptyAst); e2.Commit();
+                        var e1 = new Edge(nfa, s, s1.StartState, null, Edge.EmptyAst); e1.Commit();
+                        var e2 = new Edge(nfa, s, s2.StartState, null, Edge.EmptyAst); e2.Commit();
                         State s3 = new State(nfa); s3.Commit();
                         foreach (var o in s1.OutStates)
                         {
-                            var e3 = new Edge(nfa, o, s3, Edge.EmptyAst);
+                            var e3 = new Edge(nfa, o, s3, null, Edge.EmptyAst);
                             e3.Commit();
                         }
                         foreach (var o in s2.OutStates)
                         {
-                            var e3 = new Edge(nfa, o, s3, Edge.EmptyAst);
+                            var e3 = new Edge(nfa, o, s3, null, Edge.EmptyAst);
                             e3.Commit();
                         }
                         var f = new Fragment(s, s3);

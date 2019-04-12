@@ -158,7 +158,7 @@
             // Add in "any" fragment in order to match tree nodes that aren't in pattern.
             {
                 State s3 = new State(dfa); s3.Commit();
-                var e1 = new Edge(dfa, s3, s3, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e1.Commit();
+                var e1 = new Edge(dfa, s3, s3, null, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e1.Commit();
                 var f = new Fragment(s3);
             }
 
