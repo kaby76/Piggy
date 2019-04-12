@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Text;
     using Antlr4.Runtime.Tree;
-    using System.Linq;
     using System;
 
     public class Path : IEnumerable<Path>
@@ -21,7 +20,6 @@
             _input = input;
             change = 0;
         }
-
         public Path(Path n, Edge e, IParseTree input)
         {
             _next = n;
@@ -34,24 +32,19 @@
                 change = n.change - 1;
             else change = n.change;
         }
-
         public Path Next
         {
             get { return _next; }
         }
-
         public Edge LastEdge
         {
             get { return _transition; }
         }
-
         public IParseTree Ast
         {
             get { return _input; }
         }
-
         public int Change { get { return change; } }
-
         private IEnumerator<Path> Doit()
         {
             // Follow Next link to get path in reverse.
@@ -70,17 +63,14 @@
                 yield return v;
             }
         }
-
         public IEnumerator<Path> GetEnumerator()
         {
             return Doit();
         }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return Doit();
         }
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

@@ -3,9 +3,6 @@
     using System.Linq;
     using System.Collections.Generic;
 
-    /**
-     * More or less, Cox's State (https://swtch.com/~rsc/regexp/nfa.c.txt).
-     */
     public class State
     {
         public List<Edge> _out_edges;
@@ -13,9 +10,6 @@
         private static int _next_id;
         public int Id { get; private set; }
 
-        /**
-         * Initializes a new match state with no outgoing transitions.
-         */
         public State(Automaton owner)
         {
             _owner = owner;
@@ -35,25 +29,18 @@
                 return _owner;
             }
         }
-
         public override int GetHashCode()
         {
             return Id;
         }
-
-        /**
-         * @return true, if the state is a match state.
-         */
         public bool IsFinalState()
         {
             return Owner.FinalStates.Contains(this);
         }
-
         public bool IsFinalStateSubpattern()
         {
             return Owner.FinalStatesSubpattern.Contains(this);
         }
-
         public override string ToString()
         {
             return this.Id.ToString();

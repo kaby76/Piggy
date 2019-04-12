@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
+    using System.Collections.Generic;
+
+    // SmartSet is a HashSet with a hash value itself, so it can be used in Dictionary<>.
     public class SmartSet<T> : HashSet<T>
     {
         public override bool Equals(object obj)
