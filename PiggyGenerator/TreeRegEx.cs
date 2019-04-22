@@ -43,6 +43,10 @@
                 // Perform naive matching for each node.
                 foreach (var ast_node in this._ast.Preorder())
                 {
+
+                    if (ast_node.GetText().StartsWith("(classBodyDeclaration"))
+                    { }
+
                     List<Path> MatchingPaths = new List<Path>();
                     var nfa_match = new NfaMatch(this._ast.Parents(),
                         this._piggy._code_blocks, this._instance);

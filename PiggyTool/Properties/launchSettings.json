@@ -2,8 +2,8 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "-a \"obj\\Debug\\netcoreapp2.1\\ast.txt\" -e \"( classBodyDeclaration ( modifier )* ( memberDeclaration ( methodDeclaration ) ) )\"",
-      "workingDirectory": "c:\\Users\\Kenne\\Downloads\\_2019\\leptonica-1.77.0\\ConsoleApp1"
+      "commandLineArgs": "-a \"C:\\Users\\Kenne\\Documents\\Piggy3\\JavaSerializer\\obj\\Debug\\netcoreapp2.1\\ast.txt\" -e \"( classBodyDeclaration ( modifier )* ( memberDeclaration ) )\"",
+      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3"
     }
   }
 }

@@ -326,7 +326,11 @@ namespace PiggyGenerator
                 State s = currentList[i];
                 foreach (Edge e in s._out_edges)
                 {
-                    if (e._c == Edge.EmptyString)
+                    if (e.IsSubpattern)
+                    {
+                        throw new Exception();
+                    }
+                    else if (e._c == Edge.EmptyString)
                     {
                         AppendEdgeToPathSet(null, null, nextList, e, listID, gen);
                     }
