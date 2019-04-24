@@ -19,6 +19,8 @@ namespace PiggyGenerator
             Subpattern = 16
         }
 
+        public int _Id;
+        private static int _id = 0;
         public State _from;
         public State _to;
         public string _c;
@@ -32,6 +34,7 @@ namespace PiggyGenerator
         private Edge() { }
         public Edge(Automaton owner, State @from, State to, State frag_start, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
         {
+            _Id = ++_id;
             _owner = owner;
             _from = @from;
             _to = to;
