@@ -100,34 +100,21 @@ namespace PiggyGenerator
             // AstParserParser.DeclContext
             // AstParserParser.AttrContext
             // Go through all children and match.
-            if (input as AstParserParser.NodeContext != null)
+            if (input as AstParserParser.NodeContext != null || input as AstParserParser.AttrContext != null)
             {
                 for (int i = 0; i < input.ChildCount; ++i)
                 {
                     var c = input.GetChild(i);
                     var t = c.GetText();
                     listID = Step(nfa, c, currentStateList, nextStateList, currentPathList, nextPathList, listID, generation);
-                    currentStateList = new List<State>();
+                    var oldStateList = currentStateList;
                     var oldlist = currentPathList;
                     currentPathList = nextPathList;
+                    currentStateList = nextStateList;
                     if (!currentPathList.Any())
                         break;
                     nextPathList = new List<Path>();
-                }
-            }
-            else if (input as AstParserParser.AttrContext != null)
-            {
-                for (int i = 0; i < input.ChildCount; ++i)
-                {
-                    var c = input.GetChild(i);
-                    var t = c.GetText();
-                    listID = Step(nfa, c, currentStateList, nextStateList, currentPathList, nextPathList, listID, generation);
-                    currentStateList = new List<State>();
-                    var oldlist = currentPathList;
-                    currentPathList = nextPathList;
-                    if (!currentPathList.Any())
-                        break;
-                    nextPathList = new List<Path>();
+                    nextStateList = new List<State>();
                 }
             }
             else
@@ -345,7 +332,12 @@ namespace PiggyGenerator
                     }
                 }
 			}
-			for (int i = 0; i < nextPathList.Count; i++)
+            foreach (var s in currentStateList)
+            {
+                if (s.IsFinalState() || s.IsFinalStateSubpattern())
+                    addState(nextStateList, s, listID, gen);
+            }
+            for (int i = 0; i < nextPathList.Count; i++)
 			{
 				Path p = nextPathList[i];
 				Edge l = p.LastEdge;
