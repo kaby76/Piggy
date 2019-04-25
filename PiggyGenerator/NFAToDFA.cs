@@ -79,7 +79,7 @@
                 _closure[s] = sum;
             }
             State initialState = CreateInitialState(nfa, dfa);
-            System.Console.Error.WriteLine(dfa.ToString());
+            //System.Console.Error.WriteLine(dfa.ToString());
             foreach (var p in _closure)
             {
                 SmartSet<State> state_set = p.Value;
@@ -115,7 +115,7 @@
                 }
             }
 
-            System.Console.Error.WriteLine(dfa.ToString());
+            //System.Console.Error.WriteLine(dfa.ToString());
             foreach (var from_dfa_state in dfa.AllStates())
             {
                 var nfa_state_set = FindHashSet(from_dfa_state);

@@ -35,10 +35,10 @@
                 _current_type = pass.Owner.Type;
                 var nfa = new Automaton();
                 foreach (Pattern pattern in pass.Patterns) NFA.post2nfa(nfa, pattern);
-                System.Console.Error.WriteLine(nfa);
+                //System.Console.Error.WriteLine(nfa);
                 var nfa_to_dfa = new NFAToDFA();
                 var dfa = nfa_to_dfa.ConvertToDFA(nfa);
-                System.Console.Error.WriteLine(dfa);
+                //System.Console.Error.WriteLine(dfa);
 
                 // Perform naive matching for each node.
                 foreach (var ast_node in this._ast.Preorder())

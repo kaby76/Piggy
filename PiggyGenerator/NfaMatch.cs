@@ -143,14 +143,14 @@ namespace PiggyGenerator
             if (matches > 1)
             {
             }
-            foreach (var m in MatchingPaths)
-            {
-                System.Console.Error.WriteLine("match ----- ");
-                foreach (var ss in m)
-                {
-                    System.Console.Error.WriteLine(ss.LastEdge + " sym " + (ss.Ast == null ? "empty" : ss.Ast.GetText()));
-                }
-            }
+            //foreach (var m in MatchingPaths)
+            //{
+            //    System.Console.Error.WriteLine("match ----- ");
+            //    foreach (var ss in m)
+            //    {
+            //        System.Console.Error.WriteLine(ss.LastEdge + " sym " + (ss.Ast == null ? "empty" : ss.Ast.GetText()));
+            //    }
+            //}
             if (matches > 1)
             {
                 throw new Exception("QUIT");

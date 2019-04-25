@@ -50,7 +50,7 @@
             {
                 var p_text = p.GetText();
                 var p_type = p.GetType();
-                System.Console.Error.WriteLine("Next p " + p_text + " " + p_type);
+                //System.Console.Error.WriteLine("Next p " + p_text + " " + p_type);
 
                 // simple_basic, kleen_star_basic, and continued_basic are very special:
                 // add in ".*" between each item.
@@ -68,8 +68,8 @@
                         // or child node, not one symbol. In addition, once
                         // a child is found next, no attributes can occur.
                         Fragment f = fragmentStack.Pop();
-                        System.Console.Error.WriteLine(f.ToString());
-                        System.Console.Error.WriteLine(nfa.ToString());
+                        //System.Console.Error.WriteLine(f.ToString());
+                        //System.Console.Error.WriteLine(nfa.ToString());
                         if (i > 0 && first)
                         {
                             if ((last.StartState._out_edges.Count == 1 &&
