@@ -386,8 +386,8 @@ namespace " + @namespace + @"
             foreach (var zz in re._top_level_matches)
             {
                 IParseTree a = zz; // tree
-                //System.Console.Error.WriteLine("------");
-                //System.Console.Error.WriteLine(a.GetText());
+                System.Console.Error.WriteLine("------");
+                System.Console.Error.WriteLine(a.GetText());
                 foreach (var path in re._matches_path_start[a])
                 {
                     IEnumerator<Path> pe = path.GetEnumerator();
@@ -395,7 +395,7 @@ namespace " + @namespace + @"
                     for (; ; )
                     {
                         Path cpe = pe.Current;
-                        // System.Console.Error.WriteLine(cpe.LastEdge);
+                        System.Console.Error.WriteLine(cpe.LastEdge);
                         if (0 != (cpe.LastEdge._edge_modifiers & (int)Edge.EdgeModifiers.Text))
                         {
                             var x = cpe.LastEdge._c;

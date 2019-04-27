@@ -81,7 +81,10 @@ namespace PiggyGenerator
             throw new Exception("Cannot eval expression.");
         }
 
-        public bool FindMatches(List<Path> MatchingPaths, Automaton nfa, IParseTree input, int start = 0)
+        public bool FindMatches(
+            List<Path> MatchingPaths,
+            List<State> MatchingStates,
+            Automaton nfa, IParseTree input, int start = 0)
         {
             if (start == 0)
             {
@@ -140,6 +143,14 @@ namespace PiggyGenerator
                     MatchingPaths.Add(l);
                 }
             }
+            foreach (var s in currentStateList)
+            {
+                if (s.IsFinalState() || s.IsFinalStateSubpattern())
+                {
+                    matches++;
+                    MatchingStates.Add(s);
+                }
+            }
             if (matches > 1)
             {
             }
@@ -151,10 +162,6 @@ namespace PiggyGenerator
             //        System.Console.Error.WriteLine(ss.LastEdge + " sym " + (ss.Ast == null ? "empty" : ss.Ast.GetText()));
             //    }
             //}
-            if (matches > 1)
-            {
-                throw new Exception("QUIT");
-            }
             return matches != 0;
         }
 
@@ -164,7 +171,7 @@ namespace PiggyGenerator
             list.Add(s);
             // If s contains any edges over epsilon, then add them.
             foreach (var e in s._out_edges)
-                if (e._c == null)
+                if (e.IsEmpty || e.IsCode || e.IsText)
                     addState(list, e._to, listID, gen);
         }
 
@@ -245,9 +252,12 @@ namespace PiggyGenerator
                             // Set up to match c on subpattern. If no match,
                             // create skipping path.
                             var more = new List<Path>();
-                            bool matched = this.FindMatches(more, nfa, c, e._fragment_start.Id);
+                            var more_states = new List<State>();
+                            bool matched = this.FindMatches(more, more_states, nfa, c, e._fragment_start.Id);
                             if (matched)
                             {
+                                if (more.Count == 0)
+                                { }
                                 foreach (Path ll in more)
                                 {
                                     var p2 = p;

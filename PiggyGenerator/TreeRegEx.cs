@@ -38,21 +38,18 @@
                 //System.Console.Error.WriteLine(nfa);
                 var nfa_to_dfa = new NFAToDFA();
                 var dfa = nfa_to_dfa.ConvertToDFA(nfa);
-                //System.Console.Error.WriteLine(dfa);
+                System.Console.Error.WriteLine(dfa);
 
                 // Perform naive matching for each node.
                 foreach (var ast_node in this._ast.Preorder())
                 {
-
-                    if (ast_node.GetText().StartsWith("(classBodyDeclaration"))
-                    { }
-
-                    List<Path> MatchingPaths = new List<Path>();
+                    var MatchingPaths = new List<Path>();
+                    var MatchingStates = new List<State>();
                     var nfa_match = new NfaMatch(this._ast.Parents(),
                         this._piggy._code_blocks, this._instance);
                     bool has_previous_match = _matches.Contains(ast_node);
                     bool do_matching = (!has_previous_match);
-                    var matched = do_matching && nfa_match.FindMatches(MatchingPaths, dfa, ast_node);
+                    var matched = do_matching && nfa_match.FindMatches(MatchingPaths, MatchingStates, dfa, ast_node);
                     if (matched)
                     {
                         // If this node matched, then mark entire subtree as matched.
