@@ -34,8 +34,9 @@
             {
                 _current_type = pass.Owner.Type;
                 var nfa = new Automaton();
-                foreach (Pattern pattern in pass.Patterns) NFA.post2nfa(nfa, pattern);
-                //System.Console.Error.WriteLine(nfa);
+                var n = new NFA(nfa);
+                foreach (Pattern pattern in pass.Patterns) n.post2nfa(pattern);
+                System.Console.Error.WriteLine(nfa);
                 var nfa_to_dfa = new NFAToDFA();
                 var dfa = nfa_to_dfa.ConvertToDFA(nfa);
                 System.Console.Error.WriteLine(dfa);
@@ -45,11 +46,10 @@
                 {
                     var MatchingPaths = new List<Path>();
                     var MatchingStates = new List<State>();
-                    var nfa_match = new NfaMatch(this._ast.Parents(),
-                        this._piggy._code_blocks, this._instance);
+                    var nfa_match = new NfaMatch(this._piggy._code_blocks, this._instance, dfa);
                     bool has_previous_match = _matches.Contains(ast_node);
                     bool do_matching = (!has_previous_match);
-                    var matched = do_matching && nfa_match.FindMatches(MatchingPaths, MatchingStates, dfa, ast_node);
+                    var matched = do_matching && nfa_match.FindMatches(MatchingPaths, MatchingStates, ast_node);
                     if (matched)
                     {
                         // If this node matched, then mark entire subtree as matched.

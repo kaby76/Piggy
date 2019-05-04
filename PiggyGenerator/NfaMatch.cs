@@ -1,4 +1,5 @@
-﻿using PiggyRuntime;
+﻿using Microsoft.CodeAnalysis;
+using PiggyRuntime;
 
 namespace PiggyGenerator
 {
@@ -54,15 +55,15 @@ namespace PiggyGenerator
             }
         }
 
-        private Dictionary<IParseTree, IParseTree> _parent;
         private Dictionary<IParseTree, MethodInfo> _code_blocks;
         private object _instance;
+        private Automaton nfa;
 
-        public NfaMatch(Dictionary<IParseTree, IParseTree> parent,
-            Dictionary<IParseTree, MethodInfo> code_blocks,
-            object instance)
+        public NfaMatch(Dictionary<IParseTree, MethodInfo> code_blocks,
+            object instance,
+            Automaton a)
         {
-            _parent = parent;
+            nfa = a;
             _code_blocks = code_blocks;
             _instance = instance;
         }
@@ -84,7 +85,8 @@ namespace PiggyGenerator
         public bool FindMatches(
             List<Path> MatchingPaths,
             List<State> MatchingStates,
-            Automaton nfa, IParseTree input, int start = 0)
+            IParseTree input,
+            int start = 0)
         {
             if (start == 0)
             {
@@ -105,8 +107,11 @@ namespace PiggyGenerator
             // Go through all children and match.
             if (input as AstParserParser.NodeContext != null || input as AstParserParser.AttrContext != null)
             {
-                for (int i = 0; i < input.ChildCount; ++i)
+                int i = 0;
+                for (;;)
                 {
+                    if (i >= input.ChildCount)
+                        break;
                     var c = input.GetChild(i);
                     var t = c.GetText();
                     listID = Step(nfa, c, currentStateList, nextStateList, currentPathList, nextPathList, listID, generation);
@@ -128,27 +133,23 @@ namespace PiggyGenerator
             for (int i = 0; i < currentPathList.Count; i++)
             {
                 Path l = currentPathList[i];
-                //foreach (var x in l)
-                //    System.Console.WriteLine(x);
                 Edge e = l.LastEdge;
                 State s = e._to;
-                if (s.IsFinalState())
+                if (s.IsFinalState() || (start != 0 && s.IsFinalStateSubpattern()))
                 {
                     matches++;
                     MatchingPaths.Add(l);
-                }
-                else if (start != 0 && s.IsFinalStateSubpattern())
-                {
-                    matches++;
-                    MatchingPaths.Add(l);
+                    if (!MatchingStates.Contains(s))
+                        MatchingStates.Add(s);
                 }
             }
             foreach (var s in currentStateList)
             {
-                if (s.IsFinalState() || s.IsFinalStateSubpattern())
+                if (s.IsFinalState() || (start != 0 && s.IsFinalStateSubpattern()))
                 {
                     matches++;
-                    MatchingStates.Add(s);
+                    if (!MatchingStates.Contains(s))
+                        MatchingStates.Add(s);
                 }
             }
             if (matches > 1)
@@ -253,11 +254,13 @@ namespace PiggyGenerator
                             // create skipping path.
                             var more = new List<Path>();
                             var more_states = new List<State>();
-                            bool matched = this.FindMatches(more, more_states, nfa, c, e._fragment_start.Id);
+                            bool matched = this.FindMatches(more, more_states, c, e._fragment_start.Id);
                             if (matched)
                             {
                                 if (more.Count == 0)
-                                { }
+                                {
+                                    // Does not consume input.
+                                }
                                 foreach (Path ll in more)
                                 {
                                     var p2 = p;
@@ -354,43 +357,6 @@ namespace PiggyGenerator
 				State s = l._to;
 				addState(nextStateList, s, listID, gen);
 			}
-            return listID;
-        }
-
-        private int Step(List<State> currentStateList, IParseTree c, List<Path> nextPathList, int listID, Dictionary<Edge, int> gen)
-        {
-            listID++;
-            for (int i = 0; i < currentStateList.Count; i++)
-            {
-                State s = currentStateList[i];
-                foreach (Edge e in s._out_edges)
-                {
-                    if (e.IsSubpattern)
-                    {
-                        throw new Exception();
-                    }
-                    else if (e._c == Edge.EmptyString)
-                    {
-                        AppendEdgeToPathSet(null, null, nextPathList, e, listID, gen);
-                    }
-                    else if (e._c == c.GetText())
-                    {
-                        AppendEdgeToPathSet(c, null, nextPathList, e, listID, gen);
-                    }
-                    else if (e._c == "<" && "(" == c.GetText())
-                    {
-                        AppendEdgeToPathSet(c, null, nextPathList, e, listID, gen);
-                    }
-                    else if (e._c == ">" && ")" == c.GetText())
-                    {
-                        AppendEdgeToPathSet(c, null, nextPathList, e, listID, gen);
-                    }
-                    else if (e.IsAny)
-                    {
-                        AppendEdgeToPathSet(c, null, nextPathList, e, listID, gen);
-                    }
-                }
-            }
             return listID;
         }
 

@@ -1,4 +1,6 @@
-﻿namespace PiggyGenerator
+﻿using System.Threading;
+
+namespace PiggyGenerator
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -67,19 +69,15 @@
                 var c = ClosureTaker.GetClosure(new List<State>() {s}, nfa);
                 _closure[s] = c;
             }
-            foreach (var s in nfa.AllStates())
+            foreach (var p in _closure)
             {
-                SmartSet<State> sum = new SmartSet<State>();
-                foreach (var p in _closure)
-                {
-                    var set = p.Value;
-                    if (set.Contains(s))
-                        sum.UnionWith(set);
-                }
-                _closure[s] = sum;
+                var key = p.Key;
+                var set = p.Value;
+                foreach (var s in set) _closure[s].UnionWith(set);
             }
             State initialState = CreateInitialState(nfa, dfa);
-            //System.Console.Error.WriteLine(dfa.ToString());
+            System.Console.Error.WriteLine(dfa.ToString());
+
             foreach (var p in _closure)
             {
                 SmartSet<State> state_set = p.Value;
@@ -113,6 +111,27 @@
                             dfa.AddStartStateSubpattern(state);
                     }
                 }
+            }
+
+            foreach (var p in _closure)
+            {
+                var k = p.Key;
+                SmartSet<State> state_set = p.Value;
+                var dfa_state = FindHashSetState(dfa, state_set);
+                System.Console.Error.WriteLine("State " + k.Id + ":"
+                                               + state_set.Aggregate(
+                                                   "", // start with empty string to handle empty list case.
+                                                   (current, next) => current + ", " + next));
+            }
+
+            foreach (var from_dfa_state in dfa.AllStates())
+            {
+                var state_set = FindHashSet(from_dfa_state);
+                System.Console.Error.WriteLine("DFA State " + from_dfa_state.Id
+                                  + ":"
+                                  + state_set.Aggregate(
+                                    "", // start with empty string to handle empty list case.
+                                        (current, next) => current + ", " + next));
             }
 
             //System.Console.Error.WriteLine(dfa.ToString());
@@ -156,11 +175,11 @@
             }
 
             // Add in "any" fragment in order to match tree nodes that aren't in pattern.
-            {
-                State s3 = new State(dfa); s3.Commit();
-                var e1 = new Edge(dfa, s3, s3, null, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e1.Commit();
-                var f = new Fragment(s3);
-            }
+            //{
+            //    State s3 = new State(dfa); s3.Commit();
+            //    var e1 = new Edge(dfa, s3, s3, null, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any); e1.Commit();
+            //    var f = new Fragment(s3);
+            //}
 
             return dfa;
         }

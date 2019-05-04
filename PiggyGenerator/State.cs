@@ -33,6 +33,14 @@
         {
             return Id;
         }
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            if (obj.GetType() != typeof(State)) return false;
+            var o = obj as State;
+            if (this.Id != o.Id) return false;
+            return true;
+        }
         public bool IsFinalState()
         {
             return Owner.FinalStates.Contains(this);
