@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiggyGenerator", "PiggyGenerator\PiggyGenerator.csproj", "{020D13B8-946E-4413-B745-B10F514F6DB1}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -59,6 +59,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DA
 	ProjectSection(SolutionItems) = preProject
 		Examples\ser.pig = Examples\ser.pig
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Campy.Graphs", "Graphs\Campy.Graphs.csproj", "{B515325A-00A5-4137-95E4-AC3C9C298ECF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -250,6 +252,26 @@ Global
 		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|x64.Build.0 = Release|Any CPU
 		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|x86.ActiveCfg = Release|Any CPU
 		{43525AC7-1B28-4332-8F70-4C9F29A0EE35}.Release|x86.Build.0 = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|ARM.Build.0 = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|x64.Build.0 = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Debug|x86.Build.0 = Debug|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|ARM.Build.0 = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|ARM64.Build.0 = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|x64.ActiveCfg = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|x64.Build.0 = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|x86.ActiveCfg = Release|Any CPU
+		{B515325A-00A5-4137-95E4-AC3C9C298ECF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

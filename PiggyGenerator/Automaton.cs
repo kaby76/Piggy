@@ -1,14 +1,14 @@
-﻿namespace PiggyGenerator
+﻿using Campy.Graphs;
+
+namespace PiggyGenerator
 {
     using System.Collections.Generic;
     using System.Text;
     using System.Linq;
     using PiggyRuntime;
 
-    public class Automaton
+    public class Automaton : GraphAdjList<State, Edge>
     {
-        protected List<State> _all_states = new List<State>();
-        protected List<Edge> _all_edges = new List<Edge>();
         protected SmartSet<State> _start_states = new SmartSet<State>();
         protected SmartSet<State> _start_states_subpattern = new SmartSet<State>();
         protected SmartSet<State> _final_states = new SmartSet<State>();
@@ -26,15 +26,15 @@
         }
         public IEnumerable<Edge> AllEdges()
         {
-            return _all_edges;
+            return this.Edges;
         }
         public IEnumerable<Edge> AllEdges(State state)
         {
-            return _all_edges.Where(e => e._from == state).ToList();
+            return this.Edges.Where(e => e._from == state).ToList();
         }
         public IEnumerable<State> AllStates()
         {
-            return _all_states;
+            return this.Vertices;
         }
         public IEnumerable<State> StartStates { get { return _start_states; } }
         public IEnumerable<State> StartStatesSubpattern { get { return _start_states_subpattern; } }
@@ -42,12 +42,8 @@
         public IEnumerable<State> FinalStatesSubpattern { get { return _final_states_subpattern; } }
         public void AddState(State s)
         {
-            if (_all_states.Contains(s)) return;
-            _all_states.Add(s);
-        }
-        public void AddEdge(Edge e)
-        {
-            _all_edges.Add(e);
+            if (this.Vertices.Contains(s)) return;
+            this.AddVertex(s);
         }
         public void AddStartState(State ss)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Campy.Graphs;
 
 namespace PiggyGenerator
 {
@@ -7,7 +8,7 @@ namespace PiggyGenerator
     using System.Text;
     using System.Linq;
 
-    public class Edge
+    public class Edge : DirectedEdge<State>
     {
         public enum EdgeModifiers
         {
@@ -31,13 +32,14 @@ namespace PiggyGenerator
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
         public static readonly string EmptyString = null;
 
-        private Edge() { }
         public Edge(Automaton owner, State @from, State to, State frag_start, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
+          : base(from, to)
         {
             _Id = ++_id;
             _owner = owner;
             _from = @from;
             _to = to;
+            owner.AddEdge(this);
             _fragment_start = frag_start;
             AstList = ast_list;
             if (ast_list.Count() == 0) _c = EmptyString;
@@ -89,11 +91,6 @@ namespace PiggyGenerator
         }
 
         public IEnumerable<IParseTree> AstList { get; protected set; }
-        public void Commit()
-        {
-            _owner.AddEdge(this);
-            _from._out_edges.Add(this);
-        }
         public override int GetHashCode()
         {
             return _from.Id + _to.Id * 16;

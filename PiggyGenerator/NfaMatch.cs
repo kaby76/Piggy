@@ -171,7 +171,7 @@ namespace PiggyGenerator
             if (list.Contains(s)) return;
             list.Add(s);
             // If s contains any edges over epsilon, then add them.
-            foreach (var e in s._out_edges)
+            foreach (var e in s.Owner.SuccessorEdges(s))
                 if (e.IsEmpty || e.IsCode || e.IsText)
                     addState(list, e._to, listID, gen);
         }
@@ -209,7 +209,7 @@ namespace PiggyGenerator
                 for (int i = 0; i < currentStateList.Count; i++)
                 {
                     State s = currentStateList[i];
-                    foreach (Edge e in s._out_edges)
+                    foreach (Edge e in s.Owner.SuccessorEdges(s))
                     {
                         if (e.IsSubpattern)
                         {
@@ -246,7 +246,7 @@ namespace PiggyGenerator
                     CheckPath(p);
                     Edge l = p.LastEdge;
                     State s = l._to;
-                    foreach (Edge e in s._out_edges)
+                    foreach (Edge e in s.Owner.SuccessorEdges(s))
                     {
                         if (e.IsSubpattern)
                         {
@@ -276,7 +276,7 @@ namespace PiggyGenerator
                             else
                             {
                                 var any = nfa.AllStates().Last();
-                                var any_edge = any._out_edges.First();
+                                var any_edge = any.Owner.SuccessorEdges(any).First();
                                 // Add in all of c into "any" path.
                                 var p2 = p;
                                 foreach (IParseTree zzz in new EnumerableIParseTree(c))
@@ -388,7 +388,7 @@ namespace PiggyGenerator
             }
             var added = list.Last();
             // If s contains any edges over epsilon, then add them.
-            foreach (var o in st._out_edges)
+            foreach (var o in st.Owner.SuccessorEdges(st))
                 if (o.IsEmpty || o.IsCode || o.IsText)
                 {
                     AppendEdgeToPathSet(null, added, list, o, listID, gen);

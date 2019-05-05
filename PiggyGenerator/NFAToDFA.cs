@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using Campy.Graphs;
 
 namespace PiggyGenerator
 {
@@ -42,7 +43,7 @@ namespace PiggyGenerator
         {
             State result = FindHashSetState(dfa, states);
             if (result != null) return result;
-            result = new State(dfa); result.Commit();
+            result = new State(dfa);
             _hash_sets.Add(states, result);
             return result;
         }
@@ -64,20 +65,59 @@ namespace PiggyGenerator
         public Automaton ConvertToDFA(Automaton nfa)
         {
             var dfa = new Automaton();
+            // For every state s, compute collection of states along epsilon edges
+            // to get an initial computation of dfa states.
             foreach (var s in nfa.AllStates())
             {
                 var c = ClosureTaker.GetClosure(new List<State>() {s}, nfa);
                 _closure[s] = c;
             }
+
+            // For every state set, compute sums and fix up state sets.
             foreach (var p in _closure)
             {
                 var key = p.Key;
                 var set = p.Value;
                 foreach (var s in set) _closure[s].UnionWith(set);
             }
-            State initialState = CreateInitialState(nfa, dfa);
-            System.Console.Error.WriteLine(dfa.ToString());
 
+            // For every state in nfa using Tarjan walk,
+            // sum sets with common transitions.
+            var ordered_list = new Campy.Graphs.TarjanNoBackEdges<State, Edge>(nfa).ToList();
+            ordered_list.Reverse();
+            bool changed = true;
+            while (changed)
+            {
+                changed = false;
+                foreach (var s in ordered_list)
+                {
+                    var closure = _closure[s];
+                    var transitions = ClosureTaker.GatherTransitions(closure);
+                    foreach (KeyValuePair<string, List<Edge>> transition_set in transitions)
+                    {
+                        var key = transition_set.Key;
+                        var value = transition_set.Value;
+                        var state_set = new SmartSet<State>();
+                        // All states in value must have common set in dfa.
+                        foreach (var e in value)
+                        {
+                            var c = e._to;
+                            var cl = _closure[c];
+                            state_set.UnionWith(cl);
+                        }
+                        foreach (var c in state_set)
+                        {
+                            if (!_closure[c].Equals(state_set))
+                            {
+                                _closure[c] = state_set;
+                                changed = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            State initialState = CreateInitialState(nfa, dfa);
             foreach (var p in _closure)
             {
                 SmartSet<State> state_set = p.Value;
@@ -85,7 +125,6 @@ namespace PiggyGenerator
                 if (new_dfa_state == null)
                 {
                     State state = AddHashSetState(dfa, state_set);
-                    state.Commit();
                     {
                         bool mark = false;
                         foreach (var s in state_set)
@@ -113,25 +152,17 @@ namespace PiggyGenerator
                 }
             }
 
+            //System.Console.Error.WriteLine(dfa.ToString());
+
             foreach (var p in _closure)
             {
                 var k = p.Key;
                 SmartSet<State> state_set = p.Value;
                 var dfa_state = FindHashSetState(dfa, state_set);
-                System.Console.Error.WriteLine("State " + k.Id + ":"
-                                               + state_set.Aggregate(
-                                                   "", // start with empty string to handle empty list case.
-                                                   (current, next) => current + ", " + next));
-            }
-
-            foreach (var from_dfa_state in dfa.AllStates())
-            {
-                var state_set = FindHashSet(from_dfa_state);
-                System.Console.Error.WriteLine("DFA State " + from_dfa_state.Id
-                                  + ":"
-                                  + state_set.Aggregate(
-                                    "", // start with empty string to handle empty list case.
-                                        (current, next) => current + ", " + next));
+           //     System.Console.Error.WriteLine("State " + dfa_state.Id + ":"
+           //                                    + state_set.Aggregate(
+           //                                        "", // start with empty string to handle empty list case.
+            //                                       (current, next) => current + ", " + next));
             }
 
             //System.Console.Error.WriteLine(dfa.ToString());
@@ -170,7 +201,6 @@ namespace PiggyGenerator
                         foreach (IParseTree v2 in v.AstList)
                             asts.Add(v2);
                     var he = new Edge(dfa, from_dfa_state, to_dfa_state, ff_dfa, asts, mods);
-                    if (!to_dfa_state._out_edges.Contains(he)) he.Commit();
                 }
             }
 

@@ -11,7 +11,7 @@
             MultiMap<string, Edge> transitions = new MultiMap<string, Edge>();
             foreach (var s in state_set)
             {
-                foreach (var e in s._out_edges)
+                foreach (var e in s.Owner.SuccessorEdges(s))
                 {
                     if (!Automaton.IsLambdaTransition(e))
                     {

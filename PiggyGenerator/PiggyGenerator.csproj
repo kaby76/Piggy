@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Graphs\Campy.Graphs.csproj" />
     <ProjectReference Include="..\PiggyRuntime\PiggyRuntime.csproj" />
     <ProjectReference Include="..\Symtab\Symtab.csproj" />
   </ItemGroup>
