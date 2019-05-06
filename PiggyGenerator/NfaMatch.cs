@@ -113,6 +113,7 @@ namespace PiggyGenerator
                     if (i >= input.ChildCount)
                         break;
                     var c = input.GetChild(i);
+                    i++;
                     var t = c.GetText();
                     listID = Step(nfa, c, currentStateList, nextStateList, currentPathList, nextPathList, listID, generation);
                     var oldStateList = currentStateList;
@@ -204,6 +205,7 @@ namespace PiggyGenerator
             Dictionary<Edge, int> gen)
         {
             listID++;
+            var ty = c.GetType();
             if (currentPathList == null || currentPathList.Count == 0)
             {
                 for (int i = 0; i < currentStateList.Count; i++)
