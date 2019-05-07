@@ -413,7 +413,7 @@ namespace " + @namespace + @"
                             for (; ; )
                             {
                                 if (find == null) break;
-                                con = find.Ast;
+                                con = find.Input;
                                 if (con != null) break;
                                 find = find.Next;
                             }

@@ -42,19 +42,28 @@
                 System.Console.Error.WriteLine(dfa);
 
                 // Perform naive matching for each node.
-                foreach (var ast_node in this._ast.Preorder())
+                foreach (var input in this._ast.Preorder())
                 {
+                    if (!(input as AstParserParser.NodeContext != null ||
+                          input as AstParserParser.AttrContext != null))
+                        continue;
+
+                    bool has_previous_match = _matches.Contains(input);
+                    bool do_matching = (!has_previous_match);
+                    if (has_previous_match)
+                        continue;
+
+                    var csl = new List<State>();
+                    var cpl = new List<Path>();
                     var MatchingPaths = new List<Path>();
                     var MatchingStates = new List<State>();
                     var nfa_match = new NfaMatch(this._piggy._code_blocks, this._instance, dfa);
-                    bool has_previous_match = _matches.Contains(ast_node);
-                    bool do_matching = (!has_previous_match);
-                    var matched = do_matching && nfa_match.FindMatches(MatchingPaths, MatchingStates, ast_node);
+                    var matched = nfa_match.FindMatches(cpl, csl, ref MatchingPaths, ref MatchingStates, input);
                     if (matched)
                     {
                         // If this node matched, then mark entire subtree as matched.
                         var stack = new Stack<IParseTree>();
-                        stack.Push(ast_node);
+                        stack.Push(input);
                         while (stack.Count > 0)
                         {
                             var v = stack.Pop();
@@ -65,10 +74,10 @@
                                 stack.Push(c);
                             }
                         }
-                        _top_level_matches.Add(ast_node);
+                        _top_level_matches.Add(input);
                         foreach (Path p in MatchingPaths)
                         {
-                            _matches_path_start.MyAdd(ast_node, p);
+                            _matches_path_start.MyAdd(input, p);
                         }
                     }
                 }

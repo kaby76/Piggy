@@ -8,16 +8,18 @@
 
     public class Path : IEnumerable<Path>
     {
-        readonly Path _next;
-        readonly Edge _transition;
-        readonly IParseTree _input;
-        readonly int change;
+        private readonly Path _next;
+        private readonly Edge _transition;
+        private readonly IParseTree _input;
+        private readonly string _input_text;
+        private readonly int change;
 
         public Path(Edge e, IParseTree input)
         {
             _next = null;
             _transition = e;
             _input = input;
+            _input_text = input.GetText();
             change = 0;
         }
         public Path(Path n, Edge e, IParseTree input)
@@ -26,9 +28,10 @@
             if (n == null) throw new Exception();
             _transition = e;
             _input = input;
-            if (e.IsAny && input.GetText() == "(")
+            _input_text = input != null ? input.GetText() : "";
+            if (e.IsAny && _input_text == "(")
                 change = n.change + 1;
-            else if (e.IsAny && input.GetText() == ")")
+            else if (e.IsAny && _input_text == ")")
                 change = n.change - 1;
             else change = n.change;
         }
@@ -40,9 +43,13 @@
         {
             get { return _transition; }
         }
-        public IParseTree Ast
+        public IParseTree Input
         {
             get { return _input; }
+        }
+        public string InputText
+        {
+            get { return _input_text; }
         }
         public int Change { get { return change; } }
         private IEnumerator<Path> Doit()
