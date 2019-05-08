@@ -141,7 +141,7 @@ namespace PiggyGenerator
             {
                 Path l = nextPathList[j];
                 Edge e = l.LastEdge;
-                State s = e._to;
+                State s = e.To;
                 if (s.IsFinalState())
                 {
                     matches++;
@@ -173,7 +173,7 @@ namespace PiggyGenerator
             list.Add(s);
             foreach (var e in s.Owner.SuccessorEdges(s))
                 if (e.IsEmpty || e.IsCode || e.IsText)
-                    AddStateAndClosure(list, e._to);
+                    AddStateAndClosure(list, e.To);
         }
 
         void CheckPath(Path path)
@@ -184,12 +184,12 @@ namespace PiggyGenerator
             {
                 var e = ee.LastEdge;
                 if (p == null)
-                    p = e._to;
+                    p = e.To;
                 else
                 {
-                    if (p != e._from)
+                    if (p != e.From)
                         throw new System.Exception();
-                    p = e._to;
+                    p = e.To;
                 }
             }
         }
@@ -256,7 +256,7 @@ namespace PiggyGenerator
                         Path p = currentPathList[i];
                         CheckPath(p);
                         Edge l = p.LastEdge;
-                        State s = l._to;
+                        State s = l.To;
                         foreach (Edge e in s.Owner.SuccessorEdges(s))
                         {
                             if (e.IsAny)
@@ -280,7 +280,7 @@ namespace PiggyGenerator
                         Path p = currentPathList[i];
                         CheckPath(p);
                         Edge l = p.LastEdge;
-                        State s = l._to;
+                        State s = l.To;
                         foreach (Edge e in s.Owner.SuccessorEdges(s))
                         {
                             if (e.IsAny)
@@ -354,7 +354,7 @@ namespace PiggyGenerator
 			{
 				Path p = nextPathList[i];
 				Edge l = p.LastEdge;
-				State s = l._to;
+				State s = l.To;
 				AddStateAndClosure(nextStateList, s);
 			}
             System.Console.Error.WriteLine("OUT------");
@@ -370,8 +370,8 @@ namespace PiggyGenerator
 
         private void AppendEdgeToPathSet(IParseTree c, Path path, List<Path> list, Edge e, int listID)
         {
-            var st = e._to;
-            var sf = e._from;
+            var st = e.To;
+            var sf = e.From;
             foreach (var l in list)
             {
                 CheckPath(l);

@@ -19,11 +19,9 @@ namespace PiggyGenerator
             Text = 8
         }
 
-        public int _Id;
+        private readonly int _Id;
         private static int _id = 0;
-        public State _from;
-        public State _to;
-        public string _input;
+        public readonly string _input;
         private readonly Automaton _owner;
         public int _edge_modifiers;
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
@@ -32,16 +30,17 @@ namespace PiggyGenerator
         public Edge(Automaton owner, State @from, State to, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
           : base(from, to)
         {
-            _Id = ++_id;
+            Id = ++_id;
             _owner = owner;
-            _from = @from;
-            _to = to;
+            //_from = @from;
+            //_to = to;
             owner.AddEdge(this);
             AstList = ast_list;
             if (ast_list.Count() == 0) _input = EmptyString;
             else _input = ast_list.First().GetText();
             _edge_modifiers = edge_modifiers;
         }
+        public int Id { get; }
         public bool IsAny
         {
             get
@@ -80,14 +79,14 @@ namespace PiggyGenerator
         public IEnumerable<IParseTree> AstList { get; protected set; }
         public override int GetHashCode()
         {
-            return _from.Id + _to.Id * 16;
+            return From.Id + To.Id * 16;
         }
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
             var o = obj as Edge;
             if (o == null) return false;
-            if (this._from != o._from || this._to != o._to) return false;
+            if (this.From != o.From || this.To != o.To) return false;
             if (this._input != o._input) return false;
             if (this._edge_modifiers != o._edge_modifiers) return false;
             return true;
@@ -95,7 +94,7 @@ namespace PiggyGenerator
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(this._from + " -> " + this._to
+            sb.Append(this.From + " -> " + this.To
                 + " on '");
             if (this.IsAny) sb.Append("any");
             else if (this.IsCode) sb.Append("code");

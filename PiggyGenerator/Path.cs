@@ -94,10 +94,10 @@
                 var v = stack.Pop();
                 if (first)
                 {
-                    sb.Append(v._transition._from + " ");
+                    sb.Append(v._transition.From + " ");
                     first = false;
                 }
-                sb.Append("-> " + v._transition._to);
+                sb.Append("-> " + v._transition.To);
             }
             return sb.ToString();
         }

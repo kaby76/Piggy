@@ -38,7 +38,7 @@
                 {
                     if (Automaton.IsLambdaTransition(transition))
                     {
-                        var toState = transition._to;
+                        var toState = transition.To;
                         if (list.Contains(toState)) continue;
                         list.Add(toState);
                     }

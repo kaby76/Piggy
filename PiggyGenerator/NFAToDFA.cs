@@ -101,7 +101,7 @@ namespace PiggyGenerator
                         // All states in value must have common set in dfa.
                         foreach (var e in value)
                         {
-                            var c = e._to;
+                            var c = e.To;
                             var cl = _closure[c];
                             state_set.UnionWith(cl);
                         }
@@ -180,7 +180,7 @@ namespace PiggyGenerator
                     var key = transition_set.Key;
                     var value = transition_set.Value;
                     var state_set = new HashSet<State>();
-                    foreach (var e in value) state_set.Add(e._to);
+                    foreach (var e in value) state_set.Add(e.To);
                     // Find in all previous states.
                     SmartSet<State> new_state_set = _hash_sets.Where(hs => state_set.IsSubsetOf(hs.Key)).FirstOrDefault().Key;
                     if (new_state_set == null)

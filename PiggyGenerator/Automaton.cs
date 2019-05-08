@@ -29,7 +29,7 @@ namespace PiggyGenerator
         }
         public IEnumerable<Edge> AllEdges(State state)
         {
-            return this.Edges.Where(e => e._from == state).ToList();
+            return this.Edges.Where(e => e.From == state).ToList();
         }
         public IEnumerable<State> AllStates()
         {
@@ -86,7 +86,7 @@ namespace PiggyGenerator
             sb.AppendLine("digraph g {");
             foreach (var e in AllEdges())
             {
-                sb.Append(e._from + " -> " + e._to
+                sb.Append(e.From + " -> " + e.To
                     + " [label=\"");
                 if (e.IsText)
                     sb.Append("[[ text ]]");
