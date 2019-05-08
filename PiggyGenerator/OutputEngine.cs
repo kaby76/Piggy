@@ -396,9 +396,9 @@ namespace " + @namespace + @"
                     {
                         Path cpe = pe.Current;
                         System.Console.Error.WriteLine(cpe.LastEdge);
-                        if (0 != (cpe.LastEdge._edge_modifiers & (int)Edge.EdgeModifiers.Text))
+                        if (0 != (cpe.LastEdge.EdgeModifiers & (int)Edge.EdgeModifiersEnum.Text))
                         {
-                            var x = cpe.LastEdge._input;
+                            var x = cpe.LastEdge.Input;
                             {
                                 string s = x;
                                 string s2 = s.Substring(2);

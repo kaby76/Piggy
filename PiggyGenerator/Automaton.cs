@@ -16,7 +16,7 @@ namespace PiggyGenerator
 
         public static bool IsLambdaTransition(Edge e)
         {
-            if (e._input != null) return false;
+            if (e.Input != null) return false;
             else if (e.IsAny) return false;
             else if (e.IsCode) return false;
             else if (e.IsText) return false;
@@ -94,10 +94,10 @@ namespace PiggyGenerator
                     sb.Append("{{ code }}");
                 else if (e.IsAny)
                     sb.Append(" any ");
-                else if (e._input == null)
+                else if (e.Input == null)
                     sb.Append(" empty ");
                 else
-                    sb.Append(e._input.provide_escapes());
+                    sb.Append(e.Input.provide_escapes());
                 sb.AppendLine("\"];");
             }
             foreach (var ss in AllStates())

@@ -186,7 +186,7 @@ namespace PiggyGenerator
                     if (new_state_set == null)
                         new_state_set = _closure[state_set.First()];
                     var to_dfa_state = FindHashSetState(dfa, new_state_set);
-                    int mods = value.First()._edge_modifiers;
+                    int mods = value.First().EdgeModifiers;
                     var asts = new List<IParseTree>();
                     foreach (Edge v in value)
                         foreach (IParseTree v2 in v.AstList)

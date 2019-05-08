@@ -100,7 +100,7 @@ namespace PiggyGenerator
                                 State s3 = new State(_nfa);
                                 var e1 = new Edge(_nfa, s1, s2, Edge.EmptyAst);
                                 var e2 = new Edge(_nfa, s2, s3, Edge.EmptyAst);
-                                var e3 = new Edge(_nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any);
+                                var e3 = new Edge(_nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiersEnum.Any);
                                 var e4 = new Edge(_nfa, s3, last.StartState, Edge.EmptyAst);
                                 last = new Fragment(s1, last.OutStates);
                             }
@@ -149,7 +149,7 @@ namespace PiggyGenerator
                 {
                     State s1 = new State(_nfa);
                     State s2 = new State(_nfa);
-                    var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Text);
+                    var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiersEnum.Text);
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -157,7 +157,7 @@ namespace PiggyGenerator
                 {
                     State s1 = new State(_nfa);
                     State s2 = new State(_nfa);
-                    var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Code);
+                    var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiersEnum.Code);
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -198,7 +198,7 @@ namespace PiggyGenerator
                         var s_type = s.Type;
                         State s1 = new State(_nfa);
                         State s2 = new State(_nfa);
-                        var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { t }, (int)Edge.EdgeModifiers.Not);
+                        var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { t }, (int)Edge.EdgeModifiersEnum.Not);
                         var f = new Fragment(s1, s2);
                         fragmentStack.Push(f);
                     }
