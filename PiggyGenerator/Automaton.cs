@@ -35,9 +35,7 @@
             return this.Vertices;
         }
         public IEnumerable<State> StartStates { get { return _start_states; } }
-        public IEnumerable<State> StartStatesSubpattern { get { return _start_states_subpattern; } }
         public IEnumerable<State> FinalStates { get { return _final_states; } }
-        public IEnumerable<State> FinalStatesSubpattern { get { return _final_states_subpattern; } }
         public void AddState(State s)
         {
             if (this.Vertices.Contains(s)) return;
@@ -85,8 +83,6 @@
             {
                 if (StartStates.Contains(ss)) sb.AppendLine(ss + " [shape=square];");
                 else if (FinalStates.Contains(ss)) sb.AppendLine(ss + " [shape=Msquare];");
-                else if (StartStatesSubpattern.Contains(ss)) sb.AppendLine(ss + " [shape=octagon];");
-                else if (FinalStatesSubpattern.Contains(ss)) sb.AppendLine(ss + " [shape=doubleoctagon];");
                 else sb.AppendLine(ss + " [shape=circle];");
             }
             sb.AppendLine("}");

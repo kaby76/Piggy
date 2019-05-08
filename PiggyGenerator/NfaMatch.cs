@@ -141,14 +141,14 @@
                 Path l = nextPathList[j];
                 Edge e = l.LastEdge;
                 State s = e.To;
-                if (s.IsFinalState())
+                if (s.Owner.IsFinalState(s))
                 {
                     matches++;
                 }
             }
             foreach (var s in currentStateList)
             {
-                if (s.IsFinalState())
+                if (s.Owner.IsFinalState(s))
                 {
                     matches++;
                     if (!nextStateList.Contains(s))
@@ -346,7 +346,7 @@
             }
             foreach (var s in currentStateList)
             {
-                if (s.IsFinalState())
+                if (s.Owner.IsFinalState(s))
                     AddStateAndClosure(nextStateList, s);
             }
             for (int i = 0; i < nextPathList.Count; i++)

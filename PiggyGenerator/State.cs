@@ -37,10 +37,6 @@
             if (this.Id != o.Id) return false;
             return true;
         }
-        public bool IsFinalState()
-        {
-            return Owner.FinalStates.Contains(this);
-        }
         public override string ToString()
         {
             return this.Id.ToString();
