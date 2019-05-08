@@ -1,7 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
-using PiggyRuntime;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
     using Antlr4.Runtime.Tree;
     using System.Collections.Generic;
@@ -10,6 +7,8 @@ namespace PiggyGenerator
     using System.Text.RegularExpressions;
     using System;
     using System.Reflection;
+    using PiggyRuntime;
+
 
     public class NfaMatch
     {

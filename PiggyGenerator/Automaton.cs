@@ -1,11 +1,10 @@
-﻿using Campy.Graphs;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
     using System.Collections.Generic;
     using System.Text;
     using System.Linq;
     using PiggyRuntime;
+    using Campy.Graphs;
 
     public class Automaton : GraphAdjList<State, Edge>
     {
@@ -49,36 +48,18 @@ namespace PiggyGenerator
             if (_start_states.Contains(ss)) return;
             _start_states.Add(ss);
         }
-        public void AddStartStateSubpattern(State ss)
-        {
-            if (_start_states_subpattern.Contains(ss)) return;
-            _start_states_subpattern.Add(ss);
-        }
         public void AddFinalState(State end)
         {
             if (_final_states.Contains(end)) return;
             _final_states.Add(end);
         }
-        public void AddFinalStateSubpattern(State end)
-        {
-            if (_final_states_subpattern.Contains(end)) return;
-            _final_states_subpattern.Add(end);
-        }
         public bool IsFinalState(State state)
         {
             return _final_states.Contains(state);
         }
-        public bool IsFinalStateSubpattern(State state)
-        {
-            return _final_states_subpattern.Contains(state);
-        }
         public bool IsStartState(State state)
         {
             return _start_states.Contains(state);
-        }
-        public bool IsStartStateSubpattern(State state)
-        {
-            return _start_states_subpattern.Contains(state);
         }
         public override string ToString()
         {

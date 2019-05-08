@@ -1,10 +1,9 @@
-﻿using System.Linq;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
     using System.Collections.Generic;
     using Antlr4.Runtime.Tree;
     using PiggyRuntime;
+    using System.Linq;
 
     /**
      * NFA via Thompson's Construction.

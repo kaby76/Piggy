@@ -1,14 +1,8 @@
-﻿using System.Threading;
-using Campy.Graphs;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
     using System.Collections.Generic;
     using System.Linq;
     using Antlr4.Runtime.Tree;
-    using System.Collections.Generic;
-    using System.Text;
-    using System.Linq;
 
     public class NFAToDFA
     {
@@ -132,22 +126,6 @@ namespace PiggyGenerator
                                 mark = true;
                         if (mark && !dfa.FinalStates.Contains(state))
                             dfa.AddFinalState(state);
-                    }
-                    {
-                        bool mark = false;
-                        foreach (var s in state_set)
-                            if (nfa.FinalStatesSubpattern.Contains(s))
-                                mark = true;
-                        if (mark && !dfa.FinalStatesSubpattern.Contains(state))
-                            dfa.AddFinalStateSubpattern(state);
-                    }
-                    {
-                        bool mark = false;
-                        foreach (var s in state_set)
-                            if (nfa.StartStatesSubpattern.Contains(s))
-                                mark = true;
-                        if (mark && !dfa.StartStatesSubpattern.Contains(state))
-                            dfa.AddStartStateSubpattern(state);
                     }
                 }
             }

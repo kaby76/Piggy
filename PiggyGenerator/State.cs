@@ -1,17 +1,20 @@
 ﻿namespace PiggyGenerator
 {
     using System.Linq;
-    using System.Collections.Generic;
 
     public class State
     {
-        private Automaton _owner;
+        private readonly Automaton _owner;
         private static int _next_id;
-        public int Id { get; private set; }
+        private readonly int _id;
+        public int Id
+        {
+            get { return _id; }
+        }
 
         public State(Automaton owner)
         {
-            Id = _next_id++;
+            _id = _next_id++;
             _owner = owner;
             _owner.AddState(this);
         }

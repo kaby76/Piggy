@@ -1,8 +1,6 @@
-﻿using System;
-using Campy.Graphs;
-
-namespace PiggyGenerator
+﻿namespace PiggyGenerator
 {
+    using Campy.Graphs;
     using Antlr4.Runtime.Tree;
     using System.Collections.Generic;
     using System.Text;
@@ -19,7 +17,7 @@ namespace PiggyGenerator
             Text = 8
         }
         private readonly int _Id;
-        private static int _id = 0;
+        private static int _next_id = 0;
         private readonly string _input;
         private readonly Automaton _owner;
         private readonly int _edge_modifiers;
@@ -29,7 +27,7 @@ namespace PiggyGenerator
         public Edge(Automaton owner, State @from, State to, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
           : base(from, to)
         {
-            _Id = ++_id;
+            _Id = ++_next_id;
             _owner = owner;
             AstList = ast_list;
             if (ast_list.Count() == 0) _input = EmptyString;
