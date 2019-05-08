@@ -12,7 +12,6 @@
         private readonly Edge _transition;
         private readonly IParseTree _input;
         private readonly string _input_text;
-        private readonly int change;
 
         public Path(Edge e, IParseTree input)
         {
@@ -20,7 +19,6 @@
             _transition = e;
             _input = input;
             _input_text = input.GetText();
-            change = 0;
         }
         public Path(Path n, Edge e, IParseTree input)
         {
@@ -29,11 +27,6 @@
             _transition = e;
             _input = input;
             _input_text = input != null ? input.GetText() : "";
-            if (e.IsAny && _input_text == "(")
-                change = n.change + 1;
-            else if (e.IsAny && _input_text == ")")
-                change = n.change - 1;
-            else change = n.change;
         }
         public Path Next
         {
@@ -51,7 +44,6 @@
         {
             get { return _input_text; }
         }
-        public int Change { get { return change; } }
         private IEnumerator<Path> Doit()
         {
             // Follow Next link to get path in reverse.
@@ -94,10 +86,10 @@
                 var v = stack.Pop();
                 if (first)
                 {
-                    sb.Append(v._transition.From + " ");
+                    sb.Append(v._transition.From);
                     first = false;
                 }
-                sb.Append("-> " + v._transition.To);
+                sb.Append(" -> " + v._transition.To);
             }
             return sb.ToString();
         }

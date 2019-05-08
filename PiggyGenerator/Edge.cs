@@ -23,7 +23,7 @@ namespace PiggyGenerator
         private static int _id = 0;
         public readonly string _input;
         private readonly Automaton _owner;
-        public int _edge_modifiers;
+        public readonly int _edge_modifiers;
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
         public static readonly string EmptyString = null;
 

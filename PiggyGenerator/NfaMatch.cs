@@ -382,14 +382,6 @@ namespace PiggyGenerator
             }
             else
             {
-                if (e.IsAny)
-                {
-                }
-                else
-                {
-                    if (path.Change != 0)
-                        return;
-                }
                 var p = new Path(path, e, c);
                 CheckPath(p);
                 list.Add(p);
