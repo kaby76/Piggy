@@ -94,19 +94,8 @@ namespace PiggyGenerator
                 throw new Exception();
 
             int listID = 0;
-            bool first = true;
-            //var currentPathList = MatchingPaths.ToList();
-            //var nextPathList = new List<Path>();
-            //var currentStateList = MatchingStates.ToList();
-            //var nextStateList = new List<State>();
-            var generation = new Dictionary<Edge, int>();
 
-            if (start == 0 && currentStateList.Count == 0)
-            {
-                start = nfa.StartStates.FirstOrDefault().Id;
-                var st = nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
-                addState(currentStateList, st, listID, generation);
-            }
+            var generation = new Dictionary<Edge, int>();
 
             System.Console.Error.WriteLine("IN------");
             System.Console.Error.WriteLine("FindMatches "
@@ -134,12 +123,10 @@ namespace PiggyGenerator
                 }
                 var c = input.GetChild(i);
                 var t = c.GetText();
-                if (t == ")")
-                {}
 
                 i++;
 
-                listID = Step(nfa, c, currentStateList, nextStateList, currentPathList, nextPathList, listID, generation);
+                listID = Step(c, currentStateList, nextStateList, currentPathList, nextPathList, listID);
                 if (!nextPathList.Any())
                     break;
                 currentPathList = nextPathList;
@@ -155,14 +142,14 @@ namespace PiggyGenerator
                 Path l = nextPathList[j];
                 Edge e = l.LastEdge;
                 State s = e._to;
-                if (s.IsFinalState() || (start != 0 && s.IsFinalStateSubpattern()))
+                if (s.IsFinalState())
                 {
                     matches++;
                 }
             }
             foreach (var s in currentStateList)
             {
-                if (s.IsFinalState() || (start != 0 && s.IsFinalStateSubpattern()))
+                if (s.IsFinalState())
                 {
                     matches++;
                     if (!nextStateList.Contains(s))
@@ -180,14 +167,13 @@ namespace PiggyGenerator
             return matches != 0;
         }
 
-        private void addState(List<State> list, State s, int listID, Dictionary<Edge, int> gen)
+        public void AddStateAndClosure(List<State> list, State s)
         {
             if (list.Contains(s)) return;
             list.Add(s);
-            // If s contains any edges over epsilon, then add them.
             foreach (var e in s.Owner.SuccessorEdges(s))
                 if (e.IsEmpty || e.IsCode || e.IsText)
-                    addState(list, e._to, listID, gen);
+                    AddStateAndClosure(list, e._to);
         }
 
         void CheckPath(Path path)
@@ -208,14 +194,13 @@ namespace PiggyGenerator
             }
         }
 
-        private int Step(Automaton nfa,
+        private int Step(
             IParseTree input,
             List<State> currentStateList,
             List<State> nextStateList,
             List<Path> currentPathList,
             List<Path> nextPathList,
-            int listID,
-            Dictionary<Edge, int> gen)
+            int listID)
         {
             System.Console.Error.WriteLine("IN------");
             System.Console.Error.WriteLine("Step "
@@ -239,29 +224,25 @@ namespace PiggyGenerator
                     State s = currentStateList[i];
                     foreach (Edge e in s.Owner.SuccessorEdges(s))
                     {
-                        if (e.IsSubpattern)
+                        if (e._c == Edge.EmptyString)
                         {
-                            throw new Exception();
-                        }
-                        else if (e._c == Edge.EmptyString)
-                        {
-                            AppendEdgeToPathSet(null, null, nextPathList, e, listID, gen);
+                            AppendEdgeToPathSet(null, null, nextPathList, e, listID);
                         }
                         else if (e._c == input.GetText())
                         {
-                            AppendEdgeToPathSet(input, null, nextPathList, e, listID, gen);
+                            AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                         }
                         else if (e._c == "<" && "(" == input.GetText())
                         {
-                            AppendEdgeToPathSet(input, null, nextPathList, e, listID, gen);
+                            AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                         }
                         else if (e._c == ">" && ")" == input.GetText())
                         {
-                            AppendEdgeToPathSet(input, null, nextPathList, e, listID, gen);
+                            AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                         }
                         else if (e.IsAny)
                         {
-                            AppendEdgeToPathSet(input, null, nextPathList, e, listID, gen);
+                            AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                         }
                     }
                 }
@@ -280,7 +261,7 @@ namespace PiggyGenerator
                         {
                             if (e.IsAny)
                             {
-                                AppendEdgeToPathSet(input, p, nextPathList, e, listID, gen);
+                                AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
                         }
                     }
@@ -307,24 +288,24 @@ namespace PiggyGenerator
                                 // The "." transition only matches with attr or node
                                 if (is_attr_or_node)
                                 {
-                                    AppendEdgeToPathSet(input, p, nextPathList, e, listID, gen);
+                                    AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                                 }
                             }
                             else if (e._c == input.GetText())
                             {
-                                AppendEdgeToPathSet(input, p, nextPathList, e, listID, gen);
+                                AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
                             else if (e._c == "<" && "(" == input.GetText())
                             {
-                                AppendEdgeToPathSet(input, p, nextPathList, e, listID, gen);
+                                AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
                             else if (e._c == ">" && ")" == input.GetText())
                             {
-                                AppendEdgeToPathSet(input, p, nextPathList, e, listID, gen);
+                                AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
                             else if (e._c == "*")
                             {
-                                AppendEdgeToPathSet(input, p, nextPathList, e, listID, gen);
+                                AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
                             else if (e._c.StartsWith("$\""))
                             {
@@ -355,7 +336,7 @@ namespace PiggyGenerator
                                 var matched = re.Match(tvaltext);
                                 var result = matched.Success;
                                 if (result)
-                                    AppendEdgeToPathSet(input, p, nextPathList, e, listID, gen);
+                                    AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
                             else
                             {
@@ -366,15 +347,15 @@ namespace PiggyGenerator
             }
             foreach (var s in currentStateList)
             {
-                if (s.IsFinalState() || s.IsFinalStateSubpattern())
-                    addState(nextStateList, s, listID, gen);
+                if (s.IsFinalState())
+                    AddStateAndClosure(nextStateList, s);
             }
             for (int i = 0; i < nextPathList.Count; i++)
 			{
 				Path p = nextPathList[i];
 				Edge l = p.LastEdge;
 				State s = l._to;
-				addState(nextStateList, s, listID, gen);
+				AddStateAndClosure(nextStateList, s);
 			}
             System.Console.Error.WriteLine("OUT------");
             System.Console.Error.WriteLine("Step "
@@ -387,7 +368,7 @@ namespace PiggyGenerator
             return listID;
         }
 
-        private void AppendEdgeToPathSet(IParseTree c, Path path, List<Path> list, Edge e, int listID, Dictionary<Edge, int> gen)
+        private void AppendEdgeToPathSet(IParseTree c, Path path, List<Path> list, Edge e, int listID)
         {
             var st = e._to;
             var sf = e._from;
@@ -418,7 +399,7 @@ namespace PiggyGenerator
             foreach (var o in st.Owner.SuccessorEdges(st))
                 if (o.IsEmpty || o.IsCode || o.IsText)
                 {
-                    AppendEdgeToPathSet(null, added, list, o, listID, gen);
+                    AppendEdgeToPathSet(null, added, list, o, listID);
                 }
         }
     }

@@ -16,8 +16,7 @@ namespace PiggyGenerator
             Not = 1,
             Any = 2,
             Code = 4,
-            Text = 8,
-            Subpattern = 16
+            Text = 8
         }
 
         public int _Id;
@@ -25,8 +24,7 @@ namespace PiggyGenerator
         public State _from;
         public State _to;
         public string _c;
-        public int _pattern_id;
-        private Automaton _owner;
+        private readonly Automaton _owner;
         public int _edge_modifiers;
         public State _fragment_start;
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
@@ -45,7 +43,7 @@ namespace PiggyGenerator
             if (ast_list.Count() == 0) _c = EmptyString;
             else _c = ast_list.First().GetText();
             _edge_modifiers = edge_modifiers;
-            if (_fragment_start != null && !this.IsSubpattern) { throw new Exception(); }
+            if (_fragment_start != null) { throw new Exception(); }
         }
         public bool IsAny
         {
@@ -79,17 +77,9 @@ namespace PiggyGenerator
         {
             get
             {
-                return (!IsAny) && (!IsSubpattern) && _c == Edge.EmptyString;
+                return (!IsAny) && _c == Edge.EmptyString;
             }
         }
-        public bool IsSubpattern
-        {
-            get
-            {
-                return 0 != (_edge_modifiers & (int)EdgeModifiers.Subpattern);
-            }
-        }
-
         public IEnumerable<IParseTree> AstList { get; protected set; }
         public override int GetHashCode()
         {
@@ -113,7 +103,6 @@ namespace PiggyGenerator
             if (this.IsAny) sb.Append("any");
             else if (this.IsCode) sb.Append("code");
             else if (this.IsText) sb.Append("text");
-            else if (this.IsSubpattern) sb.Append("subpat");
             else if (this._c == Edge.EmptyString) sb.Append("empty");
             else sb.Append(this._c);
             sb.Append("'");

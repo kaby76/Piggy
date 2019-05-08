@@ -38,10 +38,6 @@
         {
             return Owner.FinalStates.Contains(this);
         }
-        public bool IsFinalStateSubpattern()
-        {
-            return Owner.FinalStatesSubpattern.Contains(this);
-        }
         public override string ToString()
         {
             return this.Id.ToString();

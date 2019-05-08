@@ -1,4 +1,6 @@
-﻿namespace PiggyGenerator
+﻿using System.Linq;
+
+namespace PiggyGenerator
 {
     using Antlr4.Runtime.Tree;
     using Antlr4.Runtime;
@@ -56,8 +58,12 @@
                     var csl = new List<State>();
                     var cpl = new List<Path>();
                     var MatchingPaths = new List<Path>();
-                    var MatchingStates = new List<State>();
+                    var MatchingStates = new List<State>();//currentStateList
                     var nfa_match = new NfaMatch(this._piggy._code_blocks, this._instance, dfa);
+                    var start = nfa.StartStates.FirstOrDefault().Id;
+                    var st = nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
+
+                    nfa_match.AddStateAndClosure(MatchingStates, st);
                     var matched = nfa_match.FindMatches(cpl, csl, ref MatchingPaths, ref MatchingStates, input);
                     if (matched)
                     {
