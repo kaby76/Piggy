@@ -398,7 +398,7 @@ namespace " + @namespace + @"
                         System.Console.Error.WriteLine(cpe.LastEdge);
                         if (0 != (cpe.LastEdge._edge_modifiers & (int)Edge.EdgeModifiers.Text))
                         {
-                            var x = cpe.LastEdge._c;
+                            var x = cpe.LastEdge._input;
                             {
                                 string s = x;
                                 string s2 = s.Substring(2);

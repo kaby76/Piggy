@@ -55,16 +55,15 @@ namespace PiggyGenerator
                     if (has_previous_match)
                         continue;
 
-                    var csl = new List<State>();
-                    var cpl = new List<Path>();
-                    var MatchingPaths = new List<Path>();
-                    var MatchingStates = new List<State>();//currentStateList
+                    var currentStateList = new List<State>();
+                    var currentPathList = new List<Path>();
+                    var nextPathList = new List<Path>();
+                    var nextStateList = new List<State>();
                     var nfa_match = new NfaMatch(this._piggy._code_blocks, this._instance, dfa);
-                    var start = nfa.StartStates.FirstOrDefault().Id;
-                    var st = nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
-
-                    nfa_match.AddStateAndClosure(MatchingStates, st);
-                    var matched = nfa_match.FindMatches(cpl, csl, ref MatchingPaths, ref MatchingStates, input);
+                    var start = dfa.StartStates.FirstOrDefault().Id;
+                    var st = dfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
+                    nfa_match.AddStateAndClosure(currentStateList, st);
+                    var matched = nfa_match.FindMatches(currentPathList, currentStateList, ref nextPathList, ref nextStateList, input);
                     if (matched)
                     {
                         // If this node matched, then mark entire subtree as matched.
@@ -81,7 +80,7 @@ namespace PiggyGenerator
                             }
                         }
                         _top_level_matches.Add(input);
-                        foreach (Path p in MatchingPaths)
+                        foreach (Path p in nextPathList)
                         {
                             _matches_path_start.MyAdd(input, p);
                         }

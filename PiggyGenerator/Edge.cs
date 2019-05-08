@@ -23,14 +23,13 @@ namespace PiggyGenerator
         private static int _id = 0;
         public State _from;
         public State _to;
-        public string _c;
+        public string _input;
         private readonly Automaton _owner;
         public int _edge_modifiers;
-        public State _fragment_start;
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
         public static readonly string EmptyString = null;
 
-        public Edge(Automaton owner, State @from, State to, State frag_start, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
+        public Edge(Automaton owner, State @from, State to, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
           : base(from, to)
         {
             _Id = ++_id;
@@ -38,12 +37,10 @@ namespace PiggyGenerator
             _from = @from;
             _to = to;
             owner.AddEdge(this);
-            _fragment_start = frag_start;
             AstList = ast_list;
-            if (ast_list.Count() == 0) _c = EmptyString;
-            else _c = ast_list.First().GetText();
+            if (ast_list.Count() == 0) _input = EmptyString;
+            else _input = ast_list.First().GetText();
             _edge_modifiers = edge_modifiers;
-            if (_fragment_start != null) { throw new Exception(); }
         }
         public bool IsAny
         {
@@ -77,7 +74,7 @@ namespace PiggyGenerator
         {
             get
             {
-                return (!IsAny) && _c == Edge.EmptyString;
+                return (!IsAny) && _input == Edge.EmptyString;
             }
         }
         public IEnumerable<IParseTree> AstList { get; protected set; }
@@ -91,7 +88,7 @@ namespace PiggyGenerator
             var o = obj as Edge;
             if (o == null) return false;
             if (this._from != o._from || this._to != o._to) return false;
-            if (this._c != o._c) return false;
+            if (this._input != o._input) return false;
             if (this._edge_modifiers != o._edge_modifiers) return false;
             return true;
         }
@@ -103,8 +100,8 @@ namespace PiggyGenerator
             if (this.IsAny) sb.Append("any");
             else if (this.IsCode) sb.Append("code");
             else if (this.IsText) sb.Append("text");
-            else if (this._c == Edge.EmptyString) sb.Append("empty");
-            else sb.Append(this._c);
+            else if (this._input == Edge.EmptyString) sb.Append("empty");
+            else sb.Append(this._input);
             sb.Append("'");
             return sb.ToString();
         }

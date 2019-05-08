@@ -15,7 +15,7 @@
                 {
                     if (!Automaton.IsLambdaTransition(e))
                     {
-                        var str = e._c;
+                        var str = e._input;
                         if (e.IsAny) str = "...";
                         else if (e.IsCode) str = "";
                         else if (e.IsText) str = "";

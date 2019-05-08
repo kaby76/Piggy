@@ -224,19 +224,19 @@ namespace PiggyGenerator
                     State s = currentStateList[i];
                     foreach (Edge e in s.Owner.SuccessorEdges(s))
                     {
-                        if (e._c == Edge.EmptyString)
+                        if (e._input == Edge.EmptyString)
                         {
                             AppendEdgeToPathSet(null, null, nextPathList, e, listID);
                         }
-                        else if (e._c == input.GetText())
+                        else if (e._input == input.GetText())
                         {
                             AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                         }
-                        else if (e._c == "<" && "(" == input.GetText())
+                        else if (e._input == "<" && "(" == input.GetText())
                         {
                             AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                         }
-                        else if (e._c == ">" && ")" == input.GetText())
+                        else if (e._input == ">" && ")" == input.GetText())
                         {
                             AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                         }
@@ -291,29 +291,29 @@ namespace PiggyGenerator
                                     AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                                 }
                             }
-                            else if (e._c == input.GetText())
+                            else if (e._input == input.GetText())
                             {
                                 AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
-                            else if (e._c == "<" && "(" == input.GetText())
+                            else if (e._input == "<" && "(" == input.GetText())
                             {
                                 AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
-                            else if (e._c == ">" && ")" == input.GetText())
+                            else if (e._input == ">" && ")" == input.GetText())
                             {
                                 AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
-                            else if (e._c == "*")
+                            else if (e._input == "*")
                             {
                                 AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
-                            else if (e._c.StartsWith("$\""))
+                            else if (e._input.StartsWith("$\""))
                             {
-                                string pattern = e._c.Substring(2);
+                                string pattern = e._input.Substring(2);
                                 pattern = pattern.Substring(0, pattern.Length - 1);
                                 try
                                 {
-                                    var ch = e._c;
+                                    var ch = e._input;
                                     if (e.AstList.Count() > 1)
                                         ;
                                     //throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");

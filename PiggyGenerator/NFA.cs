@@ -98,17 +98,17 @@ namespace PiggyGenerator
                                 State s1 = new State(_nfa);
                                 State s2 = new State(_nfa);
                                 State s3 = new State(_nfa);
-                                var e1 = new Edge(_nfa, s1, s2, null, Edge.EmptyAst);
-                                var e2 = new Edge(_nfa, s2, s3, null, Edge.EmptyAst);
-                                var e3 = new Edge(_nfa, s2, s2, null, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any);
-                                var e4 = new Edge(_nfa, s3, last.StartState, null, Edge.EmptyAst);
+                                var e1 = new Edge(_nfa, s1, s2, Edge.EmptyAst);
+                                var e2 = new Edge(_nfa, s2, s3, Edge.EmptyAst);
+                                var e3 = new Edge(_nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiers.Any);
+                                var e4 = new Edge(_nfa, s3, last.StartState, Edge.EmptyAst);
                                 last = new Fragment(s1, last.OutStates);
                             }
                             //first = false;
                         }
                         foreach (var o in f.OutStates)
                         {
-                            var e5 = new Edge(_nfa, o, last.StartState, null, Edge.EmptyAst);
+                            var e5 = new Edge(_nfa, o, last.StartState, Edge.EmptyAst);
                         }
                         last = new Fragment(f.StartState, last.OutStates);
                     }
@@ -130,7 +130,7 @@ namespace PiggyGenerator
                     {
                         State s1 = new State(_nfa);
                         State s2 = new State(_nfa);
-                        var e = new Edge(_nfa, s1, s2, null, new List<IParseTree>() { t });
+                        var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { t });
                         var f = new Fragment(s1, s2);
                         fragmentStack.Push(f);
                     }
@@ -140,7 +140,7 @@ namespace PiggyGenerator
                     var c = p.GetChild(0);
                     State s1 = new State(_nfa);
                     State s2 = new State(_nfa);
-                    var e = new Edge(_nfa, s1, s2, null, new List<IParseTree>() { c });
+                    var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { c });
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -149,7 +149,7 @@ namespace PiggyGenerator
                 {
                     State s1 = new State(_nfa);
                     State s2 = new State(_nfa);
-                    var e = new Edge(_nfa, s1, s2, null, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Text);
+                    var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Text);
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -157,7 +157,7 @@ namespace PiggyGenerator
                 {
                     State s1 = new State(_nfa);
                     State s2 = new State(_nfa);
-                    var e = new Edge(_nfa, s1, s2, null, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Code);
+                    var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { p }, (int)Edge.EdgeModifiers.Code);
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
                 }
@@ -166,10 +166,10 @@ namespace PiggyGenerator
                 {
                     Fragment previous = fragmentStack.Pop();
                     State s1 = new State(_nfa);
-                    var e1 = new Edge(_nfa, s1, previous.StartState, null, Edge.EmptyAst);
+                    var e1 = new Edge(_nfa, s1, previous.StartState, Edge.EmptyAst);
                     foreach (var s in previous.OutStates)
                     {
-                        var e2 = new Edge(_nfa, s, s1, null, Edge.EmptyAst);
+                        var e2 = new Edge(_nfa, s, s1, Edge.EmptyAst);
                     }
                     var f = new Fragment(s1, s1);
                     fragmentStack.Push(f);
@@ -179,11 +179,11 @@ namespace PiggyGenerator
                     Fragment previous = fragmentStack.Pop();
                     State s1 = new State(_nfa);
                     State s2 = new State(_nfa);
-                    var e1 = new Edge(_nfa, s1, s2, null, Edge.EmptyAst);
-                    var e2 = new Edge(_nfa, s2, previous.StartState, null, Edge.EmptyAst);
+                    var e1 = new Edge(_nfa, s1, s2, Edge.EmptyAst);
+                    var e2 = new Edge(_nfa, s2, previous.StartState, Edge.EmptyAst);
                     foreach (var s in previous.OutStates)
                     {
-                        var e3 = new Edge(_nfa, s, s2, null, Edge.EmptyAst);
+                        var e3 = new Edge(_nfa, s, s2, Edge.EmptyAst);
                     }
                     var f = new Fragment(s1, s2);
                     fragmentStack.Push(f);
@@ -198,7 +198,7 @@ namespace PiggyGenerator
                         var s_type = s.Type;
                         State s1 = new State(_nfa);
                         State s2 = new State(_nfa);
-                        var e = new Edge(_nfa, s1, s2, null, new List<IParseTree>() { t }, (int)Edge.EdgeModifiers.Not);
+                        var e = new Edge(_nfa, s1, s2, new List<IParseTree>() { t }, (int)Edge.EdgeModifiers.Not);
                         var f = new Fragment(s1, s2);
                         fragmentStack.Push(f);
                     }
@@ -211,11 +211,11 @@ namespace PiggyGenerator
                         State s2 = new State(_nfa);
                         State s3 = new State(_nfa);
                         State s4 = new State(_nfa);
-                        var e1 = new Edge(_nfa, s1, s2, null, new List<IParseTree>() { t });
+                        var e1 = new Edge(_nfa, s1, s2, new List<IParseTree>() { t });
                         t = p.GetChild(1) as TerminalNodeImpl;
-                        var e2 = new Edge(_nfa, s2, s3, null, new List<IParseTree>() { t });
+                        var e2 = new Edge(_nfa, s2, s3, new List<IParseTree>() { t });
                         t = p.GetChild(2) as TerminalNodeImpl;
-                        var e3 = new Edge(_nfa, s3, s4, null, new List<IParseTree>() { t });
+                        var e3 = new Edge(_nfa, s3, s4, new List<IParseTree>() { t });
                         var f = new Fragment(s1, s4);
                         fragmentStack.Push(f);
                     }
@@ -227,16 +227,16 @@ namespace PiggyGenerator
                         State s = new State(_nfa);
                         Fragment s2 = fragmentStack.Pop();
                         Fragment s1 = fragmentStack.Pop();
-                        var e1 = new Edge(_nfa, s, s1.StartState, null, Edge.EmptyAst);
-                        var e2 = new Edge(_nfa, s, s2.StartState, null, Edge.EmptyAst);
+                        var e1 = new Edge(_nfa, s, s1.StartState, Edge.EmptyAst);
+                        var e2 = new Edge(_nfa, s, s2.StartState, Edge.EmptyAst);
                         State s3 = new State(_nfa);
                         foreach (var o in s1.OutStates)
                         {
-                            var e3 = new Edge(_nfa, o, s3, null, Edge.EmptyAst);
+                            var e3 = new Edge(_nfa, o, s3, Edge.EmptyAst);
                         }
                         foreach (var o in s2.OutStates)
                         {
-                            var e3 = new Edge(_nfa, o, s3, null, Edge.EmptyAst);
+                            var e3 = new Edge(_nfa, o, s3, Edge.EmptyAst);
                         }
                         var f = new Fragment(s, s3);
                         fragmentStack.Push(f);
@@ -247,8 +247,7 @@ namespace PiggyGenerator
             if (fragmentStack.Count > 0)
                 throw new System.Exception("Fragment stack not empty.");
             foreach (var s in completeNfa.OutStates) _nfa.AddFinalState(s);
-            var eek = new Edge(_nfa, _start_state, completeNfa.StartState,
-                null, Edge.EmptyAst);
+            var eek = new Edge(_nfa, _start_state, completeNfa.StartState, Edge.EmptyAst);
         }
     }
 }
