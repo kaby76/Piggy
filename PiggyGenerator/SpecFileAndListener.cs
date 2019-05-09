@@ -1,19 +1,20 @@
-﻿namespace PiggyGenerator
-{
-    using Antlr4.Runtime.Misc;
-    using Antlr4.Runtime.Tree;
-    using Antlr4.Runtime;
-    using PiggyRuntime;
-    using System.Collections.Generic;
-    using System;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using Antlr4.Runtime;
+using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
+using PiggyRuntime;
 
+namespace PiggyGenerator
+{
     public class SpecFileAndListener : SpecParserBaseListener
     {
-        private Piggy _program;
+        private static int _number_of_applications;
         private Pass _current_pass;
         private Template _current_template;
-        private static int _number_of_applications;
-        private HashSet<string> _seen_usings = new HashSet<string>();
+        private readonly Piggy _program;
+        private readonly HashSet<string> _seen_usings = new HashSet<string>();
 
         public SpecFileAndListener(Piggy program)
         {
@@ -22,19 +23,20 @@
 
         public void ParseExpressionPattern(string expression)
         {
-            ErrorListener<IToken> listener = new ErrorListener<IToken>();
-            ICharStream stream = CharStreams.fromstring(expression);
+            var listener = new ErrorListener<IToken>();
+            var stream = CharStreams.fromstring(expression);
             ITokenSource lexer = new SpecLexer(stream);
             ITokenStream tokens = new CommonTokenStream(lexer);
-            SpecParserParser parser = new SpecParserParser(tokens);
+            var parser = new SpecParserParser(tokens);
             parser.BuildParseTree = true;
             parser.AddErrorListener(listener);
             var spec_ast = parser.pattern();
             if (listener.had_error)
             {
-                System.Console.WriteLine(spec_ast.GetText());
+                Console.WriteLine(spec_ast.GetText());
                 throw new Exception();
             }
+
             var template = new Template();
             _current_template = template;
             template.TemplateName = "Grep";
@@ -49,31 +51,33 @@
 
         public void ParseSpecFile(string specification_file_name)
         {
-            ErrorListener<IToken> listener = new ErrorListener<IToken>();
+            var listener = new ErrorListener<IToken>();
             // Try current location, or template directory.
-            string location = specification_file_name;
-            if (!System.IO.File.Exists(location))
+            var location = specification_file_name;
+            if (!File.Exists(location))
             {
                 location = _program._template_directory + "\\" +
-                                     specification_file_name;
-                if (!System.IO.File.Exists(location))
+                           specification_file_name;
+                if (!File.Exists(location))
                 {
-                    System.Console.WriteLine("File " + specification_file_name + " does not exist.");
+                    Console.WriteLine("File " + specification_file_name + " does not exist.");
                     throw new Exception();
                 }
             }
-            ICharStream stream = CharStreams.fromPath(location);
+
+            var stream = CharStreams.fromPath(location);
             ITokenSource lexer = new SpecLexer(stream);
             ITokenStream tokens = new CommonTokenStream(lexer);
-            SpecParserParser parser = new SpecParserParser(tokens);
+            var parser = new SpecParserParser(tokens);
             parser.BuildParseTree = true;
             parser.AddErrorListener(listener);
             var spec_ast = parser.spec();
             if (listener.had_error)
             {
-                System.Console.WriteLine(spec_ast.GetText());
+                Console.WriteLine(spec_ast.GetText());
                 throw new Exception();
             }
+
             ParseTreeWalker.Default.Walk(this, spec_ast);
         }
 
@@ -108,7 +112,7 @@
             // Add all items in the extends list.
             var start = 1;
             var end = context.ChildCount;
-            for (int i = start; i < end; i += 2)
+            for (var i = start; i < end; i += 2)
             {
                 var c = context.GetChild(i);
                 var id = c.GetText();
@@ -169,14 +173,15 @@
             text = text.Replace("'", "");
             if (_seen_usings.Contains(text)) return;
             _seen_usings.Add(text);
-            SpecFileAndListener file = new SpecFileAndListener(_program);
+            var file = new SpecFileAndListener(_program);
             file.ParseSpecFile(text);
         }
 
         public override void EnterApplication(SpecParserParser.ApplicationContext context)
         {
             if (_number_of_applications++ > 0)
-                throw new Exception("More than one APPLICATION--an application is a sequence of pattern matching passes. I assume one would suffice, two you didn't mean it.");
+                throw new Exception(
+                    "More than one APPLICATION--an application is a sequence of pattern matching passes. I assume one would suffice, two you didn't mean it.");
         }
 
         public override void EnterApply_pass(SpecParserParser.Apply_passContext context)

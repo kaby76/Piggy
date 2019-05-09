@@ -1,14 +1,14 @@
-﻿namespace PiggyGenerator
-{
-    using Campy.Graphs;
-    using Antlr4.Runtime.Tree;
-    using System.Collections.Generic;
-    using System.Text;
-    using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Antlr4.Runtime.Tree;
+using Campy.Graphs;
 
+namespace PiggyGenerator
+{
     public class Edge : DirectedEdge<State>
     {
-        public enum EdgeModifiersEnum : int
+        public enum EdgeModifiersEnum
         {
             DoNotUse = 0,
             Not = 1,
@@ -16,97 +16,68 @@
             Code = 4,
             Text = 8
         }
-        private readonly int _Id;
-        private static int _next_id = 0;
-        private readonly string _input;
-        private readonly Automaton _owner;
-        private readonly int _edge_modifiers;
+
+        private static int _next_id;
         public static readonly List<IParseTree> EmptyAst = new List<IParseTree>();
         public static readonly string EmptyString = null;
+        private readonly Automaton _owner;
 
-        public Edge(Automaton owner, State @from, State to, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
-          : base(from, to)
+        public Edge(Automaton owner, State from, State to, IEnumerable<IParseTree> ast_list, int edge_modifiers = 0)
+            : base(from, to)
         {
-            _Id = ++_next_id;
+            Id = ++_next_id;
             _owner = owner;
             AstList = ast_list;
-            if (ast_list.Count() == 0) _input = EmptyString;
-            else _input = ast_list.First().GetText();
-            _edge_modifiers = edge_modifiers;
+            if (ast_list.Count() == 0) Input = EmptyString;
+            else Input = ast_list.First().GetText();
+            EdgeModifiers = edge_modifiers;
             owner.AddEdge(this);
         }
-        public int Id
-        {
-            get { return _Id; }
-        }
-        public string Input
-        {
-            get { return _input; }
-        }
-        public int EdgeModifiers
-        {
-            get { return _edge_modifiers; }
-        }
-        public bool IsAny
-        {
-            get
-            {
-                return 0 != (_edge_modifiers & (int)EdgeModifiersEnum.Any);
-            }
-        }
-        public bool IsNot
-        {
-            get
-            {
-                return 0 != (_edge_modifiers & (int)EdgeModifiersEnum.Not);
-            }
-        }
-        public bool IsText
-        {
-            get
-            {
-                return 0 != (_edge_modifiers & (int)EdgeModifiersEnum.Text);
-            }
-        }
-        public bool IsCode
-        {
-            get
-            {
-                return 0 != (_edge_modifiers & (int)EdgeModifiersEnum.Code);
-            }
-        }
-        public bool IsEmpty
-        {
-            get
-            {
-                return (!IsAny) && Input == Edge.EmptyString;
-            }
-        }
+
         public IEnumerable<IParseTree> AstList { get; protected set; }
+
+        public int EdgeModifiers { get; }
+
+        public int Id { get; }
+
+        public string Input { get; }
+
+        public bool IsAny => 0 != (EdgeModifiers & (int) EdgeModifiersEnum.Any);
+
+        public bool IsCode => 0 != (EdgeModifiers & (int) EdgeModifiersEnum.Code);
+
+        public bool IsEmpty => !IsAny && Input == EmptyString;
+
+        public bool IsNot => 0 != (EdgeModifiers & (int) EdgeModifiersEnum.Not);
+
+        public bool IsText => 0 != (EdgeModifiers & (int) EdgeModifiersEnum.Text);
+
         public override int GetHashCode()
         {
             return From.Id + To.Id * 16;
         }
+
         public override bool Equals(object obj)
         {
             if (obj == null) return false;
             var o = obj as Edge;
             if (o == null) return false;
-            if (this.From != o.From || this.To != o.To) return false;
-            if (this.Input != o.Input) return false;
-            if (this._edge_modifiers != o._edge_modifiers) return false;
+            if (From != o.From || To != o.To) return false;
+            if (Input != o.Input) return false;
+            if (EdgeModifiers != o.EdgeModifiers) return false;
             return true;
         }
+
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(this.From + " -> " + this.To
-                + " on '");
-            if (this.IsAny) sb.Append("any");
-            else if (this.IsCode) sb.Append("code");
-            else if (this.IsText) sb.Append("text");
-            else if (this.Input == Edge.EmptyString) sb.Append("empty");
-            else sb.Append(this.Input);
+            var sb = new StringBuilder();
+            sb.Append(From + " -> " + To
+                      + " on '");
+            if (IsAny) sb.Append("any");
+            else if (IsCode) sb.Append("code");
+            else if (IsText) sb.Append("text");
+            else if (Input == EmptyString) sb.Append("empty");
+            else sb.Append(Input);
             sb.Append("'");
             return sb.ToString();
         }

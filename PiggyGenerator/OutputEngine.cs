@@ -1,25 +1,25 @@
-﻿namespace PiggyGenerator
-{
-    using Antlr4.Runtime.Tree;
-    using Microsoft.CodeAnalysis.CSharp.Formatting;
-    using Microsoft.CodeAnalysis.CSharp;
-    using Microsoft.CodeAnalysis.Emit;
-    using Microsoft.CodeAnalysis.Formatting;
-    using Microsoft.CodeAnalysis.Options;
-    using Microsoft.CodeAnalysis.Text;
-    using Microsoft.CodeAnalysis;
-    using PiggyRuntime;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text.RegularExpressions;
-    using System.Text;
-    using System;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using Antlr4.Runtime.Tree;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Formatting;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Text;
+using PiggyRuntime;
 
+namespace PiggyGenerator
+{
     public class OutputEngine
     {
-        private Piggy _piggy;
+        public static Dictionary<Type, object> _instances = new Dictionary<Type, object>();
+        private readonly Piggy _piggy;
 
         public OutputEngine(Piggy piggy)
         {
@@ -28,10 +28,9 @@
 
         public static bool is_ast_node(IParseTree x)
         {
-            return (x as AstParserParser.AttrContext != null
-                    || x as AstParserParser.AstContext != null
-                    || x as AstParserParser.NodeContext != null
-                    );
+            return x as AstParserParser.AttrContext != null
+                   || x as AstParserParser.AstContext != null
+                   || x as AstParserParser.NodeContext != null;
         }
 
         public static bool is_spec_node(IParseTree x)
@@ -73,7 +72,7 @@
 
         public void ReferencedFrameworkAssemblies(List<MetadataReference> all_references)
         {
-            List<string> result = new List<string>();
+            var result = new List<string>();
             if (IsThisAppNetCore())
             {
                 var trustedAssembliesPaths = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
@@ -82,6 +81,7 @@
                 result = l.ToList();
                 result = result.Where(x => !x.Contains("System.Private.CoreLib")).ToList();
             }
+
             foreach (var r in result)
             {
                 var jj = Assembly.LoadFrom(r);
@@ -92,22 +92,19 @@
         private void FixUpMetadataReferences(List<MetadataReference> all_references, Type type)
         {
             var stack = new Stack<Assembly>();
-            Assembly a = type.Assembly;
-            HashSet<Assembly> visited = new HashSet<Assembly>();
+            var a = type.Assembly;
+            var visited = new HashSet<Assembly>();
             stack.Push(a);
             while (stack.Any())
             {
                 var t = stack.Pop();
                 if (visited.Contains(t)) continue;
                 visited.Add(t);
-                if (t.Location.Contains("netstandard.dll"))
-                {
-                    ReferencedFrameworkAssemblies(all_references);
-                }
+                if (t.Location.Contains("netstandard.dll")) ReferencedFrameworkAssemblies(all_references);
                 all_references.Add(MetadataReference.CreateFromFile(t.Location));
                 foreach (var r in a.GetReferencedAssemblies())
                 {
-                    AssemblyName q = r;
+                    var q = r;
                     var jj = Assembly.Load(q);
                     stack.Push(jj);
                 }
@@ -129,9 +126,9 @@
             // 4) Each interprolated string in patterns of the class are placed in a
             //    method of type () => string.
             //
-            int counter = 0; // Every function name everywhere uniquely defined name with counter.
-            string @namespace = "CompiledTemplates";
-            StringBuilder code = new StringBuilder();
+            var counter = 0; // Every function name everywhere uniquely defined name with counter.
+            var @namespace = "CompiledTemplates";
+            var code = new StringBuilder();
             code.Append(@"
 using System;
 using System.Collections.Generic;
@@ -159,10 +156,10 @@ namespace " + @namespace + @"
 {
 ");
 
-            Dictionary<IParseTree, string> gen_named_code_blocks = new Dictionary<IParseTree, string>();
+            var gen_named_code_blocks = new Dictionary<IParseTree, string>();
             foreach (var template in _piggy._templates)
             {
-                List<KeyValuePair<IParseTree, MethodInfo>> copy = _piggy._code_blocks.ToList();
+                var copy = _piggy._code_blocks.ToList();
                 code.Append(@"
     public class " + template.TemplateName + " : " + (template.Extends != null ? template.Extends : "Template") + @"
 {
@@ -179,18 +176,16 @@ namespace " + @namespace + @"
                 code.AppendLine("}");
 
                 // Find all code blocks. Find all interpolated string attribute values.
-                Dictionary<IParseTree, string> collected_code = new Dictionary<IParseTree, string>();
-                Dictionary<IParseTree, string> interpolated_string_attribute_values_code = new Dictionary<IParseTree, string>();
+                var collected_code = new Dictionary<IParseTree, string>();
+                var interpolated_string_attribute_values_code = new Dictionary<IParseTree, string>();
                 foreach (var p in template.Passes)
+                foreach (var pt in p.Patterns)
                 {
-                    foreach (Pattern pt in p.Patterns)
-                    {
-                        Dictionary<IParseTree, string> c = pt.CollectCode();
-                        foreach (var x in c) collected_code.Add(x.Key, x.Value);
+                    var c = pt.CollectCode();
+                    foreach (var x in c) collected_code.Add(x.Key, x.Value);
 
-                        Dictionary<IParseTree, string> c2 = pt.CollectInterpolatedStringCode();
-                        foreach (var x in c2) interpolated_string_attribute_values_code.Add(x.Key, x.Value);
-                    }
+                    var c2 = pt.CollectInterpolatedStringCode();
+                    foreach (var x in c2) interpolated_string_attribute_values_code.Add(x.Key, x.Value);
                 }
 
                 // So, for every damn code block, output a "Gen#()" method.
@@ -232,210 +227,191 @@ namespace " + @namespace + @"
     }
 ");
                 // END OF TEMPLATE!
-
             }
 
             code.Append(@"
 }
 ");
 
-            try
+            // After generating the code, let's write reformat it.
+            string formatted_source_code;
+            var formatted_source_code_path = @"c:\temp\generated_templates.cs";
             {
-                // After generating the code, let's write reformat it.
-                string formatted_source_code;
-                string formatted_source_code_path = @"c:\temp\generated_templates.cs";
+                var workspace = new AdhocWorkspace();
+                var projectName = "FormatTemplates";
+                var projectId = ProjectId.CreateNewId();
+                var versionStamp = VersionStamp.Create();
+                var helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName,
+                    projectName, LanguageNames.CSharp);
+                var sourceText = SourceText.From(code.ToString());
+                var newProject = workspace.AddProject(helloWorldProject);
+                var newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
+                var options = workspace.Options;
+                options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
+                options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
+                var syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
+                var formattedNode = Formatter.Format(syntaxRoot, workspace, options);
+                var sbb = new StringBuilder();
+                using (var writer = new StringWriter(sbb))
                 {
-                    var workspace = new AdhocWorkspace();
-                    string projectName = "FormatTemplates";
-                    ProjectId projectId = ProjectId.CreateNewId();
-                    VersionStamp versionStamp = VersionStamp.Create();
-                    ProjectInfo helloWorldProject = ProjectInfo.Create(projectId, versionStamp, projectName,
-                        projectName, LanguageNames.CSharp);
-                    SourceText sourceText = SourceText.From(code.ToString());
-                    Project newProject = workspace.AddProject(helloWorldProject);
-                    Document newDocument = workspace.AddDocument(newProject.Id, "Program.cs", sourceText);
-                    OptionSet options = workspace.Options;
-                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInMethods, false);
-                    options = options.WithChangedOption(CSharpFormattingOptions.NewLinesForBracesInTypes, false);
-                    SyntaxNode syntaxRoot = newDocument.GetSyntaxRootAsync().Result;
-                    SyntaxNode formattedNode = Formatter.Format(syntaxRoot, workspace, options);
-                    StringBuilder sbb = new StringBuilder();
-                    using (StringWriter writer = new StringWriter(sbb))
-                    {
-                        formattedNode.WriteTo(writer);
-                        formatted_source_code = writer.ToString();
-                        System.IO.File.WriteAllText(formatted_source_code_path, formatted_source_code);
-                    }
-                }
-
-                // With template classes generated, let's compile them.
-                {
-                    string assemblyName = System.IO.Path.GetRandomFileName();
-                    string symbolsName = System.IO.Path.ChangeExtension(assemblyName, "pdb");
-
-                    SourceText sourceText = SourceText.From(formatted_source_code, Encoding.UTF8);
-                    SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(
-                        sourceText,
-                        new CSharpParseOptions(),
-                        path: formatted_source_code_path);
-                    var syntaxRootNode = syntaxTree.GetRoot() as CSharpSyntaxNode;
-                    var encoded = CSharpSyntaxTree.Create(syntaxRootNode,
-                        null, formatted_source_code_path, Encoding.UTF8);
-
-                    List<MetadataReference> all_references = new List<MetadataReference>();
-                    FixUpMetadataReferences(all_references, typeof(PiggyRuntime.Template));
-                    FixUpMetadataReferences(all_references, typeof(object));
-
-                    CSharpCompilation compilation = CSharpCompilation.Create(
-                        assemblyName,
-                        syntaxTrees: new[] {encoded},
-                        references: all_references.ToArray(),
-                        options: new CSharpCompilationOptions(
-                            OutputKind.DynamicallyLinkedLibrary)
-                            .WithOptimizationLevel(OptimizationLevel.Debug)
-                            .WithPlatform(Platform.AnyCpu)
-                    );
-                    Assembly assembly = null;
-                    using (var assemblyStream = new MemoryStream())
-                    using (var symbolsStream = new MemoryStream())
-                    {
-                        var emit_options = new EmitOptions(
-                            debugInformationFormat: DebugInformationFormat.PortablePdb,
-                            pdbFilePath: symbolsName
-                        );
-
-                        var embeddedTexts = new List<EmbeddedText>
-                        {
-                            EmbeddedText.FromSource(formatted_source_code_path, sourceText),
-                        };
-
-                        EmitResult result = compilation.Emit(
-                            peStream: assemblyStream,
-                            pdbStream: symbolsStream,
-                            embeddedTexts: embeddedTexts,
-                            options: emit_options);
-
-                        if (!result.Success)
-                        {
-                            IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
-                                diagnostic.IsWarningAsError ||
-                                diagnostic.Severity == DiagnosticSeverity.Error);
-
-                            foreach (Diagnostic diagnostic in failures)
-                            {
-                                Console.Error.WriteLine("{0}: {1} {2}", diagnostic.Location.ToString(), diagnostic.Id, diagnostic.GetMessage());
-                            }
-                            throw new Exception();
-                        }
-                        else
-                        {
-                            assemblyStream.Seek(0, SeekOrigin.Begin);
-                            symbolsStream.Seek(0, SeekOrigin.Begin);
-                            assembly = Assembly.Load(assemblyStream.ToArray(), symbolsStream.ToArray());
-                        }
-                    }
-
-                    _piggy._code_blocks = new Dictionary<IParseTree, MethodInfo>();
-                    //Assembly assembly = results.CompiledAssembly;
-                    foreach (Template template in _piggy._templates)
-                    {
-                        var class_name = @namespace + "." + template.TemplateName;
-                        Type template_type = assembly.GetType(class_name);
-                        template.Type = template_type;
-                        foreach (Pass pass in template.Passes)
-                        {
-                            foreach (Pattern pattern in pass.Patterns)
-                            {
-                                Dictionary<IParseTree, string> x = pattern.CollectCode();
-                                foreach (KeyValuePair<IParseTree, string> kvp in x)
-                                {
-                                    IParseTree key = kvp.Key;
-                                    string name = gen_named_code_blocks[key];
-                                    MethodInfo method_info = template_type.GetMethod(name);
-                                    if (method_info == null)
-                                        throw new Exception("Can't find method_info for " + class_name + "." + name);
-                                    _piggy._code_blocks[key] = method_info;
-                                }
-                                Dictionary<IParseTree, string> y = pattern.CollectInterpolatedStringCode();
-                                foreach (KeyValuePair<IParseTree, string> kvp in y)
-                                {
-                                    IParseTree key = kvp.Key;
-                                    string name = gen_named_code_blocks[key];
-                                    MethodInfo method_info = template_type.GetMethod(name);
-                                    if (method_info == null)
-                                        throw new Exception("Can't find method_info for " + class_name + "." + name);
-                                    _piggy._code_blocks[key] = method_info;
-                                }
-
-                            }
-                        }
-                    }
+                    formattedNode.WriteTo(writer);
+                    formatted_source_code = writer.ToString();
+                    File.WriteAllText(formatted_source_code_path, formatted_source_code);
                 }
             }
-            finally
+
+            // With template classes generated, let's compile them.
             {
-                //System.IO.File.Delete(fileName);
+                var assemblyName = System.IO.Path.GetRandomFileName();
+                var symbolsName = System.IO.Path.ChangeExtension(assemblyName, "pdb");
+
+                var sourceText = SourceText.From(formatted_source_code, Encoding.UTF8);
+                var syntaxTree = CSharpSyntaxTree.ParseText(
+                    sourceText,
+                    new CSharpParseOptions(),
+                    formatted_source_code_path);
+                var syntaxRootNode = syntaxTree.GetRoot() as CSharpSyntaxNode;
+                var encoded = CSharpSyntaxTree.Create(syntaxRootNode,
+                    null, formatted_source_code_path, Encoding.UTF8);
+
+                var all_references = new List<MetadataReference>();
+                FixUpMetadataReferences(all_references, typeof(Template));
+                FixUpMetadataReferences(all_references, typeof(object));
+
+                var compilation = CSharpCompilation.Create(
+                    assemblyName,
+                    new[] {encoded},
+                    all_references.ToArray(),
+                    new CSharpCompilationOptions(
+                            OutputKind.DynamicallyLinkedLibrary)
+                        .WithOptimizationLevel(OptimizationLevel.Debug)
+                        .WithPlatform(Platform.AnyCpu)
+                );
+                Assembly assembly = null;
+                using (var assemblyStream = new MemoryStream())
+                using (var symbolsStream = new MemoryStream())
+                {
+                    var emit_options = new EmitOptions(
+                        debugInformationFormat: DebugInformationFormat.PortablePdb,
+                        pdbFilePath: symbolsName
+                    );
+
+                    var embeddedTexts = new List<EmbeddedText>
+                    {
+                        EmbeddedText.FromSource(formatted_source_code_path, sourceText)
+                    };
+
+                    var result = compilation.Emit(
+                        assemblyStream,
+                        symbolsStream,
+                        embeddedTexts: embeddedTexts,
+                        options: emit_options);
+
+                    if (!result.Success)
+                    {
+                        var failures = result.Diagnostics.Where(diagnostic =>
+                            diagnostic.IsWarningAsError ||
+                            diagnostic.Severity == DiagnosticSeverity.Error);
+
+                        foreach (var diagnostic in failures)
+                            Console.Error.WriteLine("{0}: {1} {2}", diagnostic.Location, diagnostic.Id,
+                                diagnostic.GetMessage());
+                        throw new Exception();
+                    }
+
+                    assemblyStream.Seek(0, SeekOrigin.Begin);
+                    symbolsStream.Seek(0, SeekOrigin.Begin);
+                    assembly = Assembly.Load(assemblyStream.ToArray(), symbolsStream.ToArray());
+                }
+
+                _piggy._code_blocks = new Dictionary<IParseTree, MethodInfo>();
+                //Assembly assembly = results.CompiledAssembly;
+                foreach (var template in _piggy._templates)
+                {
+                    var class_name = @namespace + "." + template.TemplateName;
+                    var template_type = assembly.GetType(class_name);
+                    template.Type = template_type;
+                    foreach (var pass in template.Passes)
+                    foreach (var pattern in pass.Patterns)
+                    {
+                        var x = pattern.CollectCode();
+                        foreach (var kvp in x)
+                        {
+                            var key = kvp.Key;
+                            var name = gen_named_code_blocks[key];
+                            var method_info = template_type.GetMethod(name);
+                            if (method_info == null)
+                                throw new Exception("Can't find method_info for " + class_name + "." + name);
+                            _piggy._code_blocks[key] = method_info;
+                        }
+
+                        var y = pattern.CollectInterpolatedStringCode();
+                        foreach (var kvp in y)
+                        {
+                            var key = kvp.Key;
+                            var name = gen_named_code_blocks[key];
+                            var method_info = template_type.GetMethod(name);
+                            if (method_info == null)
+                                throw new Exception("Can't find method_info for " + class_name + "." + name);
+                            _piggy._code_blocks[key] = method_info;
+                        }
+                    }
+                }
             }
         }
-
-        public static Dictionary<Type, object> _instances = new Dictionary<Type, object>();
 
         public void PatternMatchingEngine(TreeRegEx re)
         {
             // Step though all top level matches, then the path for each.
             foreach (var zz in re._top_level_matches)
             {
-                IParseTree a = zz; // tree
-                System.Console.Error.WriteLine("------");
-                System.Console.Error.WriteLine(a.GetText());
+                var a = zz; // tree
+                Console.Error.WriteLine("------");
+                Console.Error.WriteLine(a.GetText());
                 foreach (var path in re._matches_path_start[a])
                 {
-                    IEnumerator<Path> pe = path.GetEnumerator();
+                    var pe = path.GetEnumerator();
                     pe.MoveNext();
-                    for (; ; )
+                    for (;;)
                     {
-                        Path cpe = pe.Current;
-                        System.Console.Error.WriteLine(cpe.LastEdge);
-                        if (0 != (cpe.LastEdge.EdgeModifiers & (int)Edge.EdgeModifiersEnum.Text))
+                        var cpe = pe.Current;
+                        Console.Error.WriteLine(cpe.LastEdge);
+                        if (0 != (cpe.LastEdge.EdgeModifiers & (int) Edge.EdgeModifiersEnum.Text))
                         {
                             var x = cpe.LastEdge.Input;
                             {
-                                string s = x;
-                                string s2 = s.Substring(2);
-                                string s3 = s2.Substring(0, s2.Length - 2);
-                                System.Console.Write(s3);
+                                var s = x;
+                                var s2 = s.Substring(2);
+                                var s3 = s2.Substring(0, s2.Length - 2);
+                                Console.Write(s3);
                             }
-                        } else if (cpe.LastEdge.IsCode)
+                        }
+                        else if (cpe.LastEdge.IsCode)
                         {
                             // move back to find a terminal.
-                            Path find = cpe;
+                            var find = cpe;
                             IParseTree con = null;
-                            for (; ; )
+                            for (;;)
                             {
                                 if (find == null) break;
                                 con = find.Input;
                                 if (con != null) break;
                                 find = find.Next;
                             }
+
                             while (con != null)
                             {
                                 if (con as AstParserParser.NodeContext != null) break;
                                 con = re._ast.Parents()[con];
                             }
 
-                            try
-                            {
-                                var x = cpe.LastEdge.AstList;
-                                if (x.Count() > 1) throw new Exception("Cannot execute multiple code blocks.");
-                                MethodInfo main = _piggy._code_blocks[x.First()];
-                                Type type = re._current_type;
-                                object instance = re._instance;
-                                object[] aa = new object[] { new Tree(re._ast.Parents(), re._ast, con, re._common_token_stream) };
-                                var res = main.Invoke(instance, aa);
-                            }
-                            finally
-                            {
-                            }
+                            var x = cpe.LastEdge.AstList;
+                            if (x.Count() > 1) throw new Exception("Cannot execute multiple code blocks.");
+                            var main = _piggy._code_blocks[x.First()];
+                            var type = re._current_type;
+                            var instance = re._instance;
+                            object[] aa = {new Tree(re._ast.Parents(), re._ast, con, re._common_token_stream)};
+                            var res = main.Invoke(instance, aa);
                         }
 
                         if (!pe.MoveNext()) break;
@@ -448,14 +424,14 @@ namespace " + @namespace + @"
         {
             foreach (var x in re._top_level_matches)
             {
-                IParseTree a = x;
-                System.Console.WriteLine(TreeRegEx.GetText(a));
+                var a = x;
+                Console.WriteLine(TreeRegEx.GetText(a));
             }
         }
 
         private List<Pass> GetAllPassesNamed(Template template, string pass_name)
         {
-            List<Pass> collection = new List<Pass>();
+            var collection = new List<Pass>();
             var possible = template.Passes.Find(p => p.Name == pass_name);
             if (possible != null) collection.Add(possible);
             if (template.Extends != null)
@@ -466,9 +442,10 @@ namespace " + @namespace + @"
                 var more = GetAllPassesNamed(extension_template, pass_name);
                 collection.AddRange(more);
             }
+
             return collection;
         }
-        
+
         private void CreateAllTemplateInstances()
         {
             foreach (var full_pass_name in _piggy._application.OrderedPasses)
@@ -481,15 +458,14 @@ namespace " + @namespace + @"
                 var template = _piggy._templates.Find(t => t.TemplateName == template_name);
                 if (template == null)
                 {
-                    System.Console.WriteLine("Yo. You are looking for a template named '" + template_name + "' but it does not exist anywhere.");
+                    Console.WriteLine("Yo. You are looking for a template named '" + template_name +
+                                      "' but it does not exist anywhere.");
                     throw new Exception();
                 }
+
                 var type = template.Type;
-                _instances.TryGetValue(type, out object i);
-                if (i == null)
-                {
-                    _instances[type] = Activator.CreateInstance(type);
-                }
+                _instances.TryGetValue(type, out var i);
+                if (i == null) _instances[type] = Activator.CreateInstance(type);
             }
         }
 
@@ -508,8 +484,8 @@ namespace " + @namespace + @"
                 var template_name = match.Groups["template_name"].Value;
                 var pass_name = match.Groups["pass_name"].Value;
                 var template = _piggy._templates.Find(t => t.TemplateName == template_name);
-                List<Pass> passes = GetAllPassesNamed(template, pass_name);
-                TreeRegEx regex = new TreeRegEx(_piggy, passes, _instances[template.Type]);
+                var passes = GetAllPassesNamed(template, pass_name);
+                var regex = new TreeRegEx(_piggy, passes, _instances[template.Type]);
                 regex.Match();
                 if (grep_only) OutputMatches(regex);
                 else PatternMatchingEngine(regex);

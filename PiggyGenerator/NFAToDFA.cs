@@ -1,24 +1,21 @@
-﻿namespace PiggyGenerator
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using Antlr4.Runtime.Tree;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Antlr4.Runtime.Tree;
+using Campy.Graphs;
 
+namespace PiggyGenerator
+{
     public class NFAToDFA
     {
-        Dictionary<SmartSet<State>, State> _hash_sets = new Dictionary<SmartSet<State>, State>();
-        Dictionary<State, SmartSet<State>> _closure = new Dictionary<State, SmartSet<State>>();
-
-        public NFAToDFA()
-        {
-        }
+        private readonly Dictionary<State, SmartSet<State>> _closure = new Dictionary<State, SmartSet<State>>();
+        private readonly Dictionary<SmartSet<State>, State> _hash_sets = new Dictionary<SmartSet<State>, State>();
 
         public State CreateInitialState(Automaton nfa, Automaton dfa)
         {
             /** get closure of initial state from nfa. */
             var initialStates = nfa.StartStates;
             var initialClosure = ClosureTaker.GetClosure(initialStates, nfa);
-            State state = AddHashSetState(dfa, initialClosure);
+            var state = AddHashSetState(dfa, initialClosure);
             dfa.AddStartState(state);
             return state;
         }
@@ -26,16 +23,14 @@
         public bool HasFinalState(IEnumerable<State> states, Automaton automaton)
         {
             foreach (var state in states)
-            {
                 if (automaton.IsFinalState(state))
                     return true;
-            }
             return false;
         }
 
         public State AddHashSetState(Automaton dfa, SmartSet<State> states)
         {
-            State result = FindHashSetState(dfa, states);
+            var result = FindHashSetState(dfa, states);
             if (result != null) return result;
             result = new State(dfa);
             _hash_sets.Add(states, result);
@@ -52,7 +47,8 @@
         public SmartSet<State> FindHashSet(State state)
         {
             foreach (var hs in _hash_sets)
-                if (hs.Value == state) return hs.Key;
+                if (hs.Value == state)
+                    return hs.Key;
             return null;
         }
 
@@ -63,7 +59,7 @@
             // to get an initial computation of dfa states.
             foreach (var s in nfa.AllStates())
             {
-                var c = ClosureTaker.GetClosure(new List<State>() {s}, nfa);
+                var c = ClosureTaker.GetClosure(new List<State> {s}, nfa);
                 _closure[s] = c;
             }
 
@@ -77,9 +73,9 @@
 
             // For every state in nfa using Tarjan walk,
             // sum sets with common transitions.
-            var ordered_list = new Campy.Graphs.TarjanNoBackEdges<State, Edge>(nfa).ToList();
+            var ordered_list = new TarjanNoBackEdges<State, Edge>(nfa).ToList();
             ordered_list.Reverse();
-            bool changed = true;
+            var changed = true;
             while (changed)
             {
                 changed = false;
@@ -87,7 +83,7 @@
                 {
                     var closure = _closure[s];
                     var transitions = ClosureTaker.GatherTransitions(closure);
-                    foreach (KeyValuePair<string, List<Edge>> transition_set in transitions)
+                    foreach (var transition_set in transitions)
                     {
                         var key = transition_set.Key;
                         var value = transition_set.Value;
@@ -99,28 +95,27 @@
                             var cl = _closure[c];
                             state_set.UnionWith(cl);
                         }
+
                         foreach (var c in state_set)
-                        {
                             if (!_closure[c].Equals(state_set))
                             {
                                 _closure[c] = state_set;
                                 changed = true;
                             }
-                        }
                     }
                 }
             }
 
-            State initialState = CreateInitialState(nfa, dfa);
+            var initialState = CreateInitialState(nfa, dfa);
             foreach (var p in _closure)
             {
-                SmartSet<State> state_set = p.Value;
+                var state_set = p.Value;
                 var new_dfa_state = FindHashSetState(dfa, state_set);
                 if (new_dfa_state == null)
                 {
-                    State state = AddHashSetState(dfa, state_set);
+                    var state = AddHashSetState(dfa, state_set);
                     {
-                        bool mark = false;
+                        var mark = false;
                         foreach (var s in state_set)
                             if (nfa.FinalStates.Contains(s))
                                 mark = true;
@@ -135,12 +130,12 @@
             foreach (var p in _closure)
             {
                 var k = p.Key;
-                SmartSet<State> state_set = p.Value;
+                var state_set = p.Value;
                 var dfa_state = FindHashSetState(dfa, state_set);
-           //     System.Console.Error.WriteLine("State " + dfa_state.Id + ":"
-           //                                    + state_set.Aggregate(
-           //                                        "", // start with empty string to handle empty list case.
-            //                                       (current, next) => current + ", " + next));
+                //     System.Console.Error.WriteLine("State " + dfa_state.Id + ":"
+                //                                    + state_set.Aggregate(
+                //                                        "", // start with empty string to handle empty list case.
+                //                                       (current, next) => current + ", " + next));
             }
 
             //System.Console.Error.WriteLine(dfa.ToString());
@@ -148,7 +143,7 @@
             {
                 var nfa_state_set = FindHashSet(from_dfa_state);
                 var transitions = ClosureTaker.GatherTransitions(nfa_state_set);
-                foreach (KeyValuePair<string, List<Edge>> transition_set in transitions)
+                foreach (var transition_set in transitions)
                 {
                     // Note, transitions is a collection of edges for a given string.
                     // For the NFA, an edge has one Ast for the edge because it came from one pattern.
@@ -160,15 +155,15 @@
                     var state_set = new HashSet<State>();
                     foreach (var e in value) state_set.Add(e.To);
                     // Find in all previous states.
-                    SmartSet<State> new_state_set = _hash_sets.Where(hs => state_set.IsSubsetOf(hs.Key)).FirstOrDefault().Key;
+                    var new_state_set = _hash_sets.Where(hs => state_set.IsSubsetOf(hs.Key)).FirstOrDefault().Key;
                     if (new_state_set == null)
                         new_state_set = _closure[state_set.First()];
                     var to_dfa_state = FindHashSetState(dfa, new_state_set);
-                    int mods = value.First().EdgeModifiers;
+                    var mods = value.First().EdgeModifiers;
                     var asts = new List<IParseTree>();
-                    foreach (Edge v in value)
-                        foreach (IParseTree v2 in v.AstList)
-                            asts.Add(v2);
+                    foreach (var v in value)
+                    foreach (var v2 in v.AstList)
+                        asts.Add(v2);
                     var he = new Edge(dfa, from_dfa_state, to_dfa_state, asts, mods);
                 }
             }

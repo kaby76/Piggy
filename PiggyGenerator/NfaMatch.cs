@@ -1,61 +1,18 @@
-﻿namespace PiggyGenerator
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using Antlr4.Runtime.Tree;
+using PiggyRuntime;
+
+namespace PiggyGenerator
 {
-    using Antlr4.Runtime.Tree;
-    using System.Collections.Generic;
-    using System.Collections;
-    using System.Linq;
-    using System.Text.RegularExpressions;
-    using System;
-    using System.Reflection;
-    using PiggyRuntime;
-
-
     public class NfaMatch
     {
-        public class EnumerableIParseTree : IEnumerable<IParseTree>
-        {
-            IParseTree _start;
-            public EnumerableIParseTree(IParseTree start)
-            {
-                _start = start;
-            }
-
-            private IEnumerator<IParseTree> Doit()
-            {
-                Stack<IParseTree> stack = new Stack<IParseTree>();
-                HashSet<IParseTree> visited = new HashSet<IParseTree>();
-                stack.Push(_start);
-                while (stack.Count > 0)
-                {
-                    var v = stack.Pop();
-                    if (visited.Contains(v))
-                        yield return v;
-                    else
-                    {
-                        stack.Push(v);
-                        visited.Add(v);
-                        for (int i = v.ChildCount - 1; i >= 0; --i)
-                        {
-                            var c = v.GetChild(i);
-                            stack.Push(c);
-                        }
-                    }
-                }
-            }
-
-            public IEnumerator<IParseTree> GetEnumerator()
-            {
-                return Doit();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return Doit();
-            }
-        }
-
-        private Dictionary<IParseTree, MethodInfo> _code_blocks;
-        private object _instance;
+        private readonly Dictionary<IParseTree, MethodInfo> _code_blocks;
+        private readonly object _instance;
         private Automaton nfa;
 
         public NfaMatch(Dictionary<IParseTree, MethodInfo> code_blocks,
@@ -78,6 +35,7 @@
             catch (Exception e)
             {
             }
+
             throw new Exception("Cannot eval expression.");
         }
 
@@ -92,24 +50,24 @@
             if (!(input as AstParserParser.NodeContext != null || input as AstParserParser.AttrContext != null))
                 throw new Exception();
 
-            int listID = 0;
+            var listID = 0;
 
             var generation = new Dictionary<Edge, int>();
 
-            System.Console.Error.WriteLine("IN------");
-            System.Console.Error.WriteLine("FindMatches "
-                                           + input.GetText().Substring(
-                                               0,
-                                               input.GetText().Length > 50 ? 50 : input.GetText().Length));
-            foreach(var path in currentPathList)
-                System.Console.Error.WriteLine(path.ToString());
-            System.Console.Error.WriteLine("IN------");
+            Console.Error.WriteLine("IN------");
+            Console.Error.WriteLine("FindMatches "
+                                    + input.GetText().Substring(
+                                        0,
+                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
+            foreach (var path in currentPathList)
+                Console.Error.WriteLine(path.ToString());
+            Console.Error.WriteLine("IN------");
 
             // Variable "input" can be either one of two types:
             // AstParserParser.DeclContext
             // AstParserParser.AttrContext
             // Go through all children and match.
-            int i = 0;
+            var i = 0;
             for (;;)
             {
                 var oldlist = currentPathList;
@@ -120,6 +78,7 @@
                     nextStateList = currentStateList;
                     break;
                 }
+
                 var c = input.GetChild(i);
                 var t = c.GetText();
 
@@ -135,34 +94,31 @@
             }
 
             // Compute results.
-            int matches = 0;
-            for (int j = 0; j < nextPathList.Count; j++)
+            var matches = 0;
+            for (var j = 0; j < nextPathList.Count; j++)
             {
-                Path l = nextPathList[j];
-                Edge e = l.LastEdge;
-                State s = e.To;
-                if (s.Owner.IsFinalState(s))
-                {
-                    matches++;
-                }
+                var l = nextPathList[j];
+                var e = l.LastEdge;
+                var s = e.To;
+                if (s.Owner.IsFinalState(s)) matches++;
             }
+
             foreach (var s in currentStateList)
-            {
                 if (s.Owner.IsFinalState(s))
                 {
                     matches++;
                     if (!nextStateList.Contains(s))
                         nextStateList.Add(s);
                 }
-            }
-            System.Console.Error.WriteLine("OUT------");
-            System.Console.Error.WriteLine("FindMatches "
-                                           + input.GetText().Substring(
-                                               0,
-                                               input.GetText().Length > 50 ? 50 : input.GetText().Length));
+
+            Console.Error.WriteLine("OUT------");
+            Console.Error.WriteLine("FindMatches "
+                                    + input.GetText().Substring(
+                                        0,
+                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
             foreach (var path in nextPathList)
-                System.Console.Error.WriteLine(path.ToString());
-            System.Console.Error.WriteLine("OUT------");
+                Console.Error.WriteLine(path.ToString());
+            Console.Error.WriteLine("OUT------");
             return matches != 0;
         }
 
@@ -175,21 +131,18 @@
                     AddStateAndClosure(list, e.To);
         }
 
-        void CheckPath(Path path)
+        private void CheckPath(Path path)
         {
             return;
             State p = null;
             foreach (var ee in path)
             {
                 var e = ee.LastEdge;
-                if (p == null)
-                    p = e.To;
-                else
-                {
-                    if (p != e.From)
-                        throw new System.Exception();
-                    p = e.To;
-                }
+                if (p == null) p = e.To;
+
+                if (p != e.From)
+                    throw new Exception();
+                p = e.To;
             }
         }
 
@@ -201,14 +154,14 @@
             List<Path> nextPathList,
             int listID)
         {
-            System.Console.Error.WriteLine("IN------");
-            System.Console.Error.WriteLine("Step "
-                                           + input.GetText().Substring(
-                                               0,
-                                               input.GetText().Length > 50 ? 50 : input.GetText().Length));
+            Console.Error.WriteLine("IN------");
+            Console.Error.WriteLine("Step "
+                                    + input.GetText().Substring(
+                                        0,
+                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
             foreach (var path in currentPathList)
-                System.Console.Error.WriteLine(path.ToString());
-            System.Console.Error.WriteLine("IN------");
+                Console.Error.WriteLine(path.ToString());
+            Console.Error.WriteLine("IN------");
 
 
             var t = input.GetText();
@@ -218,77 +171,57 @@
             var ty = input.GetType();
             if (currentPathList == null || currentPathList.Count == 0)
             {
-                for (int i = 0; i < currentStateList.Count; i++)
+                for (var i = 0; i < currentStateList.Count; i++)
                 {
-                    State s = currentStateList[i];
-                    foreach (Edge e in s.Owner.SuccessorEdges(s))
-                    {
+                    var s = currentStateList[i];
+                    foreach (var e in s.Owner.SuccessorEdges(s))
                         if (e.Input == Edge.EmptyString)
-                        {
                             AppendEdgeToPathSet(null, null, nextPathList, e, listID);
-                        }
                         else if (e.Input == input.GetText())
-                        {
                             AppendEdgeToPathSet(input, null, nextPathList, e, listID);
-                        }
                         else if (e.Input == "<" && "(" == input.GetText())
-                        {
                             AppendEdgeToPathSet(input, null, nextPathList, e, listID);
-                        }
                         else if (e.Input == ">" && ")" == input.GetText())
-                        {
                             AppendEdgeToPathSet(input, null, nextPathList, e, listID);
-                        }
-                        else if (e.IsAny)
-                        {
-                            AppendEdgeToPathSet(input, null, nextPathList, e, listID);
-                        }
-                    }
+                        else if (e.IsAny) AppendEdgeToPathSet(input, null, nextPathList, e, listID);
                 }
             }
             else
             {
                 if (is_attr_or_node)
                 {
-                    for (int i = 0; i < currentPathList.Count; i++)
+                    for (var i = 0; i < currentPathList.Count; i++)
                     {
-                        Path p = currentPathList[i];
+                        var p = currentPathList[i];
                         CheckPath(p);
-                        Edge l = p.LastEdge;
-                        State s = l.To;
-                        foreach (Edge e in s.Owner.SuccessorEdges(s))
-                        {
+                        var l = p.LastEdge;
+                        var s = l.To;
+                        foreach (var e in s.Owner.SuccessorEdges(s))
                             if (e.IsAny)
-                            {
                                 AppendEdgeToPathSet(input, p, nextPathList, e, listID);
-                            }
-                        }
                     }
+
                     var cpl = currentPathList.ToList();
                     var csl = currentStateList.ToList();
                     var npl = new List<Path>();
                     var nsl = new List<State>();
-                    this.FindMatches(currentPathList, currentStateList, ref npl, ref nsl, input);
+                    FindMatches(currentPathList, currentStateList, ref npl, ref nsl, input);
                     foreach (var p in npl) nextPathList.Add(p);
                     foreach (var s in nsl) nextStateList.Add(s);
                 }
                 else
                 {
-                    for (int i = 0; i < currentPathList.Count; i++)
+                    for (var i = 0; i < currentPathList.Count; i++)
                     {
-                        Path p = currentPathList[i];
+                        var p = currentPathList[i];
                         CheckPath(p);
-                        Edge l = p.LastEdge;
-                        State s = l.To;
-                        foreach (Edge e in s.Owner.SuccessorEdges(s))
-                        {
+                        var l = p.LastEdge;
+                        var s = l.To;
+                        foreach (var e in s.Owner.SuccessorEdges(s))
                             if (e.IsAny)
                             {
                                 // The "." transition only matches with attr or node
-                                if (is_attr_or_node)
-                                {
-                                    AppendEdgeToPathSet(input, p, nextPathList, e, listID);
-                                }
+                                if (is_attr_or_node) AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
                             else if (e.Input == input.GetText())
                             {
@@ -308,7 +241,7 @@
                             }
                             else if (e.Input.StartsWith("$\""))
                             {
-                                string pattern = e.Input.Substring(2);
+                                var pattern = e.Input.Substring(2);
                                 pattern = pattern.Substring(0, pattern.Length - 1);
                                 try
                                 {
@@ -316,20 +249,20 @@
                                     if (e.AstList.Count() > 1)
                                         ;
                                     //throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");
-                                    IParseTree attr = e.AstList.First();
+                                    var attr = e.AstList.First();
                                     pattern = ReplaceMacro(attr);
                                 }
-                                catch (System.Exception ex)
+                                catch (Exception ex)
                                 {
-                                    System.Console.WriteLine("Cannot perform substitution in pattern with string.");
-                                    System.Console.WriteLine("Pattern " + pattern);
-                                    System.Console.WriteLine(ex.Message);
+                                    Console.WriteLine("Cannot perform substitution in pattern with string.");
+                                    Console.WriteLine("Pattern " + pattern);
+                                    Console.WriteLine(ex.Message);
                                     throw ex;
                                 }
 
                                 pattern = pattern.Replace("\\", "\\\\");
-                                Regex re = new Regex(pattern);
-                                string tvaltext = input.GetText();
+                                var re = new Regex(pattern);
+                                var tvaltext = input.GetText();
                                 tvaltext = tvaltext.Substring(1);
                                 tvaltext = tvaltext.Substring(0, tvaltext.Length - 1);
                                 var matched = re.Match(tvaltext);
@@ -337,33 +270,30 @@
                                 if (result)
                                     AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
-                            else
-                            {
-                            }
-                        }
                     }
                 }
             }
+
             foreach (var s in currentStateList)
-            {
                 if (s.Owner.IsFinalState(s))
                     AddStateAndClosure(nextStateList, s);
+
+            for (var i = 0; i < nextPathList.Count; i++)
+            {
+                var p = nextPathList[i];
+                var l = p.LastEdge;
+                var s = l.To;
+                AddStateAndClosure(nextStateList, s);
             }
-            for (int i = 0; i < nextPathList.Count; i++)
-			{
-				Path p = nextPathList[i];
-				Edge l = p.LastEdge;
-				State s = l.To;
-				AddStateAndClosure(nextStateList, s);
-			}
-            System.Console.Error.WriteLine("OUT------");
-            System.Console.Error.WriteLine("Step "
-                                           + input.GetText().Substring(
-                                               0,
-                                               input.GetText().Length > 50 ? 50 : input.GetText().Length));
+
+            Console.Error.WriteLine("OUT------");
+            Console.Error.WriteLine("Step "
+                                    + input.GetText().Substring(
+                                        0,
+                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
             foreach (var path in nextPathList)
-                System.Console.Error.WriteLine(path.ToString());
-            System.Console.Error.WriteLine("OUT------");
+                Console.Error.WriteLine(path.ToString());
+            Console.Error.WriteLine("OUT------");
             return listID;
         }
 
@@ -371,10 +301,8 @@
         {
             var st = e.To;
             var sf = e.From;
-            foreach (var l in list)
-            {
-                CheckPath(l);
-            }
+            foreach (var l in list) CheckPath(l);
+
             if (path == null && !list.Any())
             {
                 list.Add(new Path(e, c));
@@ -385,13 +313,57 @@
                 CheckPath(p);
                 list.Add(p);
             }
+
             var added = list.Last();
             // If s contains any edges over epsilon, then add them.
             foreach (var o in st.Owner.SuccessorEdges(st))
                 if (o.IsEmpty || o.IsCode || o.IsText)
-                {
                     AppendEdgeToPathSet(null, added, list, o, listID);
+        }
+
+        public class EnumerableIParseTree : IEnumerable<IParseTree>
+        {
+            private readonly IParseTree _start;
+
+            public EnumerableIParseTree(IParseTree start)
+            {
+                _start = start;
+            }
+
+            public IEnumerator<IParseTree> GetEnumerator()
+            {
+                return Doit();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return Doit();
+            }
+
+            private IEnumerator<IParseTree> Doit()
+            {
+                var stack = new Stack<IParseTree>();
+                var visited = new HashSet<IParseTree>();
+                stack.Push(_start);
+                while (stack.Count > 0)
+                {
+                    var v = stack.Pop();
+                    if (visited.Contains(v))
+                    {
+                        yield return v;
+                    }
+                    else
+                    {
+                        stack.Push(v);
+                        visited.Add(v);
+                        for (var i = v.ChildCount - 1; i >= 0; --i)
+                        {
+                            var c = v.GetChild(i);
+                            stack.Push(c);
+                        }
+                    }
                 }
+            }
         }
     }
 }
