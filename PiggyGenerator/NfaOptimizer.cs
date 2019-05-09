@@ -39,8 +39,7 @@ namespace PiggyGenerator
 
         public State FindHashSetState(Automaton dfa, SmartSet<State> states)
         {
-            State result = null;
-            _hash_sets.TryGetValue(states, out result);
+            _hash_sets.TryGetValue(states, out State result);
             return result;
         }
 

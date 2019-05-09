@@ -2,8 +2,8 @@
   "profiles": {
     "ConsoleApp1": {
       "commandName": "Project",
-      "commandLineArgs": "-a \"obj\\Debug\\net471\\ast.txt\" -o \"obj\\Debug\\net471\" -t \"C:\\Users\\Kenne\\Documents\\Piggy3\\Templates\" -s \"project1.pig\"",
-      "workingDirectory": "C:\\Users\\Kenne\\Documents\\PiggySimple\\Csharp"
+      "commandLineArgs": "-t \"C:\\Users\\Kenne\\Documents\\Piggy3\\Templates\" -a \"ast.txt\" -e \"( classBodyDeclaration ( modifier )* ( memberDeclaration ( methodDeclaration ) ) )\"",
+      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\JavaSerializer"
     }
   }
 }
