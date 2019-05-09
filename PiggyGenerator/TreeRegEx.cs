@@ -38,8 +38,8 @@ namespace PiggyGenerator
                 var n = new NFA(nfa);
                 foreach (var pattern in pass.Patterns) n.post2nfa(pattern);
                 Console.Error.WriteLine(nfa);
-                var nfa_to_dfa = new NfaOptimize();
-                var dfa = nfa_to_dfa.ConvertToDFA(nfa);
+                var nfa_to_dfa = new NfaOptimizer();
+                var dfa = nfa_to_dfa.Optimize(nfa);
                 Console.Error.WriteLine(dfa);
 
                 // Perform naive matching for each node.

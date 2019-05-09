@@ -5,7 +5,7 @@ using Campy.Graphs;
 
 namespace PiggyGenerator
 {
-    public class NfaOptimize
+    public class NfaOptimizer
     {
         private readonly Dictionary<State, SmartSet<State>> _closure = new Dictionary<State, SmartSet<State>>();
         private readonly Dictionary<SmartSet<State>, State> _hash_sets = new Dictionary<SmartSet<State>, State>();
@@ -52,7 +52,12 @@ namespace PiggyGenerator
             return null;
         }
 
-        public Automaton ConvertToDFA(Automaton nfa)
+        /* Apply powerset construction to the NFA to convert to a DFA.
+         * Note, the result of this method isn't strictly a DFA because
+         * edges in the automaton can be text or code, which function just like
+         * epsilon transitions--no input is consumed for the edge.
+         */
+        public Automaton Optimize(Automaton nfa)
         {
             var dfa = new Automaton();
             // For every state s, compute collection of states along epsilon edges
