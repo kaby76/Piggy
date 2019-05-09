@@ -5,7 +5,7 @@ using Campy.Graphs;
 
 namespace PiggyGenerator
 {
-    public class NFAToDFA
+    public class NfaOptimize
     {
         private readonly Dictionary<State, SmartSet<State>> _closure = new Dictionary<State, SmartSet<State>>();
         private readonly Dictionary<SmartSet<State>, State> _hash_sets = new Dictionary<SmartSet<State>, State>();

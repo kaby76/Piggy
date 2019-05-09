@@ -38,7 +38,7 @@ namespace PiggyGenerator
                 var n = new NFA(nfa);
                 foreach (var pattern in pass.Patterns) n.post2nfa(pattern);
                 Console.Error.WriteLine(nfa);
-                var nfa_to_dfa = new NFAToDFA();
+                var nfa_to_dfa = new NfaOptimize();
                 var dfa = nfa_to_dfa.ConvertToDFA(nfa);
                 Console.Error.WriteLine(dfa);
 
