@@ -13,17 +13,21 @@ namespace PiggyGenerator
         {
             var transitions = new MultiMap<string, Edge>();
             foreach (var s in state_set)
-            foreach (var e in s.Owner.SuccessorEdges(s))
-                if (!Automaton.IsLambdaTransition(e))
+            {
+                foreach (var e in s.Owner.SuccessorEdges(s))
                 {
-                    var str = e.Input;
-                    if (e.IsAny) str = "...";
-                    else if (e.IsCode) str = "";
-                    else if (e.IsText) str = "";
-                    else if (str == null) throw new Exception();
-                    transitions.Add(str, e);
+                    if (!Automaton.IsEpsilonTransition(e))
+                    {
+                        var str = e.Input;
+                        if (e.IsAny) str = "...";
+                        else if (e.IsCode) str = "";
+                        else if (e.IsText) str = "";
+                        else if (e.IsNot) str = "!" + str;
+                        else if (str == null) throw new Exception();
+                        transitions.Add(str, e);
+                    }
                 }
-
+            }
             return transitions;
         }
 
@@ -36,7 +40,7 @@ namespace PiggyGenerator
                 var state = list[i];
                 var transitions = automaton.AllEdges(state);
                 foreach (var transition in transitions)
-                    if (Automaton.IsLambdaTransition(transition))
+                    if (Automaton.IsEpsilonTransition(transition))
                     {
                         var toState = transition.To;
                         if (list.Contains(toState)) continue;

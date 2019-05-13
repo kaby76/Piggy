@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Antlr4.Runtime.Tree;
+using Microsoft.CodeAnalysis;
 using PiggyRuntime;
 
 namespace PiggyGenerator
@@ -63,6 +64,9 @@ namespace PiggyGenerator
                 Console.Error.WriteLine(path.ToString());
             Console.Error.WriteLine("IN------");
 
+            if (input.GetText().StartsWith("(EnumDecl"))
+            { }
+
             // Variable "input" can be either one of two types:
             // AstParserParser.DeclContext
             // AstParserParser.AttrContext
@@ -81,6 +85,9 @@ namespace PiggyGenerator
 
                 var c = input.GetChild(i);
                 var t = c.GetText();
+
+                if (t.StartsWith("(EnumConstantDecl"))
+                { }
 
                 i++;
 
@@ -127,7 +134,7 @@ namespace PiggyGenerator
             if (list.Contains(s)) return;
             list.Add(s);
             foreach (var e in s.Owner.SuccessorEdges(s))
-                if (e.IsEmpty || e.IsCode || e.IsText)
+                if (e.IsEmpty)
                     AddStateAndClosure(list, e.To);
         }
 
@@ -197,8 +204,31 @@ namespace PiggyGenerator
                         var l = p.LastEdge;
                         var s = l.To;
                         foreach (var e in s.Owner.SuccessorEdges(s))
+                        {
                             if (e.IsAny)
                                 AppendEdgeToPathSet(input, p, nextPathList, e, listID);
+                            else if (e.IsNot && input as AstParserParser.NodeContext != null)
+                            {
+                                // Look back in input and verify no attr of this type in
+                                // back siblings, and we are on the first AstParserParser.NodeContext node.
+                                var parent = input.Parent;
+                                IParseTree child = null;
+                                bool saw = false;
+                                for (int k = 2; k < parent.ChildCount; ++k)
+                                {
+                                    child = parent.GetChild(k);
+                                    if (child as AstParserParser.AttrContext != null)
+                                    {
+                                        if (child.GetChild(0).GetText() == e.Input) saw = true;
+                                    }
+                                    if (child as AstParserParser.NodeContext != null) break;
+                                }
+                                if (child == input && ! saw)
+                                {
+                                    AppendEdgeToPathSet(null, p, currentPathList, e, listID);
+                                }
+                            }
+                        }
                     }
 
                     var cpl = currentPathList.ToList();
@@ -206,6 +236,8 @@ namespace PiggyGenerator
                     var npl = new List<Path>();
                     var nsl = new List<State>();
                     FindMatches(currentPathList, currentStateList, ref npl, ref nsl, input);
+                    if (npl.Count > 40)
+                    { }
                     foreach (var p in npl) nextPathList.Add(p);
                     foreach (var s in nsl) nextStateList.Add(s);
                 }
@@ -218,10 +250,15 @@ namespace PiggyGenerator
                         var l = p.LastEdge;
                         var s = l.To;
                         foreach (var e in s.Owner.SuccessorEdges(s))
+                        {
                             if (e.IsAny)
                             {
                                 // The "." transition only matches with attr or node
-                                if (is_attr_or_node) AppendEdgeToPathSet(input, p, nextPathList, e, listID);
+                            }
+                            else if (e.IsNot)
+                            {
+                                // Only matches if the input is a
+                                // AstParserParser.NodeContext.
                             }
                             else if (e.Input == input.GetText())
                             {
@@ -270,6 +307,7 @@ namespace PiggyGenerator
                                 if (result)
                                     AppendEdgeToPathSet(input, p, nextPathList, e, listID);
                             }
+                        }
                     }
                 }
             }
@@ -317,8 +355,14 @@ namespace PiggyGenerator
             var added = list.Last();
             // If s contains any edges over epsilon, then add them.
             foreach (var o in st.Owner.SuccessorEdges(st))
+            {
+                // Here we step along "epsilon" transitions to the next state as well.
+                // In this parsing engine, code and text blocks function as epsilon
+                // on input even though they aren't treated as so during construction of
+                // the DFA.
                 if (o.IsEmpty || o.IsCode || o.IsText)
                     AppendEdgeToPathSet(null, added, list, o, listID);
+            }
         }
 
         public class EnumerableIParseTree : IEnumerable<IParseTree>

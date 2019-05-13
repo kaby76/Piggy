@@ -46,7 +46,7 @@ namespace PiggyGenerator
 
         public bool IsCode => 0 != (EdgeModifiers & (int) EdgeModifiersEnum.Code);
 
-        public bool IsEmpty => !IsAny && Input == EmptyString;
+        public bool IsEmpty => !IsAny && !IsCode && !IsText && Input == EmptyString;
 
         public bool IsNot => 0 != (EdgeModifiers & (int) EdgeModifiersEnum.Not);
 
@@ -77,7 +77,11 @@ namespace PiggyGenerator
             else if (IsCode) sb.Append("code");
             else if (IsText) sb.Append("text");
             else if (Input == EmptyString) sb.Append("empty");
-            else sb.Append(Input);
+            else
+            {
+                if (IsNot) sb.Append("!");
+                sb.Append(Input);
+            }
             sb.Append("'");
             return sb.ToString();
         }

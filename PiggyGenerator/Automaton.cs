@@ -15,12 +15,10 @@ namespace PiggyGenerator
         public IEnumerable<State> FinalStates => _final_states;
         public IEnumerable<State> StartStates => _start_states;
 
-        public static bool IsLambdaTransition(Edge e)
+        public static bool IsEpsilonTransition(Edge e)
         {
             if (e.Input != null) return false;
             if (e.IsAny) return false;
-            if (e.IsCode) return false;
-            if (e.IsText) return false;
             if (e.IsNot) return false;
             return true;
         }
@@ -84,6 +82,8 @@ namespace PiggyGenerator
                     sb.Append(" any ");
                 else if (e.Input == null)
                     sb.Append(" empty ");
+                else if (e.IsNot)
+                    sb.Append("!"+e.Input.provide_escapes());
                 else
                     sb.Append(e.Input.provide_escapes());
                 sb.AppendLine("\"];");

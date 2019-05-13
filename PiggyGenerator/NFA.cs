@@ -210,7 +210,8 @@ namespace PiggyGenerator
                     var c = p.GetChild(0);
                     if (c.GetText() == "!")
                     {
-                        var t = c as TerminalNodeImpl;
+                        var c2 = p.GetChild(1);
+                        var t = c2 as TerminalNodeImpl;
                         var s = t.Symbol;
                         var s_type = s.Type;
                         var s1 = new State(_nfa);
