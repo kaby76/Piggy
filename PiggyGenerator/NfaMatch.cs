@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Antlr4.Runtime.Tree;
-using Microsoft.CodeAnalysis;
 using PiggyRuntime;
 
 namespace PiggyGenerator
@@ -40,17 +38,14 @@ namespace PiggyGenerator
             throw new Exception("Cannot eval expression.");
         }
 
-        public bool FindMatches(
+        private bool NonbacktrackingFindMatches(
             List<Path> currentPathList,
             List<State> currentStateList,
             ref List<Path> nextPathList,
             ref List<State> nextStateList,
-            IParseTree input,
-            int start = 0)
+            IParseTree input
+        )
         {
-            if (!(input as AstParserParser.NodeContext != null || input as AstParserParser.AttrContext != null))
-                throw new Exception();
-
             var listID = 0;
 
             var generation = new Dictionary<Edge, int>();
@@ -72,7 +67,7 @@ namespace PiggyGenerator
             // AstParserParser.AttrContext
             // Go through all children and match.
             var i = 0;
-            for (;;)
+            for (; ; )
             {
                 var oldlist = currentPathList;
                 var oldStateList = currentStateList;
@@ -127,6 +122,405 @@ namespace PiggyGenerator
                 Console.Error.WriteLine(path.ToString());
             Console.Error.WriteLine("OUT------");
             return matches != 0;
+        }
+
+        private Dictionary<IParseTree, IParseTree> next_sibling;
+        private Dictionary<IParseTree, IParseTree> next;
+
+        private IParseTree NextSibling(IParseTree current)
+        {
+            return next_sibling[current];
+        }
+
+        private IParseTree Next(IParseTree current)
+        {
+            return next[current];
+        }
+
+        private Path BacktrackingFindMatches(
+            State state,
+            IParseTree current,
+            out bool match
+        )
+        {
+            // Variable "input" can be either one of three types:
+            // AstParserParser.DeclContext
+            // AstParserParser.AttrContext
+            // terminal
+            // Go through all children and match.
+
+            System.Console.Error.WriteLine("BacktrackingFindMatches"
+                + " state " + state
+                + " input " + (current == null ? "''" : current.GetText().Truncate(30)));
+
+            if (state.Owner.IsFinalState(state))
+            {
+                match = true;
+                return null;
+            }
+            if (current == null)
+            {
+                foreach (var e in state.Owner.SuccessorEdges(state))
+                {
+                    var r = BacktrackingFindMatches(e, current, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+            }
+            else if (current as AstParserParser.NodeContext != null ||
+                     current as AstParserParser.AttrContext != null)
+            {
+                foreach (var e in state.Owner.SuccessorEdges(state))
+                {
+                    var r = BacktrackingFindMatches(e, current, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+            }
+            else
+            {
+                // Terminal.
+                foreach (var e in state.Owner.SuccessorEdges(state))
+                {
+                    var r = BacktrackingFindMatches(e, current, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+            }
+            System.Console.Error.WriteLine("fail");
+            match = false;
+            return null;
+        }
+
+        private Path BacktrackingFindMatches(
+            Edge e,
+            IParseTree current,
+            out bool match
+        )
+        {
+
+            // Variable "input" can be either one of three types:
+            // AstParserParser.DeclContext
+            // AstParserParser.AttrContext
+            // terminal
+            // Go through all children and match.
+            var state = e.To;
+
+            System.Console.Error.WriteLine(
+                "BacktrackingFindMatches"
+                + " state " + state
+                + " input " + (current == null ? "''" : current.GetText().Truncate(30) + " " + current.GetType()));
+
+            if (current == null)
+            {
+                if (state.Owner.IsFinalState(state))
+                {
+                    var p = new Path(e, current);
+                    match = true;
+                    return p;
+                }
+                if (e.IsEmpty || e.IsCode || e.IsText)
+                {
+                    var r = BacktrackingFindMatches(e.To, current, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r); }
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+            }
+            else if (current as AstParserParser.NodeContext != null ||
+                     current as AstParserParser.AttrContext != null)
+            {
+                if (e.IsEmpty || e.IsCode || e.IsText)
+                {
+                    var r = BacktrackingFindMatches(e.To, current, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r); }
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+                else if (e.IsNot)
+                {
+                    // To match this, go up to parent and scan all children
+                    IParseTree parent = current.Parent;
+                    bool found = false;
+                    foreach (var child in parent.ChildrenForward())
+                    {
+                        if (child as AstParserParser.AttrContext != null)
+                        {
+                            if (child.GetChild(0).GetText() == e.Input)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found)
+                    {
+                        IParseTree n = current;
+                        var r = BacktrackingFindMatches(e.To, n, out match);
+                        if (match)
+                        {
+                            if (r == null)
+                                r = new Path(e, current);
+                            else
+                            { var p = new Path(e, current, r); }
+                            System.Console.Error.WriteLine("returning " + r);
+                            return r;
+                        }
+                    }
+                }
+                else if (e.IsAny)
+                {
+                    IParseTree n = NextSibling(current);
+                    var r = BacktrackingFindMatches(e.To, n, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r); }
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+                else
+                {
+                    // Delve down into child and step through
+                    // all siblings.
+                    IParseTree n = current.GetChild(0);
+                    var r = BacktrackingFindMatches(e, n, out match);
+                    if (match)
+                    {
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+            }
+            else
+            {
+                // Terminal.
+                if (e.IsEmpty || e.IsCode || e.IsText)
+                {
+                    var r = BacktrackingFindMatches(e.To, current, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r);}
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+                else if (e.IsAny)
+                {
+                }
+                else if (e.IsNot)
+                {
+                    // To match this, go up to parent and scan all children
+                    IParseTree parent = current.Parent;
+                    bool found = false;
+                    foreach (var child in parent.ChildrenForward())
+                    {
+                        if (child as AstParserParser.AttrContext != null)
+                        {
+                            if (child.GetChild(0).GetText() == e.Input)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found)
+                    {
+                        IParseTree n = current;
+                        var r = BacktrackingFindMatches(e.To, n, out match);
+                        if (match)
+                        {
+                            if (r == null)
+                                r = new Path(e, current);
+                            else
+                            { var p = new Path(e, current, r); }
+                            System.Console.Error.WriteLine("returning " + r);
+                            return r;
+                        }
+                    }
+                }
+                else if (e.Input == current.GetText())
+                {
+                    IParseTree n = Next(current);
+                    var r = BacktrackingFindMatches(e.To, n, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r); }
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+                else if (e.Input == "<" && "(" == current.GetText())
+                {
+                    IParseTree n = Next(current);
+                    var r = BacktrackingFindMatches(e.To, n, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r); }
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+                else if (e.Input == ">" && ")" == current.GetText())
+                {
+                    IParseTree n = Next(current);
+                    var r = BacktrackingFindMatches(e.To, n, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r); }
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+                else if (e.Input == "*")
+                {
+                    IParseTree n = Next(current);
+                    var r = BacktrackingFindMatches(e.To, n, out match);
+                    if (match)
+                    {
+                        if (r == null)
+                            r = new Path(e, current);
+                        else
+                        { var p = new Path(e, current, r); }
+                        System.Console.Error.WriteLine("returning " + r);
+                        return r;
+                    }
+                }
+                else if (e.Input.StartsWith("$\""))
+                {
+                    var pattern = e.Input.Substring(2);
+                    pattern = pattern.Substring(0, pattern.Length - 1);
+                    try
+                    {
+                        var ch = e.Input;
+                        if (e.AstList.Count() > 1)
+                            ;
+                        //throw new Exception("Cannot compute interpolated pattern because there are multiple paths through the DFA with this edge.");
+                        var attr = e.AstList.First();
+                        pattern = ReplaceMacro(attr);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Cannot perform substitution in pattern with string.");
+                        Console.WriteLine("Pattern " + pattern);
+                        Console.WriteLine(ex.Message);
+                        throw ex;
+                    }
+
+                    pattern = pattern.Replace("\\", "\\\\");
+                    var re = new Regex(pattern);
+                    var tvaltext = current.GetText();
+                    tvaltext = tvaltext.Substring(1);
+                    tvaltext = tvaltext.Substring(0, tvaltext.Length - 1);
+                    var matched = re.Match(tvaltext);
+                    var result = matched.Success;
+                    if (result)
+                    {
+                        IParseTree n = Next(current);
+                        var r = BacktrackingFindMatches(e.To, n, out match);
+                        if (match)
+                        {
+                            if (r == null)
+                                r = new Path(e, current);
+                            else
+                            { var p = new Path(e, current, r); }
+                            System.Console.Error.WriteLine("returning " + r);
+                            return r;
+                        }
+                    }
+                }
+            }
+            System.Console.Error.WriteLine("fail");
+            match = false;
+            return null;
+        }
+
+        public bool FindMatches(
+            List<Path> currentPathList,
+            List<State> currentStateList,
+            ref List<Path> nextPathList,
+            ref List<State> nextStateList,
+            IParseTree input,
+            bool use_backtracking = true)
+        {
+            if (!(input as AstParserParser.NodeContext != null || input as AstParserParser.AttrContext != null))
+                throw new Exception();
+
+            if (use_backtracking)
+            {
+                next = new Dictionary<IParseTree, IParseTree>();
+                next_sibling = new Dictionary<IParseTree, IParseTree>();
+                IParseTree last = null;
+                var rev = input.Preorder().ToList();
+                rev.Reverse();
+                foreach (var v in rev)
+                {
+                    next[v] = last;
+                    if (v as AstParserParser.NodeContext != null ||
+                        v as AstParserParser.AttrContext != null)
+                    {
+                        IParseTree last_child = null;
+                        foreach (var child in v.ChildrenReverse())
+                        {
+                            next_sibling[child] = last_child;
+                            last_child = child;
+                        }
+                    }
+                    last = v;
+                }
+                var x = BacktrackingFindMatches(currentStateList.First(), input, out bool match);
+                if (match)
+                {
+                    nextPathList.Add(x);
+                    return true;
+                }
+                else
+                    return false;
+            }
+            else
+                return NonbacktrackingFindMatches(currentPathList, currentStateList, ref nextPathList, ref nextStateList, input);
         }
 
         public void AddStateAndClosure(List<State> list, State s)
@@ -235,7 +629,7 @@ namespace PiggyGenerator
                     var csl = currentStateList.ToList();
                     var npl = new List<Path>();
                     var nsl = new List<State>();
-                    FindMatches(currentPathList, currentStateList, ref npl, ref nsl, input);
+                    FindMatches(currentPathList, currentStateList, ref npl, ref nsl, input, false);
                     if (npl.Count > 40)
                     { }
                     foreach (var p in npl) nextPathList.Add(p);
@@ -362,51 +756,6 @@ namespace PiggyGenerator
                 // the DFA.
                 if (o.IsEmpty || o.IsCode || o.IsText)
                     AppendEdgeToPathSet(null, added, list, o, listID);
-            }
-        }
-
-        public class EnumerableIParseTree : IEnumerable<IParseTree>
-        {
-            private readonly IParseTree _start;
-
-            public EnumerableIParseTree(IParseTree start)
-            {
-                _start = start;
-            }
-
-            public IEnumerator<IParseTree> GetEnumerator()
-            {
-                return Doit();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return Doit();
-            }
-
-            private IEnumerator<IParseTree> Doit()
-            {
-                var stack = new Stack<IParseTree>();
-                var visited = new HashSet<IParseTree>();
-                stack.Push(_start);
-                while (stack.Count > 0)
-                {
-                    var v = stack.Pop();
-                    if (visited.Contains(v))
-                    {
-                        yield return v;
-                    }
-                    else
-                    {
-                        stack.Push(v);
-                        visited.Add(v);
-                        for (var i = v.ChildCount - 1; i >= 0; --i)
-                        {
-                            var c = v.GetChild(i);
-                            stack.Push(c);
-                        }
-                    }
-                }
             }
         }
     }

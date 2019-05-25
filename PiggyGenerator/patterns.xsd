@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="MemberReorderingPatterns" targetNamespace="urn:shemas-jetbrains-com:member-reordering-patterns" elementFormDefault="qualified" xmlns="urn:shemas-jetbrains-com:member-reordering-patterns" xmlns:mstns="urn:shemas-jetbrains-com:member-reordering-patterns" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Patterns" type="Patterns">
+  </xs:element>
+
+  <!--Overall structure:-->
+  <xs:complexType name="Patterns">
+    <xs:sequence>
+      <xs:element name="Pattern" type="Pattern" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Pattern">
+    <xs:sequence>
+      <xs:element name="Match" type="Match" minOccurs="0" maxOccurs="1" />
+      <xs:element name="Entry" type="Entry" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="RemoveAllRegions" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+  <xs:complexType name="Entry">
+    <xs:sequence>
+      <xs:element name="Match" type="Match" minOccurs="0" maxOccurs="1" />
+      <xs:element name="Sort" type="Sort" minOccurs="0" maxOccurs="1" />
+      <xs:element name="Group" type="Group" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <!--Match Functions:-->
+  <xs:complexType name="Match">
+    <xs:sequence>
+      <xs:group ref="MatchFunctions" minOccurs="1" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="MatchFunctions">
+    <xs:choice>
+      <xs:element name="And" type="AndMatchFunction" />
+      <xs:element name="Or" type="OrMatchFunction" />
+      <xs:element name="Not" type="NotMatchFunction" />
+      <xs:element name="Kind" type="KindMatchFunction" />
+      <xs:element name="Name" type="NameMatchFunction" />
+      <xs:element name="HasAttribute" type="HasAttributeMatchFunction" />
+      <xs:element name="Access" type="AccessMatchFunction" />
+      <xs:element name="Static" type="StaticMatchFunction" />
+      <xs:element name="Abstract" type="AbstractMatchFunction" />
+      <xs:element name="Virtual" type="VirtualMatchFunction" />
+      <xs:element name="Override" type="OverrideMatchFunction" />
+      <xs:element name="Sealed" type="SealedMatchFunction" />
+      <xs:element name="Readonly" type="ReadonlyMatchFunction" />
+      <xs:element name="ImplementsInterface" type="ImplementsInterfaceMatchFunction" />
+      <xs:element name="HandlesEvent" type="HandlesEventMatchFunction" />
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="MatchFunctionBase">
+    <xs:sequence />
+    <xs:attribute name="Weight" type="xs:positiveInteger" use="optional" default="1" />
+  </xs:complexType>
+  <xs:complexType name="AndMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence>
+          <xs:group minOccurs="2" maxOccurs="unbounded" ref="MatchFunctions" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="OrMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence>
+          <xs:group minOccurs="2" maxOccurs="unbounded" ref="MatchFunctions" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NotMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence>
+          <xs:group minOccurs="1" maxOccurs="1" ref="MatchFunctions" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="KindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="class"/>
+      <xs:enumeration value="struct"/>
+      <xs:enumeration value="interface"/>
+      <xs:enumeration value="enum"/>
+      <xs:enumeration value="delegate"/>
+      <xs:enumeration value="type"/>
+      <xs:enumeration value="constructor"/>
+      <xs:enumeration value="destructor"/>
+      <xs:enumeration value="property"/>
+      <xs:enumeration value="indexer"/>
+      <xs:enumeration value="method"/>
+      <xs:enumeration value="operator"/>
+      <xs:enumeration value="field"/>
+      <xs:enumeration value="constant"/>
+      <xs:enumeration value="event"/>
+      <xs:enumeration value="member"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="KindMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+        <xs:attribute name="Is" type="KindType" use="required" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NameMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence>
+        </xs:sequence>
+        <xs:attribute name="Is" type="xs:string" use="required" />
+        <xs:attribute name="IgnoreCase" type="xs:boolean" use="optional" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="HasAttributeMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+        <xs:attribute name="CLRName" type="xs:string" use="required" />
+        <xs:attribute name="Inherit" type="xs:boolean" use="optional" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="AccessType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="public"/>
+      <xs:enumeration value="protected-internal"/>
+      <xs:enumeration value="protected"/>
+      <xs:enumeration value="internal"/>
+      <xs:enumeration value="private"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="AccessMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+        <xs:attribute name="Is" type="AccessType" use="required" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StaticMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AbstractMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VirtualMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="OverrideMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SealedMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReadonlyMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ImplementsInterfaceMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+        <xs:attribute name="CLRName" type="xs:string" use="optional" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="HandlesEventMatchFunction">
+    <xs:complexContent>
+      <xs:extension base="MatchFunctionBase">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!--Sorting-->
+  <xs:complexType name="Sort">
+    <xs:sequence>
+      <xs:group ref="SortKey" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="SortKey">
+    <xs:choice>
+      <xs:element name="ImplementsInterface" type="ImplementsInterfaceSortKey" />
+      <xs:element name="Name" type="NameSortKey" />
+      <xs:element name="Kind" type="KindSortKey" />
+      <xs:element name="Access" type="AccessSortKey" />
+      <xs:element name="Static" type="StaticSortKey" />
+      <xs:element name="Abstract" type="AbstractSortKey" />
+      <xs:element name="Virtual" type="VirtualSortKey" />
+      <xs:element name="Override" type="OverrideSortKey" />
+      <xs:element name="Sealed" type="SealedSortKey" />
+      <xs:element name="Readonly" type="ReadonlySortKey" />
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="SortKeyBase">
+    <xs:sequence />
+    <xs:attribute name="Ascending" type="xs:boolean" use="optional" default="true" />
+    <xs:attribute name="Descending" type="xs:boolean" use="optional" default="false" />
+  </xs:complexType>
+  <xs:complexType name="ImplementsInterfaceSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+        <xs:sequence />
+        <xs:attribute name="Immediate" type="xs:boolean" use="optional" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NameSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+        <xs:sequence />
+        <xs:attribute name="IgnoreCase" type="xs:boolean" use="optional" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="KindSortType">
+    <xs:list itemType="KindType">
+    </xs:list>
+  </xs:simpleType>
+  <xs:complexType name="KindSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+        <xs:sequence />
+        <xs:attribute name="Order" type="KindSortType" use="optional" default="" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="AccessSortType">
+    <xs:list itemType="AccessType">
+    </xs:list>
+  </xs:simpleType>
+  <xs:complexType name="AccessSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+        <xs:sequence />
+        <xs:attribute name="Order" type="AccessSortType" use="optional" default="public protected-internal protected internal private" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AbstractSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="OverrideSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReadonlySortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SealedSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StaticSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VirtualSortKey">
+    <xs:complexContent>
+      <xs:extension base="SortKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!--Groupng-->
+  <xs:complexType name="Group">
+    <xs:sequence>
+      <xs:group ref="GroupKey" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="Region" type="xs:string" use="optional" />
+  </xs:complexType>
+  <xs:group name="GroupKey">
+    <xs:choice>
+      <xs:element name="ImplementsInterface" type="ImplementsInterfaceGroupKey" />
+      <xs:element name="Name" type="NameGroupKey" />
+      <xs:element name="Kind" type="KindGroupKey" />
+      <xs:element name="Access" type="AccessGroupKey" />
+      <xs:element name="Static" type="StaticGroupKey" />
+      <xs:element name="Abstract" type="AbstractGroupKey" />
+      <xs:element name="Virtual" type="VirtualGroupKey" />
+      <xs:element name="Override" type="OverrideGroupKey" />
+      <xs:element name="Sealed" type="SealedGroupKey" />
+      <xs:element name="Readonly" type="ReadonlyGroupKey" />
+    </xs:choice>
+  </xs:group>
+  <xs:complexType name="GroupKeyBase">
+    <xs:sequence />
+    <xs:attribute name="Region" type="xs:string" use="required" />
+  </xs:complexType>
+  <xs:complexType name="ImplementsInterfaceGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+        <xs:sequence />
+        <xs:attribute name="Immediate" type="xs:boolean" use="optional" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="NameGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+        <xs:sequence />
+        <xs:attribute name="IgnoreCase" type="xs:boolean" use="optional" default="false" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="KindGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AccessGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="AbstractGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="OverrideGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="ReadonlyGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="SealedGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="StaticGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="VirtualGroupKey">
+    <xs:complexContent>
+      <xs:extension base="GroupKeyBase">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>

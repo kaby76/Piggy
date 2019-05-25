@@ -8,6 +8,8 @@ namespace PiggyGenerator
 {
     public class Path : IEnumerable<Path>
     {
+        public Path() { }
+
         public Path(Edge e, IParseTree input)
         {
             Next = null;
@@ -25,13 +27,27 @@ namespace PiggyGenerator
             InputText = input != null ? input.GetText() : "";
         }
 
+        public Path(Edge e, IParseTree input, Path r)
+        {
+            if (r == null) throw new Exception();
+            var p = r;
+            while (p.Next != null) p = p.Next;
+            p.Next = this;
+            LastEdge = e;
+            Input = input;
+            InputText = input != null ? input.GetText() : "";
+            var ss = this.ToString();
+            System.Console.Error.WriteLine(ss);
+            System.Console.Error.WriteLine(r);
+        }
+
         public IParseTree Input { get; }
 
         public string InputText { get; }
 
         public Edge LastEdge { get; }
 
-        public Path Next { get; }
+        public Path Next { get; private set; }
 
         public IEnumerator<Path> GetEnumerator()
         {

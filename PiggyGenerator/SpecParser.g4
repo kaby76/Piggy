@@ -54,7 +54,7 @@ plus_rexp: elementary_rexp PLUS;
 elementary_rexp: group_rexp | basic ;
 group_rexp:   OPEN_RE rexp CLOSE_RE ;
 basic: simple_basic | kleene_star_basic | continued_basic ;
-simple_basic: OPEN_PAREN id_or_star_or_empty more* CLOSE_PAREN ;
+simple_basic: (NOT | ) OPEN_PAREN id_or_star_or_empty more* CLOSE_PAREN ;
 kleene_star_basic: OPEN_KLEENE_STAR_PAREN id_or_star_or_empty more* CLOSE_KLEENE_STAR_PAREN ;
 continued_basic: OPEN_VISIT id_or_star_or_empty more* CLOSE_VISIT ;
 id_or_star_or_empty: ID | STAR | /* epsilon */ ;

@@ -375,7 +375,7 @@ namespace " + @namespace + @"
                     for (;;)
                     {
                         var cpe = pe.Current;
-                        Console.Error.WriteLine(cpe.LastEdge);
+                        Console.Error.WriteLine(cpe.LastEdge + " " + cpe.InputText.Truncate(40));
                         if (0 != (cpe.LastEdge.EdgeModifiers & (int) Edge.EdgeModifiersEnum.Text))
                         {
                             var x = cpe.LastEdge.Input;

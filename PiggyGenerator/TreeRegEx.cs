@@ -34,13 +34,17 @@ namespace PiggyGenerator
             foreach (var pass in _passes)
             {
                 _current_type = pass.Owner.Type;
-                var nfa = new Automaton();
-                var n = new NFA(nfa);
-                foreach (var pattern in pass.Patterns) n.post2nfa(pattern);
+                var thompsons_construction = new ThompsonsConstruction();
+                var nfa = thompsons_construction.NFA;
+                foreach (var pattern in pass.Patterns) thompsons_construction.post2nfa(pattern);
                 Console.Error.WriteLine(nfa);
-                var nfa_to_dfa = new NfaOptimizer();
-                var dfa = nfa_to_dfa.Optimize(nfa);
-                Console.Error.WriteLine(dfa);
+                var nfa_optimizer = new NfaOptimizer();
+                Automaton optimized_nfa = null;
+                if (false)
+                    optimized_nfa = nfa_optimizer.Optimize(nfa);
+                else
+                    optimized_nfa = nfa;
+                Console.Error.WriteLine(optimized_nfa);
 
                 // Perform naive matching for each node.
                 foreach (var input in _ast.Preorder())
@@ -58,10 +62,11 @@ namespace PiggyGenerator
                     var currentPathList = new List<Path>();
                     var nextPathList = new List<Path>();
                     var nextStateList = new List<State>();
-                    var nfa_match = new NfaMatch(_piggy._code_blocks, _instance, dfa);
-                    var start = dfa.StartStates.FirstOrDefault().Id;
-                    var st = dfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
+                    var nfa_match = new NfaMatch(_piggy._code_blocks, _instance, optimized_nfa);
+                    var start = optimized_nfa.StartStates.FirstOrDefault().Id;
+                    var st = optimized_nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
                     nfa_match.AddStateAndClosure(currentStateList, st);
+                    System.Console.Error.WriteLine("Looking at " + input.GetText().Truncate(40));
                     var matched = nfa_match.FindMatches(currentPathList, currentStateList, ref nextPathList,
                         ref nextStateList, input);
                     if (matched)

@@ -9,14 +9,20 @@ namespace PiggyGenerator
     /**
      * NFA via Thompson's Construction.
      */
-    public class NFA
+    public class ThompsonsConstruction
     {
         private readonly Automaton _nfa;
         private readonly State _start_state;
+        private int _order = 0;
 
-        public NFA(Automaton nfa)
+        public Automaton NFA
         {
-            _nfa = nfa;
+            get { return _nfa; }
+        }
+
+        public ThompsonsConstruction()
+        {
+            _nfa = new Automaton();
             _start_state = new State(_nfa);
             _nfa.AddStartState(_start_state);
         }
@@ -53,7 +59,8 @@ namespace PiggyGenerator
         }
 
         /**
-         * Generates the NFA from the given tree pattern using Thompson's Construction.
+         * Generate a NFA from the given pattern using Thompson's Construction and
+         * add it to the current overall NFA.
          */
         public void post2nfa(Pattern pattern)
         {
@@ -65,7 +72,6 @@ namespace PiggyGenerator
             {
                 var p_text = p.GetText();
                 var p_type = p.GetType();
-                //System.Console.Error.WriteLine("Next p " + p_text + " " + p_type);
 
                 // simple_basic, kleen_star_basic, and continued_basic are very special:
                 // add in ".*" between each item.
@@ -75,7 +81,9 @@ namespace PiggyGenerator
                 {
                     var last = fragmentStack.Pop();
                     var first = true;
-                    for (var i = p.ChildCount - 2; i >= 0; --i)
+                    var c = p.GetChild(0);
+                    bool not = (c.GetText() == "!");
+                    for (var i = p.ChildCount - (not ? 3:2); i >= 0; --i)
                     {
                         // For Piggy, we're going to use a special edge
                         // to denote attribute or child node recognition
@@ -268,6 +276,8 @@ namespace PiggyGenerator
             if (fragmentStack.Count > 0)
                 throw new Exception("Fragment stack not empty.");
             foreach (var s in completeNfa.OutStates) _nfa.AddFinalState(s);
+
+            // Add in the NFA for this pattern into overall NFA.
             var eek = new Edge(_nfa, _start_state, completeNfa.StartState, Edge.EmptyAst);
         }
     }
