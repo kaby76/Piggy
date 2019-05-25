@@ -629,9 +629,7 @@ namespace PiggyGenerator
                     var csl = currentStateList.ToList();
                     var npl = new List<Path>();
                     var nsl = new List<State>();
-                    FindMatches(currentPathList, currentStateList, ref npl, ref nsl, input, false);
-                    if (npl.Count > 40)
-                    { }
+                    NonbacktrackingFindMatches(currentPathList, currentStateList, ref npl, ref nsl, input);
                     foreach (var p in npl) nextPathList.Add(p);
                     foreach (var s in nsl) nextStateList.Add(s);
                 }
