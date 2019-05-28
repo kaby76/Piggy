@@ -366,8 +366,12 @@ namespace " + @namespace + @"
             foreach (var zz in re._top_level_matches)
             {
                 var a = zz; // tree
-                Console.Error.WriteLine("------");
-                Console.Error.WriteLine(a.GetText());
+                if (Piggy._debug_information)
+                {
+                    Console.Error.WriteLine("------");
+                    Console.Error.WriteLine(a.GetText());
+                }
+
                 foreach (var path in re._matches_path_start[a])
                 {
                     var pe = path.GetEnumerator();
@@ -375,7 +379,7 @@ namespace " + @namespace + @"
                     for (;;)
                     {
                         var cpe = pe.Current;
-                        Console.Error.WriteLine(cpe.LastEdge + " " + cpe.InputText.Truncate(40));
+                        if (Piggy._debug_information) Console.Error.WriteLine(cpe.LastEdge + " " + cpe.InputText.Truncate(40));
                         if (0 != (cpe.LastEdge.EdgeModifiers & (int) Edge.EdgeModifiersEnum.Text))
                         {
                             var x = cpe.LastEdge.Input;

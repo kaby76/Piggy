@@ -36,9 +36,6 @@ namespace PiggyGenerator
             LastEdge = e;
             Input = input;
             InputText = input != null ? input.GetText() : "";
-            var ss = this.ToString();
-            System.Console.Error.WriteLine(ss);
-            System.Console.Error.WriteLine(r);
         }
 
         public IParseTree Input { get; }

@@ -37,14 +37,14 @@ namespace PiggyGenerator
                 var thompsons_construction = new ThompsonsConstruction();
                 var nfa = thompsons_construction.NFA;
                 foreach (var pattern in pass.Patterns) thompsons_construction.post2nfa(pattern);
-                Console.Error.WriteLine(nfa);
+                if (Piggy._debug_information) Console.Error.WriteLine(nfa);
                 var nfa_optimizer = new NfaOptimizer();
                 Automaton optimized_nfa = null;
                 if (false)
                     optimized_nfa = nfa_optimizer.Optimize(nfa);
                 else
                     optimized_nfa = nfa;
-                Console.Error.WriteLine(optimized_nfa);
+                if (Piggy._debug_information) Console.Error.WriteLine(optimized_nfa);
 
                 // Perform naive matching for each node.
                 foreach (var input in _ast.Preorder())
@@ -66,7 +66,7 @@ namespace PiggyGenerator
                     var start = optimized_nfa.StartStates.FirstOrDefault().Id;
                     var st = optimized_nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
                     nfa_match.AddStateAndClosure(currentStateList, st);
-                    System.Console.Error.WriteLine("Looking at " + input.GetText().Truncate(40));
+                    if (Piggy._debug_information) System.Console.Error.WriteLine("Looking at " + input.GetText().Truncate(40));
                     var matched = nfa_match.FindMatches(currentPathList, currentStateList, ref nextPathList,
                         ref nextStateList, input);
                     if (matched)

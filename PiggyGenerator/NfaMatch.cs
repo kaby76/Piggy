@@ -50,17 +50,17 @@ namespace PiggyGenerator
 
             var generation = new Dictionary<Edge, int>();
 
-            Console.Error.WriteLine("IN------");
-            Console.Error.WriteLine("FindMatches "
-                                    + input.GetText().Substring(
-                                        0,
-                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
-            foreach (var path in currentPathList)
-                Console.Error.WriteLine(path.ToString());
-            Console.Error.WriteLine("IN------");
-
-            if (input.GetText().StartsWith("(EnumDecl"))
-            { }
+            if (Piggy._debug_information)
+            {
+                Console.Error.WriteLine("IN------");
+                Console.Error.WriteLine("FindMatches "
+                                        + input.GetText().Substring(
+                                            0,
+                                            input.GetText().Length > 50 ? 50 : input.GetText().Length));
+                foreach (var path in currentPathList)
+                    Console.Error.WriteLine(path.ToString());
+                Console.Error.WriteLine("IN------");
+            }
 
             // Variable "input" can be either one of two types:
             // AstParserParser.DeclContext
@@ -113,14 +113,18 @@ namespace PiggyGenerator
                         nextStateList.Add(s);
                 }
 
-            Console.Error.WriteLine("OUT------");
-            Console.Error.WriteLine("FindMatches "
-                                    + input.GetText().Substring(
-                                        0,
-                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
-            foreach (var path in nextPathList)
-                Console.Error.WriteLine(path.ToString());
-            Console.Error.WriteLine("OUT------");
+            if (Piggy._debug_information)
+            {
+                Console.Error.WriteLine("OUT------");
+                Console.Error.WriteLine("FindMatches "
+                                        + input.GetText().Substring(
+                                            0,
+                                            input.GetText().Length > 50 ? 50 : input.GetText().Length));
+                foreach (var path in nextPathList)
+                    Console.Error.WriteLine(path.ToString());
+                Console.Error.WriteLine("OUT------");
+            }
+
             return matches != 0;
         }
 
@@ -149,9 +153,10 @@ namespace PiggyGenerator
             // terminal
             // Go through all children and match.
 
-            System.Console.Error.WriteLine("BacktrackingFindMatches"
-                + " state " + state
-                + " input " + (current == null ? "''" : current.GetText().Truncate(30)));
+            if (Piggy._debug_information)
+                System.Console.Error.WriteLine("BacktrackingFindMatches"
+                    + " state " + state
+                    + " input " + (current == null ? "''" : current.GetText().Truncate(30)));
 
             if (state.Owner.IsFinalState(state))
             {
@@ -167,7 +172,7 @@ namespace PiggyGenerator
                     {
                         if (r == null)
                             r = new Path(e, current);
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -182,7 +187,7 @@ namespace PiggyGenerator
                     {
                         if (r == null)
                             r = new Path(e, current);
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -197,12 +202,12 @@ namespace PiggyGenerator
                     {
                         if (r == null)
                             r = new Path(e, current);
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
             }
-            System.Console.Error.WriteLine("fail");
+            if (Piggy._debug_information) System.Console.Error.WriteLine("fail");
             match = false;
             return null;
         }
@@ -221,10 +226,11 @@ namespace PiggyGenerator
             // Go through all children and match.
             var state = e.To;
 
-            System.Console.Error.WriteLine(
-                "BacktrackingFindMatches"
-                + " state " + state
-                + " input " + (current == null ? "''" : current.GetText().Truncate(30) + " " + current.GetType()));
+            if (Piggy._debug_information)
+                System.Console.Error.WriteLine(
+                    "BacktrackingFindMatches"
+                    + " state " + state
+                    + " input " + (current == null ? "''" : current.GetText().Truncate(30) + " " + current.GetType()));
 
             if (current == null)
             {
@@ -243,7 +249,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r); }
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -260,7 +266,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r); }
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -290,7 +296,7 @@ namespace PiggyGenerator
                                 r = new Path(e, current);
                             else
                             { var p = new Path(e, current, r); }
-                            System.Console.Error.WriteLine("returning " + r);
+                            if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                             return r;
                         }
                     }
@@ -305,7 +311,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r); }
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -317,7 +323,7 @@ namespace PiggyGenerator
                     var r = BacktrackingFindMatches(e, n, out match);
                     if (match)
                     {
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -334,7 +340,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r);}
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -367,7 +373,7 @@ namespace PiggyGenerator
                                 r = new Path(e, current);
                             else
                             { var p = new Path(e, current, r); }
-                            System.Console.Error.WriteLine("returning " + r);
+                            if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                             return r;
                         }
                     }
@@ -382,7 +388,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r); }
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -396,7 +402,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r); }
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -410,7 +416,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r); }
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -424,7 +430,7 @@ namespace PiggyGenerator
                             r = new Path(e, current);
                         else
                         { var p = new Path(e, current, r); }
-                        System.Console.Error.WriteLine("returning " + r);
+                        if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                         return r;
                     }
                 }
@@ -466,13 +472,13 @@ namespace PiggyGenerator
                                 r = new Path(e, current);
                             else
                             { var p = new Path(e, current, r); }
-                            System.Console.Error.WriteLine("returning " + r);
+                            if (Piggy._debug_information) System.Console.Error.WriteLine("returning " + r);
                             return r;
                         }
                     }
                 }
             }
-            System.Console.Error.WriteLine("fail");
+            if (Piggy._debug_information) System.Console.Error.WriteLine("fail");
             match = false;
             return null;
         }
@@ -555,15 +561,17 @@ namespace PiggyGenerator
             List<Path> nextPathList,
             int listID)
         {
-            Console.Error.WriteLine("IN------");
-            Console.Error.WriteLine("Step "
-                                    + input.GetText().Substring(
-                                        0,
-                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
-            foreach (var path in currentPathList)
-                Console.Error.WriteLine(path.ToString());
-            Console.Error.WriteLine("IN------");
-
+            if (Piggy._debug_information)
+            {
+                Console.Error.WriteLine("IN------");
+                Console.Error.WriteLine("Step "
+                                        + input.GetText().Substring(
+                                            0,
+                                            input.GetText().Length > 50 ? 50 : input.GetText().Length));
+                foreach (var path in currentPathList)
+                    Console.Error.WriteLine(path.ToString());
+                Console.Error.WriteLine("IN------");
+            }
 
             var t = input.GetText();
             var is_attr_or_node = input as AstParserParser.NodeContext != null ||
@@ -716,14 +724,18 @@ namespace PiggyGenerator
                 AddStateAndClosure(nextStateList, s);
             }
 
-            Console.Error.WriteLine("OUT------");
-            Console.Error.WriteLine("Step "
-                                    + input.GetText().Substring(
-                                        0,
-                                        input.GetText().Length > 50 ? 50 : input.GetText().Length));
-            foreach (var path in nextPathList)
-                Console.Error.WriteLine(path.ToString());
-            Console.Error.WriteLine("OUT------");
+            if (Piggy._debug_information)
+            {
+                Console.Error.WriteLine("OUT------");
+                Console.Error.WriteLine("Step "
+                                        + input.GetText().Substring(
+                                            0,
+                                            input.GetText().Length > 50 ? 50 : input.GetText().Length));
+                foreach (var path in nextPathList)
+                    Console.Error.WriteLine(path.ToString());
+                Console.Error.WriteLine("OUT------");
+            }
+
             return listID;
         }
 

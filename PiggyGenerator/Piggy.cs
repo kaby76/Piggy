@@ -16,6 +16,7 @@ namespace PiggyGenerator
         public List<string> _clang_options = new List<string>();
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
         public CommonTokenStream _common_token_stream;
+        public static bool _debug_information = false;
         public string _expression;
         public bool _keep_file;
         public string _output_file_name;
@@ -25,9 +26,10 @@ namespace PiggyGenerator
         public List<Template> _templates = new List<Template>();
 
         public void RunTool(string ast_file, string spec_file, bool keep_file, string expression,
-            string template_directory, string output_file)
+            string template_directory, string output_file, bool debug_information)
         {
             _keep_file = keep_file;
+            _debug_information = debug_information;
             _expression = expression;
             _specification = spec_file;
             _template_directory = template_directory;
