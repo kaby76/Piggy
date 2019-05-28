@@ -252,7 +252,29 @@ namespace PiggyGenerator
                     {
                         var s = new State(_nfa);
                         var s2 = fragmentStack.Pop();
+                        {
+                            // Add in ".*"
+                            var sa = new State(_nfa);
+                            var sb = new State(_nfa);
+                            var sc = new State(_nfa);
+                            var ea = new Edge(_nfa, sa, sb, Edge.EmptyAst);
+                            var eb = new Edge(_nfa, sb, sc, Edge.EmptyAst);
+                            var e3 = new Edge(_nfa, sb, sb, Edge.EmptyAst, (int)Edge.EdgeModifiersEnum.Any);
+                            var e4 = new Edge(_nfa, sc, s2.StartState, Edge.EmptyAst);
+                            s2 = new Fragment(sa, s2.OutStates);
+                        }
                         var s1 = fragmentStack.Pop();
+                        {
+                            // Add in ".*"
+                            var sa = new State(_nfa);
+                            var sb = new State(_nfa);
+                            var sc = new State(_nfa);
+                            var ea = new Edge(_nfa, sa, sb, Edge.EmptyAst);
+                            var eb = new Edge(_nfa, sb, sc, Edge.EmptyAst);
+                            var e3 = new Edge(_nfa, sb, sb, Edge.EmptyAst, (int)Edge.EdgeModifiersEnum.Any);
+                            var e4 = new Edge(_nfa, sc, s1.StartState, Edge.EmptyAst);
+                            s1 = new Fragment(sa, s1.OutStates);
+                        }
                         var e1 = new Edge(_nfa, s, s1.StartState, Edge.EmptyAst);
                         var e2 = new Edge(_nfa, s, s2.StartState, Edge.EmptyAst);
                         var s3 = new State(_nfa);
@@ -260,12 +282,10 @@ namespace PiggyGenerator
                         {
                             var e3 = new Edge(_nfa, o, s3, Edge.EmptyAst);
                         }
-
                         foreach (var o in s2.OutStates)
                         {
                             var e3 = new Edge(_nfa, o, s3, Edge.EmptyAst);
                         }
-
                         var f = new Fragment(s, s3);
                         fragmentStack.Push(f);
                     }
