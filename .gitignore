@@ -186,5 +186,4 @@ FakesAssemblies/
 *.exe
 ClangCode/ClangCode.so
 *.o
-PiggyRuntime/.antlr/
 Runtime/.antlr/

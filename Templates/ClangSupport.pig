@@ -6,7 +6,7 @@ template ClangSupport
         public static string namespace_name = "Just_a_Default_Name"; // Namespace of generated code.
         public static string generate_for_only = ".*"; // default to every function, enum, struct, etc.
         public static string limit = ".*"; // default to every file.
-        public static string output_location = PiggyRuntime.Tool.OutputLocation;
+        public static string output_location = Runtime.Tool.OutputLocation;
 
         // This is pretty much a hack to remove from Clang type strings the type of the function return.
         public static string GetFunctionReturn(string clang_reported_type)

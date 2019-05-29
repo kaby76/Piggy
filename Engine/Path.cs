@@ -8,14 +8,22 @@ namespace Engine
 {
     public class Path : IEnumerable<Path>
     {
-        public Path() { }
+        private Path() { }
 
         public Path(Edge e, IParseTree input)
         {
             Next = null;
             LastEdge = e;
-            Input = input;
-            InputText = input.GetText();
+            if (e.IsEmpty || e.IsCode || e.IsText)
+            {
+                Input = null;
+                InputText = "";
+            }
+            else
+            {
+                Input = input;
+                InputText = input.GetText();
+            }
         }
 
         public Path(Path n, Edge e, IParseTree input)
@@ -23,8 +31,16 @@ namespace Engine
             Next = n;
             if (n == null) throw new Exception();
             LastEdge = e;
-            Input = input;
-            InputText = input != null ? input.GetText() : "";
+            if (e.IsEmpty || e.IsCode || e.IsText)
+            {
+                Input = null;
+                InputText = "";
+            }
+            else
+            {
+                Input = input;
+                InputText = input.GetText();
+            }
         }
 
         public Path(Edge e, IParseTree input, Path r)
@@ -34,8 +50,16 @@ namespace Engine
             while (p.Next != null) p = p.Next;
             p.Next = this;
             LastEdge = e;
-            Input = input;
-            InputText = input != null ? input.GetText() : "";
+            if (e.IsEmpty || e.IsCode || e.IsText)
+            {
+                Input = null;
+                InputText = "";
+            }
+            else
+            {
+                Input = input;
+                InputText = input.GetText();
+            }
         }
 
         public IParseTree Input { get; }

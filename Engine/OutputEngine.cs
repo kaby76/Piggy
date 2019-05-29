@@ -118,7 +118,7 @@ namespace Engine
             // 1) Create a class for each "template", subclassing based on extension if given
             //    in the spec.
             //
-            // 2) Each code block is placed in a method of signature (PiggyRuntime.Tree tree, StringBuilder result) => {}.
+            // 2) Each code block is placed in a method of signature (Runtime.Tree tree, StringBuilder result) => {}.
             //    within the enclosing class/template.
             //
             // 3) Code blocks which are "init" are generated into a parameterless constructor.
@@ -136,7 +136,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using PiggyRuntime;
+using Runtime;
 using System.Runtime.InteropServices;
 using org.antlr.symtab;
 using System.Text.RegularExpressions;
@@ -198,7 +198,7 @@ namespace " + @namespace + @"
                     var method_name = "Gen" + counter++;
                     gen_named_code_blocks[key] = method_name;
                     code.Append("public void " + method_name + @"(
-            PiggyRuntime.Tree tree)
+            Runtime.Tree tree)
         {
 " + text + @"
         }
@@ -378,7 +378,7 @@ namespace " + @namespace + @"
                     pe.MoveNext();
                     for (;;)
                     {
-                        var cpe = pe.Current;
+                        Path cpe = pe.Current;
                         if (Piggy._debug_information) Console.Error.WriteLine(cpe.LastEdge + " " + cpe.InputText.Truncate(40));
                         if (0 != (cpe.LastEdge.EdgeModifiers & (int) Edge.EdgeModifiersEnum.Text))
                         {
