@@ -6,10 +6,10 @@
 
     public class Tree
     {
-        private IParseTree _ast;
-        private IParseTree _current;
-        private Dictionary<IParseTree, IParseTree> _parent_map;
-        private CommonTokenStream _common_token_stream;
+        private readonly IParseTree _ast;
+        private readonly IParseTree _current;
+        private readonly Dictionary<IParseTree, IParseTree> _parent_map;
+        private readonly CommonTokenStream _common_token_stream;
 
         public Tree(Dictionary<IParseTree, IParseTree> parent_map, IParseTree ast, IParseTree current, CommonTokenStream common_token_stream)
         {

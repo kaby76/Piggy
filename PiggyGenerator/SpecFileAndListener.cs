@@ -56,7 +56,7 @@ namespace PiggyGenerator
             var location = specification_file_name;
             if (!File.Exists(location))
             {
-                location = _program._template_directory + "\\" +
+                location = Piggy._template_directory + "\\" +
                            specification_file_name;
                 if (!File.Exists(location))
                 {
