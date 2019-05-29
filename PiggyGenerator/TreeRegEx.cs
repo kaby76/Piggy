@@ -34,6 +34,7 @@ namespace PiggyGenerator
             foreach (var pass in _passes)
             {
                 _current_type = pass.Owner.Type;
+                if (Piggy._debug_information) Console.Error.WriteLine(pass.Owner.TemplateName + " " + pass.Name);
                 var thompsons_construction = new ThompsonsConstruction();
                 var nfa = thompsons_construction.NFA;
                 foreach (var pattern in pass.Patterns) thompsons_construction.post2nfa(pattern);

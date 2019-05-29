@@ -398,6 +398,11 @@ namespace " + @namespace + @"
                             for (;;)
                             {
                                 if (find == null) break;
+                                if (find.LastEdge.IsEmpty || find.LastEdge.IsCode || find.LastEdge.IsText)
+                                {
+                                    find = find.Next;
+                                    continue;
+                                }
                                 con = find.Input;
                                 if (con != null) break;
                                 find = find.Next;

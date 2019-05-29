@@ -6,9 +6,8 @@ template Structs
         int offset;
         protected string generated_file_name;
     }}
+    pass Start {
 
-    pass GenerateStructs {
-        
         ( TranslationUnitDecl
             {{
                 // Structs 1
@@ -24,6 +23,9 @@ template Structs
                 ClangSupport.generate_for_only = sb.ToString();         
             }}
         )
+    }        
+
+    pass GenerateStructs {
         
         ( CXXRecordDecl SrcRange=$"{ClangSupport.limit}" KindName=* Name=$"{ClangSupport.generate_for_only}" Attrs="definition"
             {{
