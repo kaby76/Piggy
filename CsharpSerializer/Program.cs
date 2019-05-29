@@ -3,7 +3,7 @@
     using Antlr4.Runtime.Misc;
     using Antlr4.Runtime.Tree;
     using Antlr4.Runtime;
-    using PiggyRuntime;
+    using Runtime;
     using CommandLine;
     using System.Collections.Generic;
     using System.IO;
@@ -49,7 +49,7 @@
                     System.Console.WriteLine(a);
                 });
 
-            PiggyRuntime.Redirect r = new PiggyRuntime.Redirect(ast_output_file);
+            Runtime.Redirect r = new Runtime.Redirect(ast_output_file);
             foreach (var file_name in arguments)
             {
                 var code_as_string = File.ReadAllText(file_name);
@@ -62,7 +62,7 @@
                 CSharpParser.Compilation_unitContext tree = parser.compilation_unit();
                 if (listener.had_error) return;
                 var sb = new StringBuilder();
-                PiggyRuntime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
+                Runtime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
                 System.Console.Error.WriteLine(sb.ToString());
             }
             r.Dispose();

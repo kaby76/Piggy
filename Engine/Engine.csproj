@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AstDump.cs" />
+    <Compile Remove="EnumVisitor.cs" />
+    <Compile Remove="Extensions.cs" />
+    <Compile Remove="ForwardDeclarationVisitor.cs" />
+    <Compile Remove="FunctionVisitor.cs" />
+    <Compile Remove="ICXCursorVisitor.cs" />
+    <Compile Remove="StructVisitor.cs" />
+    <Compile Remove="TypedefUses.cs" />
+    <Compile Remove="TypeDefVisitor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="x" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
+    <PackageReference Include="Antlr4BuildTasks" Version="1.0.4" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Graphs\Campy.Graphs.csproj" />
+    <ProjectReference Include="..\Runtime\Runtime.csproj" />
+    <ProjectReference Include="..\Symtab\Symtab.csproj" />
+  </ItemGroup>
+
+  <!-- libclang name, unlikely to need overriding -->
+  <PropertyGroup Condition="'$(LibClangName)' == ''">
+    <LibClangName>libclang</LibClangName>
+  </PropertyGroup>
+
+  <!-- Auto-detect LLVM... more or less -->
+  <PropertyGroup Condition="'$(LLVMIncludePath)' == ''">
+    <LLVMIncludePath Condition="'$(OS)' == 'Windows_NT'">C:\Program Files\LLVM\include</LLVMIncludePath>
+    <LLVMIncludePath Condition="'$(OS)' != 'Windows_NT'">/usr/lib/llvm-6.0/include</LLVMIncludePath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(JAVA_HOME)'==''">
+     <JAVA_HOME>C:\Program Files\Java\jdk-11.0.1</JAVA_HOME>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Antlr4ToolPath)'==''">
+     <Antlr4ToolPath>C:\Program Files\Java\javalib\antlr-4.7.2-complete.jar</Antlr4ToolPath>
+  </PropertyGroup>
+
+</Project>

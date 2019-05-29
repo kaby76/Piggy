@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PiggyRuntime\PiggyRuntime.csproj" />
+    <ProjectReference Include="..\Runtime\Runtime.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(JAVA_HOME)'==''">

@@ -225,7 +225,7 @@ namespace Piggy.Build.Task
                     string path = Assembly.GetAssembly(typeof(PiggyClassGenerationTask)).Location;
                     path = Path.GetDirectoryName(path);
                     path = Path.GetFullPath(path + @"\..\..\");
-                    path = path + @"\build\PiggyTool.dll";
+                    path = path + @"\build\Tool.dll";
                     arguments.Add("\"" + path + "\"");
                     if (AstOutputFile != null)
                     {
