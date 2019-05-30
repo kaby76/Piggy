@@ -115,18 +115,13 @@ namespace Engine
                                 var e4 = new Edge(_nfa, s3, last.StartState, Edge.EmptyAst);
                                 last = new Fragment(s1, last.OutStates);
                             }
-
-                            //first = false;
                         }
-
                         foreach (var o in f.OutStates)
                         {
                             var e5 = new Edge(_nfa, o, last.StartState, Edge.EmptyAst);
                         }
-
                         last = new Fragment(f.StartState, last.OutStates);
                     }
-
                     fragmentStack.Push(last);
                 }
                 else if (p as SpecParserParser.BasicContext != null)
@@ -188,30 +183,61 @@ namespace Engine
                 else if (p as SpecParserParser.Star_rexpContext != null)
                 {
                     var previous = fragmentStack.Pop();
-                    var s1 = new State(_nfa);
-                    var e1 = new Edge(_nfa, s1, previous.StartState, Edge.EmptyAst);
-                    foreach (var s in previous.OutStates)
+
                     {
-                        var e2 = new Edge(_nfa, s, s1, Edge.EmptyAst);
+                        // Add in ".*" before "previous"
+                        var s1 = new State(_nfa);
+                        var s2 = new State(_nfa);
+                        var s3 = new State(_nfa);
+                        var e1 = new Edge(_nfa, s1, s2, Edge.EmptyAst);
+                        var e2 = new Edge(_nfa, s2, s3, Edge.EmptyAst);
+                        var e3 = new Edge(_nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiersEnum.Any);
+                        var e4 = new Edge(_nfa, s3, previous.StartState, Edge.EmptyAst);
+                        previous = new Fragment(s1, previous.OutStates);
                     }
 
-                    var f = new Fragment(s1, s1);
-                    fragmentStack.Push(f);
+                    {
+                        // Add in state s1 before previous.
+                        var s1 = new State(_nfa);
+                        var e1 = new Edge(_nfa, s1, previous.StartState, Edge.EmptyAst);
+                        // Add in back edges to s1.
+                        foreach (var s in previous.OutStates)
+                        {
+                            var e2 = new Edge(_nfa, s, s1, Edge.EmptyAst);
+                        }
+                        var f = new Fragment(s1, s1);
+                        fragmentStack.Push(f);
+                    }
                 }
                 else if (p as SpecParserParser.Plus_rexpContext != null)
                 {
                     var previous = fragmentStack.Pop();
-                    var s1 = new State(_nfa);
-                    var s2 = new State(_nfa);
-                    var e1 = new Edge(_nfa, s1, s2, Edge.EmptyAst);
-                    var e2 = new Edge(_nfa, s2, previous.StartState, Edge.EmptyAst);
-                    foreach (var s in previous.OutStates)
+
                     {
-                        var e3 = new Edge(_nfa, s, s2, Edge.EmptyAst);
+                        // Add in ".*" before "previous"
+                        var s1 = new State(_nfa);
+                        var s2 = new State(_nfa);
+                        var s3 = new State(_nfa);
+                        var e1 = new Edge(_nfa, s1, s2, Edge.EmptyAst);
+                        var e2 = new Edge(_nfa, s2, s3, Edge.EmptyAst);
+                        var e3 = new Edge(_nfa, s2, s2, Edge.EmptyAst, (int)Edge.EdgeModifiersEnum.Any);
+                        var e4 = new Edge(_nfa, s3, previous.StartState, Edge.EmptyAst);
+                        previous = new Fragment(s1, previous.OutStates);
                     }
 
-                    var f = new Fragment(s1, s2);
-                    fragmentStack.Push(f);
+                    {
+                        // Add state after previous outstates.
+                        var s1 = new State(_nfa);
+                        foreach (var s in previous.OutStates)
+                        {
+                            var e3 = new Edge(_nfa, s, s1, Edge.EmptyAst);
+                        }
+                        // Add edge from s1 back edge to previous.
+                        var e4 = new Edge(_nfa, s1, previous.StartState, Edge.EmptyAst);
+                        // Finish up with fragment.
+                        var f = new Fragment(previous.StartState, s1);
+                        fragmentStack.Push(f);
+                    }
                 }
                 else if (p as SpecParserParser.AttrContext != null)
                 {
