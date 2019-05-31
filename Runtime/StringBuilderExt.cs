@@ -3,7 +3,7 @@
     using System;
     using System.Text;
 
-    public static class StringBuilderHelper
+    public static class StringBuilderExt
     {
         public static void AppendLine(this StringBuilder sb, string str)
         {
