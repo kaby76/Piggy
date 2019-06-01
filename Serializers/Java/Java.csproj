@@ -1,18 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RootNamespace>CSharpSerializer</RootNamespace>
+    <RootNamespace>JavaSerializer</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="spec-20.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="spec-20.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
@@ -21,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Runtime\Runtime.csproj" />
+    <ProjectReference Include="..\..\Runtime\Runtime.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(JAVA_HOME)'==''">

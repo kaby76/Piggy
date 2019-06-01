@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "CSerializer": {
+      "commandName": "Project",
+      "commandLineArgs": "../../PiggySimple/Cpp/Source.cpp",
+      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\CSerializer"
+    }
+  }
+}

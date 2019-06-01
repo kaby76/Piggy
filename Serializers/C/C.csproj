@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Runtime\Runtime.csproj" />
+    <ProjectReference Include="..\..\Runtime\Runtime.csproj" />
   </ItemGroup>
 
 </Project>
