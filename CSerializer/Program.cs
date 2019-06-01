@@ -14,7 +14,7 @@
     {
         class Options
         {
-            [Option('f', "c-files", Required = false, HelpText = "C input files.")]
+            [Option('f', "c-files", Required = true, HelpText = "C input files.")]
             public IEnumerable<string> CFiles { get; set; }
 
             [Option('o', "ast-out-file", Required = false, HelpText = "AST output file.")]
@@ -49,7 +49,8 @@
                     System.Console.WriteLine(a);
                 });
 
-            Runtime.Redirect r = new Runtime.Redirect(ast_output_file);
+            Runtime.Redirect r = null;
+            if (ast_output_file != null) r = new Runtime.Redirect(ast_output_file);
             foreach (var file_name in arguments)
             {
                 var code_as_string = File.ReadAllText(file_name);
@@ -65,7 +66,7 @@
                 Runtime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
                 System.Console.Error.WriteLine(sb.ToString());
             }
-            r.Dispose();
+            if (r != null) r.Dispose();
         }
     }
 }
