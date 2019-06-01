@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     public interface IVertex : IComparable<IVertex>
     {

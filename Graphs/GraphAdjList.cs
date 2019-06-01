@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Campy.Utils;
+using Utils;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     public class GraphAdjList<NODE, EDGE> : IGraph<NODE, EDGE>
         where EDGE : IEdge<NODE>

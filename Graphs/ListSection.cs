@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Campy.Utils
+namespace Utils
 {
     /// <summary>
     /// A data type to encapsulate sections of a list, acting itself as a list. The reason is so you do not need

@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Graphs\Campy.Graphs.csproj" />
+    <ProjectReference Include="..\Graphs\Graphs.csproj" />
     <ProjectReference Include="..\Runtime\Runtime.csproj" />
     <ProjectReference Include="..\Symtab\Symtab.csproj" />
   </ItemGroup>

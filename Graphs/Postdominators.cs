@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     //Digraph dg = new Digraph(5);
     //dg.AddVertex(0);

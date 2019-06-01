@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     public class FiniteTotalOrderSet<SetElementType> : IEnumerable<SetElementType>
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     public interface IGraph<NODE, EDGE>
         where EDGE : IEdge<NODE>

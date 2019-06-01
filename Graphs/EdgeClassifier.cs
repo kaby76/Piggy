@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Campy.Utils;
+using Utils;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     public class EdgeClassifier
     {

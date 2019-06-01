@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     public class TarjanNoBackEdges<T, E> : IEnumerable<T>
         where E : IEdge<T>

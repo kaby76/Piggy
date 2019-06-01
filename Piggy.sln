@@ -50,9 +50,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DA
 		Examples\ser.pig = Examples\ser.pig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Campy.Graphs", "Graphs\Campy.Graphs.csproj", "{B515325A-00A5-4137-95E4-AC3C9C298ECF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Graphs", "Graphs\Graphs.csproj", "{B515325A-00A5-4137-95E4-AC3C9C298ECF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "C", "Serializers\C\C.csproj", "{6A69702F-B532-4972-AD70-739E6835F93A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "C", "Serializers\C\C.csproj", "{6A69702F-B532-4972-AD70-739E6835F93A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Serializers", "Serializers", "{6B2AEE24-23FB-47A3-885F-D3E096C8932D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -251,6 +253,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7F6A38F6-3983-4DB4-A888-31689497D3F4} = {6B2AEE24-23FB-47A3-885F-D3E096C8932D}
+		{43525AC7-1B28-4332-8F70-4C9F29A0EE35} = {6B2AEE24-23FB-47A3-885F-D3E096C8932D}
+		{6A69702F-B532-4972-AD70-739E6835F93A} = {6B2AEE24-23FB-47A3-885F-D3E096C8932D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {43EE0825-569F-411F-9AAF-C4C4BDB18E32}

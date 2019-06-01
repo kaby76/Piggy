@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Campy.Graphs
+namespace Graphs
 {
     /******************************************************************************
      *  Compilation:  javac DirectedEdge.java

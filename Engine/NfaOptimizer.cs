@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Tree;
-using Campy.Graphs;
+using Graphs;
 
 namespace Engine
 {

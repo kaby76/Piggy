@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Campy.Utils
+namespace Utils
 {
     /// <summary>
     /// Represents a collection of keys and values.
