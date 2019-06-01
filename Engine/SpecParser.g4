@@ -3,19 +3,19 @@ grammar SpecParser;
 
 options { tokenVocab = SpecLexer; }
 
-spec : clang* using* template* (application|) EOF ;
+spec : c* using* template* (application|) EOF ;
 
 application: APPLICATION apply_pass* SEMI ;
 apply_pass: ID DOT ID ;
 
-clang: clang_file | clang_option;
+c: c_file | c_option;
 
 /* Specifies an input file for the Clang compiler. Use forward slashes for directory
  * delimiters.
  * Example:
  *   import_file 'c:/Program Files/NVIDIA GPU Computing Toolkit/cuda/v10.0/include/cuda.h';
  */
-clang_file: CLANG_FILE StringLiteral SEMI ;
+c_file: C_FILE StringLiteral SEMI ;
 
 /* Specifies an additional Clang compiler option. Use forward slashes for directory
  * delimiters. Use multiple times to specify more than one option.
@@ -23,7 +23,7 @@ clang_file: CLANG_FILE StringLiteral SEMI ;
  *   compiler_options '--target=x86_64';
  *   compiler_options '-Ic:/Program Files/NVIDIA GPU Computing Toolkit/cuda/v10.0/include';
  */
-clang_option: CLANG_OPTION StringLiteral SEMI ;
+c_option: C_OPTION StringLiteral SEMI ;
 
 using: USING StringLiteral SEMI ;
 

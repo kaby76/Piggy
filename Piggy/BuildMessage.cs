@@ -1,9 +1,8 @@
-﻿namespace Piggy.Build.Task
-{
-    using System;
-    using System.Diagnostics;
-    using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
+namespace Piggy.Build.Task
+{
     internal struct BuildMessage
     {
         private static readonly Regex BuildMessageFormat = new Regex(@"^\s*(?<SEVERITY>[a-z]+)\((?<CODE>[0-9]+)\):\s*((?<FILE>.*):(?<LINE>[0-9]+):(?<COLUMN>[0-9]+):)?\s*(?:syntax error:\s*)?(?<MESSAGE>.*)$", RegexOptions.Compiled);

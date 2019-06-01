@@ -13,8 +13,8 @@ namespace Engine
         public Application _application = new Application();
         public IParseTree _ast;
         public static string _ast_file;
-        public List<string> _clang_files = new List<string>();
-        public List<string> _clang_options = new List<string>();
+        public List<string> _c_files = new List<string>();
+        public List<string> _c_options = new List<string>();
         public Dictionary<IParseTree, MethodInfo> _code_blocks = new Dictionary<IParseTree, MethodInfo>();
         public CommonTokenStream _common_token_stream;
         public static bool _debug_information = false;

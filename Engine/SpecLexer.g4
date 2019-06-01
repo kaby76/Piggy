@@ -8,8 +8,8 @@ DELIMITED_COMMENT:       '/*'  .*? '*/'           -> channel(COMMENTS_CHANNEL);
 
 APPLICATION     :       'application';
 CODE            :       'code';
-CLANG_FILE      :       'clang_file';
-CLANG_OPTION    :       'clang_option';
+C_FILE          :       'c_file';
+C_OPTION        :       'c_option';
 TEMPLATE        :       'template';
 USING           :       'using';
 NAMESPACE       :       'namespace';

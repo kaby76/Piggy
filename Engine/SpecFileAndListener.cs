@@ -81,20 +81,20 @@ namespace Engine
             ParseTreeWalker.Default.Walk(this, spec_ast);
         }
 
-        public override void ExitClang_file([NotNull] SpecParserParser.Clang_fileContext context)
+        public override void ExitC_file([NotNull] SpecParserParser.C_fileContext context)
         {
             var c = context.GetChild(1);
             var text = c.GetText();
             text = text.Replace("'", "");
-            _program._clang_files.Add(text);
+            _program._c_files.Add(text);
         }
 
-        public override void ExitClang_option([NotNull] SpecParserParser.Clang_optionContext context)
+        public override void ExitC_option([NotNull] SpecParserParser.C_optionContext context)
         {
             var c = context.GetChild(1);
             var text = c.GetText();
             text = text.Replace("'", "");
-            _program._clang_options.Add(text);
+            _program._c_options.Add(text);
         }
 
         public override void EnterTemplate(SpecParserParser.TemplateContext context)

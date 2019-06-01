@@ -39,9 +39,9 @@ namespace Engine
                    || x as SpecParserParser.AttrContext != null
                    || x as SpecParserParser.BasicContext != null
                    || x as SpecParserParser.Basic_rexpContext != null
-                   || x as SpecParserParser.ClangContext != null
-                   || x as SpecParserParser.Clang_fileContext != null
-                   || x as SpecParserParser.Clang_optionContext != null
+                   || x as SpecParserParser.CContext != null
+                   || x as SpecParserParser.C_fileContext != null
+                   || x as SpecParserParser.C_optionContext != null
                    || x as SpecParserParser.CodeContext != null
                    || x as SpecParserParser.Elementary_rexpContext != null
                    || x as SpecParserParser.ExtendsContext != null
