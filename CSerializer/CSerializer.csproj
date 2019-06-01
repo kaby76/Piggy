@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RootNamespace>JavaSerializer</RootNamespace>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,12 +14,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Runtime\Runtime.csproj" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(JAVA_HOME)'==''">
-    <JAVA_HOME>C:\Program Files\Java\jdk-11.0.1</JAVA_HOME>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Antlr4ToolPath)'==''">
-    <Antlr4ToolPath>C:\Program Files\Java\javalib\antlr-4.7.2-complete.jar</Antlr4ToolPath>
-  </PropertyGroup>
 
 </Project>

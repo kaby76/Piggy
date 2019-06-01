@@ -933,7 +933,7 @@ purespecifier:
 
 purespecifier
    : Assign val = Octalliteral
-   {if(! $val.text.Equals("0")) throw new InputMismatchException(this);}
+   {if(! $val.text.Equals("0")) throw new InputMismatchException(this); /* using C# equiv. */}
    ;
 /*Derived classes*/
 
