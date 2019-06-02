@@ -13,7 +13,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Piggy is a transformation system for ASTs, including generation of p/invoke interfaces from C++ headers, with seamless integration with MSBuild. See https://github.com/kaby76/piggy for further details.</description>
     <copyright>Copyright © Ken Domino 2019</copyright>
-    <tags>pinvoke generator ast clang C++ C# native</tags>
+    <tags>pinvoke generator ast C++ C# native</tags>
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
@@ -36,7 +36,6 @@
 
     <!-- Tools -->
     <file src="..\Tool\bin\Release\netcoreapp2.1\publish\**" target="build"/>
-    <file src="..\ClangSerializer\bin\Release\netcoreapp2.1\publish\**" target="build"/>
 
     <!-- Templates -->
     <file src="..\Templates\**" target="Templates" />

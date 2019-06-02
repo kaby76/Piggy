@@ -39,13 +39,13 @@ namespace Piggy.Build.Task
             set;
         }
 
-        public string ClangOptions
+        public string COptions
         {
             get;
             set;
         }
 
-        public string ClangSourceFile
+        public string CSourceFile
         {
             get;
             set;
@@ -117,13 +117,13 @@ namespace Piggy.Build.Task
                 string path = Assembly.GetAssembly(typeof(PiggyClassGenerationTask)).Location;
                 path = Path.GetDirectoryName(path);
                 path = Path.GetFullPath(path + @"\..\..\");
-                path = path + @"\build\ClangSerializer.dll";
+                path = path + @"\build\C.dll";
                 arguments.Add("\"" + path + "\"");
 
-                if (ClangOptions != null && ClangOptions != "")
+                if (COptions != null && COptions != "")
                 {
                     arguments.Add("-c");
-                    var str = ClangOptions;
+                    var str = COptions;
                     // Apply surgery to clang options to convert each option into
                     // a string that Piggy can accept. The problem is that Piggy uses
                     // CommandLineParser which coallesces options.
@@ -146,10 +146,10 @@ namespace Piggy.Build.Task
                         arguments.Add(ns);
                     }
                 }
-                if (ClangSourceFile != null)
+                if (CSourceFile != null)
                 {
                     arguments.Add("-f");
-                    var str = ClangSourceFile;
+                    var str = CSourceFile;
                     if (Regex.IsMatch(str, @"^"".*""$"))
                     {
                         // strip "".

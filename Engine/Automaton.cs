@@ -23,21 +23,6 @@ namespace Engine
             return true;
         }
 
-        public IEnumerable<Edge> AllEdges()
-        {
-            return Edges;
-        }
-
-        public IEnumerable<Edge> AllEdges(State state)
-        {
-            return Edges.Where(e => e.From == state).ToList();
-        }
-
-        public IEnumerable<State> AllStates()
-        {
-            return Vertices;
-        }
-
         public void AddState(State s)
         {
             if (Vertices.Contains(s)) return;
@@ -70,7 +55,7 @@ namespace Engine
         {
             var sb = new StringBuilder();
             sb.AppendLine("digraph g {");
-            foreach (var e in AllEdges())
+            foreach (var e in Edges)
             {
                 sb.Append(e.From + " -> " + e.To
                           + " [label=\"");
@@ -89,7 +74,7 @@ namespace Engine
                 sb.AppendLine("\"];");
             }
 
-            foreach (var ss in AllStates())
+            foreach (var ss in Vertices)
                 if (StartStates.Contains(ss))
                     sb.AppendLine(ss + " [shape=square];");
                 else if (FinalStates.Contains(ss)) sb.AppendLine(ss + " [shape=Msquare];");

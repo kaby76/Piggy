@@ -1,11 +1,6 @@
 #
 
-# Currently, ClangSerializer seems to have two "stdout". One is used by
-# the C runtime, the other by C#. Unfortunately, the C runtime seems to
-# take precedence and pipes don't seem to work. For now, redirect to an
-# output file and use that on the second step.
-
-dotnet ./ClangSerializer/bin/Debug/netcoreapp2.1/ClangSerializer.dll \
+dotnet ./Serializers/C/bin/Debug/netcoreapp2.1/C.dll \
   -c "Ic:\Users\Kenne\Documents\clang-llvm\llvm\include" \
   "Ic:\Users\Kenne\Documents\clang-llvm\build\include" \
   -f "llvm-includes.cpp" \

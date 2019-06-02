@@ -38,7 +38,7 @@ namespace Engine
             for (var i = 0; i < list.Count; i++)
             {
                 var state = list[i];
-                var transitions = automaton.AllEdges(state);
+                var transitions = automaton.SuccessorEdges(state);
                 foreach (var transition in transitions)
                     if (Automaton.IsEpsilonTransition(transition))
                     {

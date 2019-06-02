@@ -61,7 +61,7 @@ namespace Engine
             var dfa = new Automaton();
             // For every state s, compute collection of states along epsilon edges
             // to get an initial computation of dfa states.
-            foreach (var s in nfa.AllStates())
+            foreach (var s in nfa.Vertices)
             {
                 var c = ClosureTaker.GetClosure(new List<State> {s}, nfa);
                 _closure[s] = c;
@@ -143,7 +143,7 @@ namespace Engine
             }
 
             //System.Console.Error.WriteLine(dfa.ToString());
-            foreach (var from_dfa_state in dfa.AllStates())
+            foreach (var from_dfa_state in dfa.Vertices)
             {
                 var nfa_state_set = FindHashSet(from_dfa_state);
                 var transitions = ClosureTaker.GatherTransitions(nfa_state_set);

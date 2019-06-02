@@ -65,7 +65,7 @@ namespace Engine
                     var nextStateList = new List<State>();
                     var nfa_match = new NfaMatch(_piggy._code_blocks, _instance, optimized_nfa);
                     var start = optimized_nfa.StartStates.FirstOrDefault().Id;
-                    var st = optimized_nfa.AllStates().Where(s => s.Id == start).FirstOrDefault();
+                    var st = optimized_nfa.Vertices.Where(s => s.Id == start).FirstOrDefault();
                     nfa_match.AddStateAndClosure(currentStateList, st);
                     if (Piggy._debug_information) System.Console.Error.WriteLine("Looking at " + input.GetText().Truncate(40));
                     var matched = nfa_match.FindMatches(currentPathList, currentStateList, ref nextPathList,

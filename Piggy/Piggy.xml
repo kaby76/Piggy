@@ -9,30 +9,30 @@ in conjunction with the PiggySchema.xml schema. -->
   <Rule.Categories>
     <Category Name="Advanced" DisplayName="Advanced" />
     <Category Name="Misc" DisplayName="Misc" />
-    <Category Name="Clang" DisplayName="Clang" />
+    <Category Name="C" DisplayName="C" />
     <Category Name="Piggy" DisplayName="Piggy" />
   </Rule.Categories>
 
   <StringProperty
-    Category="Clang"
-    Name="ClangOptions"
+    Category="C"
+    Name="COptions"
     DisplayName="Compiler options"
     Default=""
-    Description="Use this to set Clang compiler options, as one string." />
+    Description="Use this to set C compiler options, as one string." />
   <StringProperty
-    Category="Clang"
-    Name="ClangSourceFile"
+    Category="C"
+    Name="CSourceFile"
     DisplayName="Input C file"
     Default="true"
     Description="Specifies the input files to compile." />
   <StringProperty
-    Category="Clang"
+    Category="C"
     Name="AstOutputFile"
     DisplayName="Ast output file"
     Default="g-ast.txt"
     Description="Generated ast output placed in this file." />
   <BoolProperty
-    Category="Clang"
+    Category="C"
     Name="PackedAst"
     DisplayName="Packed Ast"
     Default="true"

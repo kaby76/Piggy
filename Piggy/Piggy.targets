@@ -64,8 +64,8 @@
     <PiggyClassGenerationTask
       DesignTimeBuild="$(PiggyDesignTimeBuild)"
       OutputPath="%(Piggy.OutputFile)"
-      ClangOptions="%(Piggy.ClangOptions)"
-      ClangSourceFile="%(Piggy.ClangSourceFile)"
+      COptions="%(Piggy.COptions)"
+      CSourceFile="%(Piggy.CSourceFile)"
       AstOutputFile="%(Piggy.AstOutputFile)"
       PackedAst="%(Piggy.PackedAst)"
       InitialTemplate="%(FullPath)"
