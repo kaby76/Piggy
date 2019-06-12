@@ -45,7 +45,8 @@ namespace Graphs
 
         public static void test()
         {
-            string input = @"
+            {
+                string input = @"
 14
 15
 1  5
@@ -65,11 +66,30 @@ namespace Graphs
 12 13
 ";
 
-            var graph = new Digraph<int>(input, (string s) => System.Int32.Parse(s));
-            var sort = Postorder.Sort(graph, new List<int>() { 1 });
-            foreach (var n in sort)
+                var graph = new Digraph<int>(input, (string s) => System.Int32.Parse(s));
+                var sort = Postorder.Sort(graph, new List<int>() { 1 });
+                foreach (var n in sort)
+                {
+                    System.Console.WriteLine(n);
+                }
+            }
             {
-                System.Console.WriteLine(n);
+                string input = @"
+6
+5
+1  2
+2  4
+2  5
+1  3
+3  6
+";
+
+                var graph = new Digraph<int>(input, (string s) => System.Int32.Parse(s));
+                var sort = Postorder.Sort(graph, new List<int>() { 1 });
+                foreach (var n in sort)
+                {
+                    System.Console.WriteLine(n);
+                }
             }
         }
     }

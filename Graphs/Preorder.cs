@@ -8,7 +8,7 @@ namespace Graphs
     // BINARY SEARCH TREE TRAVERSAL", Akram Al-Rawi, Azzedine Lansari, Faouzi Bouslama
     // N.B.: There is no "in-order" traversal defined for a general graph,
     // it must be a binary tree.
-    public class DFSPreorder
+    public class Preorder
     {
         public static System.Collections.Generic.IEnumerable<T> Sort<T, E>
             (IGraph<T, E> graph, IEnumerable<T> source)

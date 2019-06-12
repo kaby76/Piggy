@@ -89,8 +89,8 @@ namespace Graphs
                     throw new Exception("number of edges in a Digraph must be nonnegative");
                 for (int v = 0; v < edge_count; v++)
                 {
-                    var f = parser(strings[2 + v]);
-                    var t = parser(strings[2 + v + 1]);
+                    var f = parser(strings[2 + 2*v]);
+                    var t = parser(strings[2 + 2*v + 1]);
                     this.AddVertex(f);
                     this.AddVertex(t);
                     addEdge(new DirectedEdge<T>(f, t));
