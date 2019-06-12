@@ -7,22 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="AstDump.cs" />
-    <Compile Remove="EnumVisitor.cs" />
-    <Compile Remove="Extensions.cs" />
-    <Compile Remove="ForwardDeclarationVisitor.cs" />
-    <Compile Remove="FunctionVisitor.cs" />
-    <Compile Remove="ICXCursorVisitor.cs" />
-    <Compile Remove="StructVisitor.cs" />
-    <Compile Remove="TypedefUses.cs" />
-    <Compile Remove="TypeDefVisitor.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="x" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Antlr4.Runtime.Standard" Version="4.7.2" />
     <PackageReference Include="Antlr4BuildTasks" Version="1.0.4" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="3.1.0" />
