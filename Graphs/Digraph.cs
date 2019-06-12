@@ -55,27 +55,12 @@ namespace Graphs
      *  @author Kevin Wayne
      */
 
-    public class Digraph : GraphAdjList<int, DirectedEdge<int>>
+    public class Digraph<T> : GraphAdjList<T, DirectedEdge<T>> where T : new()
     {
         private const String NEWLINE = "\n";
 
-        /**
-         * Initializes an empty digraph with <em>V</em> vertices.
-         *
-         * @param  V the number of vertices
-         * @throws Exception if {@code V < 0}
-         */
-        public Digraph(int V)
+        public Digraph()
         {
-            if (V < 0)
-                throw new Exception("Number of vertices in a Digraph must be nonnegative");
-
-            // KED note: the graph is "empty" in so far as there are no edges. But, it's not really "empty" as Sedgewick/Wayne
-            // misleadingly say--it contains "V" number of nodes, numbered from zero.
-            for (int v = 0; v < V; v++)
-            {
-                this.AddVertex(v);
-            }
         }
 
         /**  
@@ -89,33 +74,26 @@ namespace Graphs
          * @throws Exception if the number of vertices or edges is negative
          * @throws Exception if the input stream is in the wrong format
          */
-        public Digraph(string content)
+        public delegate T Parse(string value);
+        public Digraph(string content, Parse parser)
         {
             try
             {
-                string[] integerStrings = content.Split(new char[] {' ', '\t', '\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
-                int[] integers = new int[integerStrings.Length];
-                for (int i = 0; i < integerStrings.Length; ++i)
-                    integers[i] = Int32.Parse(integerStrings[i]);
+                string[] strings = content.Split(new char[] {' ', '\t', '\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+                var vertex_count = Int32.Parse(strings[0]);
+                var edge_count = Int32.Parse(strings[1]);
 
-                int current = 0;
-
-                int vertex_count = integers[current++];
                 if (vertex_count < 0)
                     throw new Exception("number of vertices in a Digraph must be nonnegative");
-
-                for (int v = 0; v < vertex_count; v++)
-                {
-                    this.AddVertex(v);
-                }
-                int edge_count = integers[current++];
                 if (edge_count < 0)
-                        throw new Exception("number of edges in a Digraph must be nonnegative");
-                for (int i = 0; i < edge_count; i++)
+                    throw new Exception("number of edges in a Digraph must be nonnegative");
+                for (int v = 0; v < edge_count; v++)
                 {
-                    int v = integers[current++];
-                    int w = integers[current++];
-                    addEdge(new DirectedEdge<int>(v, w));
+                    var f = parser(strings[2 + v]);
+                    var t = parser(strings[2 + v + 1]);
+                    this.AddVertex(f);
+                    this.AddVertex(t);
+                    addEdge(new DirectedEdge<T>(f, t));
                 }
             }
             catch (Exception e)
@@ -132,7 +110,7 @@ namespace Graphs
          *
          * @param  G the digraph to copy
          */
-        public Digraph(Digraph G)
+        public Digraph(Digraph<T> G)
         {
             foreach (var n in G.Vertices)
             {
@@ -166,10 +144,10 @@ namespace Graphs
 
 
         // throw an IllegalArgumentException unless {@code 0 <= v < V}
-        private void validateVertex(int v)
+        private void validateVertex(T v)
         {
-            if (v < 0 || v >= V)
-                throw new Exception("vertex " + v + " is not between 0 and " + (V - 1));
+            //if (v < 0 || v >= V)
+            //    throw new Exception("vertex " + v + " is not between 0 and " + (V - 1));
         }
 
         /**
@@ -179,7 +157,7 @@ namespace Graphs
          * @param  w the head vertex
          * @throws IllegalArgumentException unless both {@code 0 <= v < V} and {@code 0 <= w < V}
          */
-        public void addEdge(DirectedEdge<Int32> e)
+        public void addEdge(DirectedEdge<T> e)
         {
             validateVertex(e.From);
             validateVertex(e.To);
@@ -193,7 +171,7 @@ namespace Graphs
          * @return the vertices adjacent from vertex {@code v} in this digraph, as an iterable
          * @throws Exception unless {@code 0 <= v < V}
          */
-        public IEnumerable<int> adj(int v)
+        public IEnumerable<T> adj(T v)
         {
             validateVertex(v);
             return Successors(v);
@@ -207,7 +185,7 @@ namespace Graphs
          * @return the outdegree of vertex {@code v}               
          * @throws Exception unless {@code 0 <= v < V}
          */
-        public int outdegree(int v)
+        public int outdegree(T v)
         {
             validateVertex(v);
             return adj(v).Count();
@@ -221,7 +199,7 @@ namespace Graphs
          * @return the indegree of vertex {@code v}               
          * @throws IllegalArgumentException unless {@code 0 <= v < V}
          */
-        public int indegree(int v)
+        public int indegree(T v)
         {
             validateVertex(v);
             return this.Predecessors(v).Count();
@@ -232,14 +210,18 @@ namespace Graphs
          *
          * @return the reverse of the digraph
          */
-        public Digraph reverse()
+        public Digraph<T> reverse()
         {
-            Digraph reverse = new Digraph(V);
-            for (int v = 0; v < V; v++)
+            Digraph<T> reverse = new Digraph<T>();
+            foreach (var v in this.Vertices)
+            {
+                var nv = new T();
+            }
+            foreach (var v in this.Vertices)
             {
                 foreach (var s in this.Successors(v))
                 {
-                    reverse.AddEdge(new DirectedEdge<int>(s, v));
+                    reverse.AddEdge(new DirectedEdge<T>(s, v));
                 }
             }
             return reverse;
@@ -255,10 +237,10 @@ namespace Graphs
         {
             StringBuilder s = new StringBuilder();
             s.Append(V.ToString() + " vertices, " + E + " edges " + NEWLINE);
-            for (int v = 0; v < V; v++)
+            foreach (var v in this.Vertices)
             {
                 s.Append(String.Format("{0}: ", v));
-                foreach (int w in adj(v))
+                foreach (T w in adj(v))
                 {
                     s.Append(String.Format("{0} ", w));
                 }
@@ -274,7 +256,7 @@ namespace Graphs
          */
         public static void test()
         {
-            string tiny = $@"
+            string input = $@"
 13
 22
  4  2
@@ -301,8 +283,8 @@ namespace Graphs
  7  6
 ";
 
-            Digraph G = new Digraph(tiny);
-            System.Console.WriteLine(G);
+            var graph = new Digraph<int>(input, (string s) => System.Int32.Parse(s));
+            System.Console.WriteLine(graph);
         }
     }
 }

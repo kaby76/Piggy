@@ -65,7 +65,7 @@ namespace Graphs
 12 13
 ";
 
-            var graph = new Digraph(input);
+            var graph = new Digraph<int>(input, (string s) => System.Int32.Parse(s));
             var sort = Postorder.Sort(graph, new List<int>() { 1 });
             foreach (var n in sort)
             {
