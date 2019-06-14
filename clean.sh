@@ -1,6 +1,8 @@
 #
 rm -rf Grammars/*/bin
 rm -rf Grammars/*/obj
+rm -rf Graphs/bin
+rm -rf Graphs/obj
 rm -rf Serializers/*/bin
 rm -rf Serializers/*/obj
 rm -rf Piggy/bin
