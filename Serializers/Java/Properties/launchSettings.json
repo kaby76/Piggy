@@ -2,8 +2,8 @@
   "profiles": {
     "JavaSerializer": {
       "commandName": "Project",
-      "commandLineArgs": "-f \"e:\\jdk11\\src\\java.base\\share\\classes\\java\\util\\arrays.java\" -o \"obj\\Debug\\netcoreapp2.1\\ast.txt\" ",
-      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\JavaSerializer"
+      "commandLineArgs": "-f \"C:\\Users\\Kenne\\Documents\\jdk11\\src\\java.base\\share\\classes\\java\\util\\arrays.java\" -o \"obj\\Debug\\netcoreapp2.2\\ast.txt\" ",
+      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\Serializers\\Java"
     }
   }
 }
