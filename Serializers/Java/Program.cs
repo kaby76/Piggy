@@ -1,4 +1,6 @@
-﻿namespace JavaSerializer
+﻿using gJava;
+
+namespace JavaSerializer
 {
     using Antlr4.Runtime;
     using Runtime;

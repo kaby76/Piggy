@@ -21,6 +21,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Symtab", "Symtab\Symtab.csproj", "{D30ECC0C-5EB5-4E7A-8616-EAD3229FC0C1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Runtime", "Runtime\Runtime.csproj", "{F225B810-8F81-4131-B613-942B66EB22E5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2556D219-BDE2-48FA-87F9-8DF085DAA511} = {2556D219-BDE2-48FA-87F9-8DF085DAA511}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{0DEBEA44-0D5F-40B6-8F08-A2ED5E36367C}"
 	ProjectSection(SolutionItems) = preProject

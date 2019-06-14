@@ -11,6 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Grammars\cpp\gcpp.csproj" />
+    <ProjectReference Include="..\Grammars\csharp\gCSharp.csproj" />
+    <ProjectReference Include="..\Grammars\java\gJava.csproj" />
     <ProjectReference Include="..\Symtab\Symtab.csproj" />
   </ItemGroup>
 
