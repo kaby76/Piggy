@@ -2,8 +2,8 @@
   "profiles": {
     "CSerializer": {
       "commandName": "Project",
-      "commandLineArgs": "../../PiggySimple/Cpp/Source.cpp",
-      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\CSerializer"
+      "commandLineArgs": "-f \"C:\\Users\\Kenne\\Documents\\PiggySimple\\Cpp\\Source.cpp\" -o \"obj\\Debug\\netcoreapp2.2\\ast.txt\" ",
+      "workingDirectory": "C:\\Users\\Kenne\\Documents\\Piggy3\\Serializers\\C"
     }
   }
 }
