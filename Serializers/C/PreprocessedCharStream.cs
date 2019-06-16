@@ -20,7 +20,7 @@ namespace CSerializer
 {
     public class PreprocessedCharStream : UnbufferedCharStream
     {
-        protected List<CPPToken> tokens;
+        protected IList<IToken> tokens;
         protected List<Interval> tokenCharIntervals;
 
         protected int tp; // which token are we processing in tokens?
@@ -28,7 +28,7 @@ namespace CSerializer
 
         protected String text; // text of current token
 
-        public PreprocessedCharStream(List<CPPToken> tokens)
+        public PreprocessedCharStream(IList<IToken> tokens)
         {
             this.tokens = tokens;
             text = tokens[0].Text;
@@ -46,7 +46,8 @@ namespace CSerializer
                 tp++;
                 if (tp == tokens.Count) return IntStreamConstants.EOF;
                 c = 0;
-                CPPToken t = tokens[tp];
+                IToken tt = tokens[tp];
+                var t = tt as CPPToken;
                 text = t.Text;
                 base.name = t.filename;
             }
@@ -57,7 +58,12 @@ namespace CSerializer
         public String getFilenameFromCharIndex(int ci)
         {
             int ti = getTokenIndexFromCharIndex(ci);
-            if (ti != -1) return tokens[ti].filename;
+            if (ti != -1)
+            {
+                var tt = tokens[ti];
+                var t = tt as CPPToken;
+                return t.filename;
+            }
             return null;
         }
 
@@ -70,12 +76,13 @@ namespace CSerializer
         {
             int ti = getTokenIndexFromCharIndex(ci);
             if (ti == -1) return -1;
-            CPPToken t = tokens[ti];
+            var tt = tokens[ti];
+            CPPToken t = tt as CPPToken;
             int iv = intervalFor(t.lineIntervals, ci); // gives line num from 0
             return iv + t.Line; // add starting line number of entire preprocessed token
         }
 
-        protected void computeTokenCharRanges(List<CPPToken> tokens)
+        protected void computeTokenCharRanges(IList<IToken> tokens)
         {
             tokenCharIntervals = new ArrayList<Interval>();
             int absCharIndex = 0;
@@ -89,11 +96,12 @@ namespace CSerializer
             System.Console.Error.WriteLine(tokenCharIntervals);
         }
 
-        protected void computeTokenLineRanges(List<CPPToken> tokens)
+        protected void computeTokenLineRanges(IList<IToken> tokens)
         {
             int absCharIndex = 0;
-            foreach (var t in tokens)
+            foreach (var tt in tokens)
             {
+                var t = tt as CPPToken;
                 t.lineIntervals = new ArrayList<Interval>();
                 String text = t.Text;
                 int n = text.Length;

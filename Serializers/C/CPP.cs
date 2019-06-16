@@ -17,30 +17,31 @@ namespace CSerializer
 {
     public class CPP
     {
-        static CPPTokenFactory tokenFactory = new CPPTokenFactory();
+        public static CPPTokenFactory tokenFactory = new CPPTokenFactory();
 
         public static List<CPPToken> Include(String includeCommand)
         {
-            System.Console.WriteLine("process " + includeCommand);
+            System.Console.Error.WriteLine("process " + includeCommand);
             int l = includeCommand.IndexOf('"');
             int r = includeCommand.LastIndexOf('"');
-            String filename = includeCommand.Substring(l + 1, r);
+            String filename = includeCommand.Substring(l + 1, r - (l+1));
             tokenFactory.pushFilename(filename);
-            List<CPPToken> tokens = load(filename);
+            var ttokens = load(filename);
+            List<CPPToken> tokens = ttokens as List<CPPToken>;
             tokenFactory.popFileName();
             return tokens;
         }
 
-        static List<CPPToken> load(String filename)
+        public static IList<IToken> load(String filename)
         {
-            System.Console.WriteLine("opening " + filename);
+            System.Console.Error.WriteLine("opening " + filename);
             try
             {
                 var code_as_string = File.ReadAllText(filename);
                 var input = new AntlrInputStream(code_as_string);
                 CPPLexer lexer = new CPPLexer(input);
                 lexer.TokenFactory = tokenFactory;
-                return (List<CPPToken>)lexer.GetAllTokens();
+                return lexer.GetAllTokens();
             }
             catch (IOException ioe)
             {
@@ -48,27 +49,5 @@ namespace CSerializer
             }
             return null;
         }
-
-        public static void main(String[] args)
-        {
-            String filename = args[0];
-            tokenFactory.pushFilename(filename);
-            List<CPPToken> tokens = load(filename);
-            System.Console.WriteLine(tokens);
-
-            PreprocessedCharStream cinput = new PreprocessedCharStream(tokens);
-            var clexer = new gcpp.CPP14Lexer(cinput);
-            // force creation of CPPTokensm set file,line
-            clexer.TokenFactory = new CTokenFactory(cinput);
-            CommonTokenStream ctokens = new CommonTokenStream(clexer);
-            var cparser = new gcpp.CPP14Parser(ctokens);
-            cparser.RemoveErrorListeners();
-            cparser.AddErrorListener(new CErrorListener());
-            var t = cparser.translationunit();
-            var sb = new StringBuilder();
-            Runtime.AstHelpers.ParenthesizedAST(sb, filename, t);
-            System.Console.Error.WriteLine(sb.ToString());
-        }
-
     }
 }

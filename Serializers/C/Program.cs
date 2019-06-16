@@ -1,4 +1,5 @@
-﻿using gcpp;
+﻿using System;
+using gcpp;
 
 namespace CSerializer
 {
@@ -53,20 +54,37 @@ namespace CSerializer
 
             Runtime.Redirect r = null;
             if (ast_output_file != null) r = new Runtime.Redirect(ast_output_file);
-            foreach (var file_name in arguments)
+
+            foreach (var filename in arguments)
             {
-                var code_as_string = File.ReadAllText(file_name);
-                var input = new AntlrInputStream(code_as_string);
-                var lexer = new CPP14Lexer(input);
-                var tokens = new CommonTokenStream(lexer);
-                var parser = new CPP14Parser(tokens);
-                var listener = new ErrorListener<IToken>();
-                parser.AddErrorListener(listener);
-                var tree = parser.translationunit();
-                if (listener.had_error) return;
+                CPP.tokenFactory.pushFilename(filename);
+                var ts = CPP.load(filename);
+                System.Console.WriteLine(ts);
+                PreprocessedCharStream cinput = new PreprocessedCharStream(ts);
+                var clexer = new gcpp.CPP14Lexer(cinput);
+                // force creation of CPPTokensm set file,line
+                clexer.TokenFactory = new CTokenFactory(cinput);
+                CommonTokenStream ctokens = new CommonTokenStream(clexer);
+                var cparser = new gcpp.CPP14Parser(ctokens);
+                cparser.RemoveErrorListeners();
+                cparser.AddErrorListener(new CErrorListener());
+                var t = cparser.translationunit();
                 var sb = new StringBuilder();
-                Runtime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
+                Runtime.AstHelpers.ParenthesizedAST(sb, filename, t);
                 System.Console.Error.WriteLine(sb.ToString());
+
+                //var code_as_string = File.ReadAllText(file_name);
+                //var input = new AntlrInputStream(code_as_string);
+                //var lexer = new CPP14Lexer(input);
+                //var tokens = new CommonTokenStream(lexer);
+                //var parser = new CPP14Parser(tokens);
+                //var listener = new ErrorListener<IToken>();
+                //parser.AddErrorListener(listener);
+                //var tree = parser.translationunit();
+                //if (listener.had_error) return;
+                //var sb = new StringBuilder();
+                //Runtime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
+                //System.Console.Error.WriteLine(sb.ToString());
             }
             if (r != null) r.Dispose();
         }
