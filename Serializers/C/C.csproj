@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Grammars\cpp\gcpp.csproj" />
     <ProjectReference Include="..\..\Runtime\Runtime.csproj" />
   </ItemGroup>
 
