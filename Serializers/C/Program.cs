@@ -49,7 +49,7 @@ namespace CSerializer
                 })
                 .WithNotParsed(a =>
                 {
-                    System.Console.WriteLine(a);
+                    System.Console.Error.WriteLine(a);
                 });
 
             Runtime.Redirect r = null;
@@ -59,7 +59,7 @@ namespace CSerializer
             {
                 CPP.tokenFactory.pushFilename(filename);
                 var ts = CPP.load(filename);
-                System.Console.WriteLine(ts);
+                System.Console.Error.WriteLine(String.Join("\n",ts.Select(x => x.ToString())));
                 PreprocessedCharStream cinput = new PreprocessedCharStream(ts);
                 var clexer = new gcpp.CPP14Lexer(cinput);
                 // force creation of CPPTokensm set file,line

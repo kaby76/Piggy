@@ -97,7 +97,7 @@ namespace Graphs
         public static void test()
         {
             DirectedEdge<int> e = new DirectedEdge<int>(12, 34, 5.67);
-            System.Console.WriteLine(e);
+            System.Console.Error.WriteLine(e);
         }
     }
 }

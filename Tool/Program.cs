@@ -56,7 +56,7 @@
                 })
                 .WithNotParsed(a =>
                 {
-                    System.Console.WriteLine(a);
+                    System.Console.Error.WriteLine(a);
                 });
             Runtime.Tool.CommandLineArgs = args;
             System.Console.Error.WriteLine("Info: Command line args '" + string.Join("' '", args) + "'");

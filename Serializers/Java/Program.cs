@@ -46,7 +46,7 @@ namespace JavaSerializer
                 })
                 .WithNotParsed(a =>
                 {
-                    System.Console.WriteLine(a);
+                    System.Console.Error.WriteLine(a);
                 });
 
             Runtime.Redirect r = new Runtime.Redirect(ast_output_file);

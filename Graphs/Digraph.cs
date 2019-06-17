@@ -284,7 +284,7 @@ namespace Graphs
 ";
 
             var graph = new Digraph<int>(input, (string s) => System.Int32.Parse(s));
-            System.Console.WriteLine(graph);
+            System.Console.Error.WriteLine(graph);
         }
     }
 }

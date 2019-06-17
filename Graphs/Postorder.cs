@@ -70,7 +70,7 @@ namespace Graphs
                 var sort = Postorder.Sort(graph, new List<int>() { 1 });
                 foreach (var n in sort)
                 {
-                    System.Console.WriteLine(n);
+                    System.Console.Error.WriteLine(n);
                 }
             }
             {
@@ -88,7 +88,7 @@ namespace Graphs
                 var sort = Postorder.Sort(graph, new List<int>() { 1 });
                 foreach (var n in sort)
                 {
-                    System.Console.WriteLine(n);
+                    System.Console.Error.WriteLine(n);
                 }
             }
         }
