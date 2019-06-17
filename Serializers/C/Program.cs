@@ -17,6 +17,9 @@ namespace CSerializer
     {
         class Options
         {
+            [Option('c', "compiler-option", Required = false, HelpText = "Compiler option.")]
+            public IEnumerable<string> CompilerOptions { get; set; }
+
             [Option('f', "c-files", Required = true, HelpText = "C input files.")]
             public IEnumerable<string> CFiles { get; set; }
 
@@ -45,6 +48,7 @@ namespace CSerializer
                 .WithParsed<Options>(o =>
                 {
                     arguments = o.CFiles.ToList();
+                    options = o.CompilerOptions.ToList();
                     ast_output_file = o.AstOutFile;
                 })
                 .WithNotParsed(a =>
@@ -57,8 +61,9 @@ namespace CSerializer
 
             foreach (var filename in arguments)
             {
+                var include_dirs = CPP.tokenFactory.IncludeDirs;
                 CPP.tokenFactory.pushFilename(filename);
-                var ts = CPP.load(filename);
+                var ts = CPP.load(filename, include_dirs);
                 System.Console.Error.WriteLine(String.Join("\n",ts.Select(x => x.ToString())));
                 PreprocessedCharStream cinput = new PreprocessedCharStream(ts);
                 var clexer = new gcpp.CPP14Lexer(cinput);

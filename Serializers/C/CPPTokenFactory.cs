@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime;
 
@@ -19,6 +20,21 @@ namespace CSerializer
     {
         /** Stack of include files */
         Stack<String> stack = new Stack<String>();
+
+        public List<string> IncludeDirs
+        {
+            get
+            {
+                var result = new List<string>();
+                foreach (var s in stack)
+                {
+                    var path = Path.GetDirectoryName(s);
+                    if (result.Contains(path)) continue;
+                    result.Add(path);
+                }
+                return result;
+            }
+        }
 
         public void pushFilename(String filename)
         {
