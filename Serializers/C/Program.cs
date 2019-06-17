@@ -76,7 +76,7 @@ namespace CSerializer
                 var t = cparser.translationunit();
                 var sb = new StringBuilder();
                 Runtime.AstHelpers.ParenthesizedAST(sb, filename, t);
-                System.Console.Error.WriteLine(sb.ToString());
+                System.Console.WriteLine(sb.ToString());
 
                 //var code_as_string = File.ReadAllText(file_name);
                 //var input = new AntlrInputStream(code_as_string);
