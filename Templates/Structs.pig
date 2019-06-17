@@ -8,7 +8,7 @@ template Structs
     }}
     pass Start {
 
-        ( TranslationUnitDecl
+        ( translationunit
             {{
                 // Structs 1
                 // Let's create "generate_for_only" to contain itself, plus Zero-width negative lookahead assertion

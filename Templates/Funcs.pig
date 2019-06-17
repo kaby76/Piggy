@@ -22,7 +22,7 @@ template Funcs
     }}
 
     pass Start {
-        ( TranslationUnitDecl
+        ( translationunit
             {{
                 if (Runtime.Tool.OutputLocation != null && Directory.Exists(Runtime.Tool.OutputLocation))
                 {
@@ -43,7 +43,7 @@ template Funcs
     }
 
     pass End {
-        ( TranslationUnitDecl
+        ( translationunit
             {{
                 System.Console.WriteLine("}");
                 if (Runtime.Tool.OutputLocation != null && Directory.Exists(Runtime.Tool.OutputLocation))

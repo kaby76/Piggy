@@ -6,7 +6,7 @@ template Namespace
 
     pass GenerateStart {
         // Generate declarations at start of the file.
-        ( TranslationUnitDecl
+        ( translationunit
             {{
                 if (Runtime.Tool.OutputLocation != null && Directory.Exists(Runtime.Tool.OutputLocation))
                 {
@@ -258,7 +258,7 @@ template Namespace
     }
  
     pass GenerateEnd {
-        ( TranslationUnitDecl
+        ( translationunit
             {{
                 if (Runtime.Tool.OutputLocation == null || !Directory.Exists(Runtime.Tool.OutputLocation))
                 {

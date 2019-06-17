@@ -306,10 +306,10 @@ template ClangSupport
     }}
 
     pass Start {
-        ( TranslationUnitDecl )
+        ( translationunit )
     }
 
     pass End {
-        ( TranslationUnitDecl )
+        ( translationunit )
     }
 }

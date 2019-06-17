@@ -1,18 +1,13 @@
 ﻿using System;
-using gcpp;
+using Antlr4.Runtime;
+using CommandLine;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Linq;
 
 namespace CSerializer
 {
-    using Antlr4.Runtime.Misc;
-    using Antlr4.Runtime.Tree;
-    using Antlr4.Runtime;
-    using Runtime;
-    using CommandLine;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
-    using System.Linq;
-
     class Program
     {
         class Options
@@ -77,19 +72,6 @@ namespace CSerializer
                 var sb = new StringBuilder();
                 Runtime.AstHelpers.ParenthesizedAST(sb, filename, t);
                 System.Console.WriteLine(sb.ToString());
-
-                //var code_as_string = File.ReadAllText(file_name);
-                //var input = new AntlrInputStream(code_as_string);
-                //var lexer = new CPP14Lexer(input);
-                //var tokens = new CommonTokenStream(lexer);
-                //var parser = new CPP14Parser(tokens);
-                //var listener = new ErrorListener<IToken>();
-                //parser.AddErrorListener(listener);
-                //var tree = parser.translationunit();
-                //if (listener.had_error) return;
-                //var sb = new StringBuilder();
-                //Runtime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
-                //System.Console.Error.WriteLine(sb.ToString());
             }
             if (r != null) r.Dispose();
         }
