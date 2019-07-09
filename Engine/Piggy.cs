@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Atn;
 using Antlr4.Runtime.Tree;
+using Antlr4.Runtime.Tree.Pattern;
+using gcpp;
 using Runtime;
 
 namespace Engine
@@ -24,6 +27,29 @@ namespace Engine
         public static string _spec_file = string.Empty;
         public static string _template_directory;
         public List<Template> _templates = new List<Template>();
+
+
+        private void Fun(string pat, string ast_string)
+        {
+            var ast_stream = CharStreams.fromstring(ast_string);
+            var ast_lexer = new AstLexer(ast_stream);
+            var ast_tokens = new CommonTokenStream(ast_lexer);
+            var ast_parser = new AstParserParser(ast_tokens);
+            ast_parser.BuildParseTree = true;
+            var listener = new ErrorListener<IToken>();
+            ast_parser.AddErrorListener(listener);
+            IParseTree ast_tree = ast_parser.ast();
+            if (listener.had_error) throw new Exception();
+            _ast = ast_tree;
+
+            var lexer = new AstLexer(null);
+            var parser = new AstParserParser(new CommonTokenStream(lexer));
+            ParseTreePatternMatcher ptpm = new ParseTreePatternMatcher(lexer, parser);
+            var re = ptpm.Compile(pat, AstParserParser.RULE_node);
+            var c = ast_tree.GetChild(0);
+            var b = re.Matches(c);
+            System.Console.WriteLine(b);
+        }
 
         public void RunTool(string ast_file, string spec_file, bool keep_file, string expression,
             string template_directory, string output_file, bool debug_information)
@@ -56,6 +82,8 @@ namespace Engine
             {
                 ast_string = File.ReadAllText(ast_file);
             }
+
+            CC.Class1.Doit(new CPP14Parser(null), new CPP14Lexer(null), ast_string);
 
             var ast_stream = CharStreams.fromstring(ast_string);
             ITokenSource ast_lexer = new AstLexer(ast_stream);

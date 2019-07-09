@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using Antlr4.Runtime.Tree.Pattern;
+using C;
+using Runtime;
 
 namespace CSerializer
 {
@@ -70,7 +73,8 @@ namespace CSerializer
                 cparser.AddErrorListener(new CErrorListener());
                 var t = cparser.translationunit();
                 var sb = new StringBuilder();
-                Runtime.AstHelpers.ParenthesizedAST(sb, filename, t);
+                var ser = new Runtime.AstHelpers();
+                ser.ParenthesizedAST(sb, filename, t);
                 System.Console.WriteLine(sb.ToString());
             }
             if (r != null) r.Dispose();

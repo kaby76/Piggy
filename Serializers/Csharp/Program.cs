@@ -65,7 +65,8 @@ namespace CSharpSerializer
                 CSharpParser.Compilation_unitContext tree = parser.compilation_unit();
                 if (listener.had_error) return;
                 var sb = new StringBuilder();
-                Runtime.AstHelpers.ParenthesizedAST(sb, file_name, tree);
+                var ser = new Runtime.AstHelpers();
+                ser.ParenthesizedAST(sb, file_name, tree);
                 System.Console.Error.WriteLine(sb.ToString());
             }
             r.Dispose();

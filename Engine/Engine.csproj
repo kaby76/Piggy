@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Deserializers\C\C.csproj" />
     <ProjectReference Include="..\Graphs\Graphs.csproj" />
     <ProjectReference Include="..\Runtime\Runtime.csproj" />
     <ProjectReference Include="..\Symtab\Symtab.csproj" />

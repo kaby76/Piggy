@@ -10,9 +10,9 @@ namespace Runtime
 {
     public class AstHelpers
     {
-        private static int changed = 0;
-        private static bool first_time = true;
-        public static void ParenthesizedAST(StringBuilder sb, string file_name, IParseTree tree, int level = 0)
+        private int changed = 0;
+        private bool first_time = true;
+        public void ParenthesizedAST(StringBuilder sb, string file_name, IParseTree tree, int level = 0)
         {
             if (changed - level >= 0)
             {
