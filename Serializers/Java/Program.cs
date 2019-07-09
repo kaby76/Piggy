@@ -63,7 +63,7 @@ namespace JavaSerializer
                 if (listener.had_error) return;
                 var sb = new StringBuilder();
                 var ser = new Runtime.AstHelpers();
-                ser.ParenthesizedAST(sb, file_name, tree);
+                ser.ParenthesizedAST(sb, file_name, tree, tokens);
                 System.Console.WriteLine(sb.ToString());
             }
             r.Dispose();

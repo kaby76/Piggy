@@ -12,7 +12,8 @@ namespace Runtime
     {
         private int changed = 0;
         private bool first_time = true;
-        public void ParenthesizedAST(StringBuilder sb, string file_name, IParseTree tree, int level = 0)
+
+        private void StartLine(StringBuilder sb, string file_name, IParseTree tree, CommonTokenStream stream, int level = 0)
         {
             if (changed - level >= 0)
             {
@@ -27,12 +28,25 @@ namespace Runtime
             }
             changed = level;
             for (int j = 0; j < level; ++j) sb.Append("  ");
+        }
+        public void ParenthesizedAST(StringBuilder sb, string file_name, IParseTree tree, CommonTokenStream stream, int level = 0)
+        {
             // Antlr always names a non-terminal with first letter lowercase,
             // but renames it when creating the type in C#. So, remove the prefix,
             // lowercase the first letter, and remove the trailing "Context" part of
             // the name. Saves big time on output!
             if (tree as TerminalNodeImpl != null)
             {
+                TerminalNodeImpl tok = tree as TerminalNodeImpl;
+                Interval interval = tok.SourceInterval;
+                var inter = stream.GetHiddenTokensToLeft(tok.Symbol.TokenIndex);
+                if (inter != null)
+                    foreach (var t in inter)
+                    {
+                        StartLine(sb, file_name, tree, stream, level);
+                        sb.AppendLine("( HIDDEN text=\"" + t.Text.provide_escapes() + "\"");
+                    }
+                StartLine(sb, file_name, tree, stream, level);
                 sb.AppendLine("( TOKEN i=\"" + tree.SourceInterval.a 
                     + "\" t=\"" + tree.GetText().provide_escapes() + "\"");
             }
@@ -44,6 +58,7 @@ namespace Runtime
                 fixed_name = fixed_name.Substring(0, fixed_name.Length - "Context".Length);
                 fixed_name = fixed_name[0].ToString().ToLower()
                              + fixed_name.Substring(1);
+                StartLine(sb, file_name, tree, stream, level);
                 sb.Append("( " + fixed_name);
                 if (level == 0) sb.Append(" File=\""
                     + file_name
@@ -53,7 +68,7 @@ namespace Runtime
             for (int i = 0; i < tree.ChildCount; ++i)
             {
                 var c = tree.GetChild(i);
-                ParenthesizedAST(sb, file_name, c, level + 1);
+                ParenthesizedAST(sb, file_name, c, stream, level + 1);
             }
             if (level == 0)
             {

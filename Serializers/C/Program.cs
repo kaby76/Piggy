@@ -74,7 +74,7 @@ namespace CSerializer
                 var t = cparser.translationunit();
                 var sb = new StringBuilder();
                 var ser = new Runtime.AstHelpers();
-                ser.ParenthesizedAST(sb, filename, t);
+                ser.ParenthesizedAST(sb, filename, t, ctokens);
                 System.Console.WriteLine(sb.ToString());
             }
             if (r != null) r.Dispose();
