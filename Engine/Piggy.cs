@@ -83,7 +83,7 @@ namespace Engine
                 ast_string = File.ReadAllText(ast_file);
             }
 
-            CC.Class1.Doit(new CPP14Parser(null), new CPP14Lexer(null), ast_string);
+            var the_reconstructed_tree = C.Deserialize.ReconstructTree(new CPP14Parser(null), new CPP14Lexer(null), ast_string);
 
             var ast_stream = CharStreams.fromstring(ast_string);
             ITokenSource ast_lexer = new AstLexer(ast_stream);

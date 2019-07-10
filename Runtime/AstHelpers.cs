@@ -44,11 +44,11 @@ namespace Runtime
                     foreach (var t in inter)
                     {
                         StartLine(sb, file_name, tree, stream, level);
-                        sb.AppendLine("( HIDDEN text=\"" + t.Text.provide_escapes() + "\"");
+                        sb.AppendLine("( HIDDEN text=" + t.Text.provide_escapes());
                     }
                 StartLine(sb, file_name, tree, stream, level);
-                sb.AppendLine("( TOKEN i=\"" + tree.SourceInterval.a 
-                    + "\" t=\"" + tree.GetText().provide_escapes() + "\"");
+                sb.AppendLine("( TOKEN i=" + tree.SourceInterval.a 
+                    + " t=" + tree.GetText().provide_escapes());
             }
             else
             {

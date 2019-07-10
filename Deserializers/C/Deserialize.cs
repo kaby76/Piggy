@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using org.antlr.symtab;
 using Runtime;
 
-namespace CC
+namespace C
 {
-    public class Class1
+    public class Deserialize
     {
-        public static IParseTree Doit2(Parser grammar, Lexer lexer, IParseTree ast_tree, ParserRuleContext parent)
+        public static IParseTree ReconstructTreeAux(Parser grammar, Lexer lexer, IParseTree ast_tree, ParserRuleContext parent)
         {
             if (ast_tree == null)
                 return null;
@@ -54,7 +52,7 @@ namespace CC
                     for (int i = 0; i < ast_tree.ChildCount; ++i)
                     {
                         var c = ast_tree.GetChild(i);
-                        var eq = Doit2(grammar, lexer, c, x);
+                        var eq = ReconstructTreeAux(grammar, lexer, c, x);
                     }
                     return x;
                 }
@@ -72,7 +70,7 @@ namespace CC
             }
         }
 
-        public static void Doit(Parser grammar, Lexer lexer, string ast_string)
+        public static IParseTree ReconstructTree(Parser grammar, Lexer lexer, string ast_string)
         {
             ///////////////////////////////////////////////////////////////////
             // Parse as a parenthesized expression tree.
@@ -91,7 +89,8 @@ namespace CC
             // Convert parenthesized expression tree back into parse tree
             // of original grammar.
             ///////////////////////////////////////////////////////////////////
-            var reconstructed_tree = Doit2(grammar, lexer, ast_tree, null);
+            var reconstructed_tree = ReconstructTreeAux(grammar, lexer, ast_tree, null);
+            return reconstructed_tree;
         }
     }
 }
