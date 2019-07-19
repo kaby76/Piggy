@@ -77,7 +77,7 @@ namespace Engine
                 // add in ".*" between each item.
                 if (p as SpecParserParser.Simple_basicContext != null
                     || p as SpecParserParser.Kleene_star_basicContext != null
-                    || p as SpecParserParser.Continued_basicContext != null)
+                    )
                 {
                     var last = fragmentStack.Pop();
                     var first = true;
@@ -137,10 +137,8 @@ namespace Engine
                     var s_type = s.Type;
                     if (s.Type == SpecParserParser.OPEN_PAREN ||
                         s.Type == SpecParserParser.OPEN_KLEENE_STAR_PAREN ||
-                        s.Type == SpecParserParser.OPEN_VISIT ||
                         s.Type == SpecParserParser.CLOSE_PAREN ||
-                        s.Type == SpecParserParser.CLOSE_KLEENE_STAR_PAREN ||
-                        s.Type == SpecParserParser.CLOSE_VISIT)
+                        s.Type == SpecParserParser.CLOSE_KLEENE_STAR_PAREN)
                     {
                         var s1 = new State(_nfa);
                         var s2 = new State(_nfa);
