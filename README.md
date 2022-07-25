@@ -1,10 +1,6 @@
 # Piggy
 
-_NB: The master branch of Piggy is the development branch. I have rewritten a lot since the last release on 2/2019.
-The parser was rewritten as a backtracking NFA recognizer.
-The Clang dependency is being removed and replaced with Antlr4-based parsers for C.
-There are serializers for Java and C#, and I will be adding others.
-The templates will need to be rewritten to reflect the new grammars._
+_NB: This project is no longer supported. [trpiggy](https://github.com/kaby76/Domemtech.Trash/tree/main/trpiggy) is a new command-line tool for parse/ast tree manipulations, based on expressions using xpath._
 
 Welcome to Piggy. This free and open source software
 is an AST pattern matcher and template engine for ASTs. It is a powerful source-to-source
